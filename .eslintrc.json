@@ -1,0 +1,15 @@
+{
+  "extends": ["eslint-config-google"],
+  "parserOptions": {
+     "ecmaVersion": 2017
+   },
+   "rules":{
+     "require-jsdoc":0,
+     "max-len": ["error", { "code": 120 }],
+     "quotes": ["error", "double"],
+     "prefer-rest-params":0,
+     "no-unused-vars":0,
+     "linebreak-style":0,
+     "guard-for-in":0
+   }
+}
