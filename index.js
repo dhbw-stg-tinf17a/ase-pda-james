@@ -1,42 +1,46 @@
 const mongoClient = require("mongodb").MongoClient;
 const express = require("express");
-const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
 const app = express();
+const axios = require("axios");
 const router = new express.Router();
-const cors = require("cors");
+const Telegraf = require("telegraf");
 require("dotenv").config();
 
 let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
 const mongoUrl = "mongodb://localhost:27017";
 
-// "plugins" for express
-app.use(cors());
-app.use(cookieParser());
-app.use(bodyParser.json({extended: true}));
-
-// app.use(function(req, res, next) {
-//   res.header("Access-Control-Allow-Origin", req.headers.origin);
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//   next();
-// });
-
-// import necessary modules
 
 mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
   if (err) {
     console.log(err);
   } else {
-    db = con.db("survey");
+    // MongoDB
+    db = con.db("student_pda");
     connection = con;
     console.log("Connected with MongoDB!");
 
-    const authManager = require("./app/auth.js")(app, db);
-    // require("./app/restExample.js")(app, authManager, db);
-
+    // REST-API
+    require("./app/rest.js")(app, db);
     app.listen(8080, function() {
       console.log("API listening on port 8080!");
+    });
+
+    // TELEGRAM
+    const bot = new Telegraf(process.env.BOT_TOKEN);
+    const usecases = [];
+    usecases.push(require("./app/usecases/uniNotifier.js")().onUpdate);
+    usecases.push(require("./app/usecases/tasks.js")().onUpdate);
+    usecases.push(require("./app/usecases/sendAbsent.js")().onUpdate);
+    usecases.push(require("./app/usecases/books.js")().onUpdate);
+    usecases.push(require("./app/usecases/meals.js")().onUpdate);
+    bot.startPolling();
+
+    // give every usecase a chance to say something
+    bot.use((ctx)=>{
+      usecases.forEach((usecase)=>{
+        usecase(ctx);
+      });
     });
   }
 });
