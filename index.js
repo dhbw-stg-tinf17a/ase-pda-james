@@ -1,12 +1,8 @@
 const mongoClient = require("mongodb").MongoClient;
 const express = require("express");
-const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
 const app = express();
 const axios = require("axios");
 const router = new express.Router();
-const cors = require("cors");
-const ngrok = require("ngrok");
 const Telegraf = require("telegraf");
 require("dotenv").config();
 
@@ -14,10 +10,6 @@ let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
 const mongoUrl = "mongodb://localhost:27017";
 
-// "plugins" for express
-app.use(cors());
-app.use(cookieParser());
-app.use(bodyParser.json({extended: true}));
 
 mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
   if (err) {
