@@ -7,7 +7,7 @@ module.exports = function () {
 
             gmaps.getDirections("Stuttgart DHBW Rotebühlplatz", "Gerber Stuttgart")
                 .then(data => {
-                    // console.log(data)
+                    // console.log(data)t
                     /*  console.log(data.routes[0].legs[0])
                       const distance = data.routes[0].legs[0].distance.text
                       const duration = data.routes[0].legs[0].duration.text
