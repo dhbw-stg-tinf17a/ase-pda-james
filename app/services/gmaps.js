@@ -2,7 +2,7 @@ const axios = require("axios");
 const htmlToText = require("html-to-text");
 
 /*
-USAGE EXAMPLE
+USAGE EXAMPLE getDirections
  -----------------------------------------------------------------------
 // import gmaps
 const gmaps = require("<path-here>services/gmaps");
@@ -11,13 +11,15 @@ gmaps.getDirections("Stuttgart DHBW Rotebühlplatz", "Gerber Stuttgart")
     .then((data) => {      console.log(data);    });
 
 //logs a directions string
+
+
+USAGE EXAMPLE getGoogleMapsRedirectionURL
+ -----------------------------------------------------------------------
+const gmaps = require("<path-here>services/gmaps");
+gmaps.getGoogleMapsRedirectionURL("Gerber Stuttgart");
  */
 
 const buildURL = (origin, destination, travelMode = "walking") => {
-  // encode input parameters for URL
-  origin = encodeURIComponent(origin);
-  destination = encodeURIComponent(destination);
-
   // build URL
   const url = new URL("https://maps.googleapis.com/maps/api/directions/json?");
   const params = new URLSearchParams({
@@ -25,7 +27,7 @@ const buildURL = (origin, destination, travelMode = "walking") => {
     destination: destination,
     mode: travelMode,
     language: "de-DE",
-    key: "AIzaSyBvztu8GeWZp8dop0iNmFTC7SMdwTvX_oM",
+    key: process.env.GOOGLE_API_KEY,
   });
 
   console.log("buildURL", url + params);
@@ -57,3 +59,16 @@ module.exports.getDirections = (origin, destination) => {
         });
   });
 };
+
+module.exports.getGoogleMapsRedirectionURL = (destination) => {
+  // build URL
+  const url = new URL("https://www.google.com/maps/search/?");
+  const params = new URLSearchParams({
+    api: 1,
+    query: destination,
+  });
+
+  console.log("buildURL", url + params);
+  return url + params;
+};
+
