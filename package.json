@@ -13,9 +13,11 @@
   "license": "no license",
   "dependencies": {
     "@hapi/joi": "^15.0.3",
+    "audio-conversion-queue": "^0.1.2",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "ibm-watson": "^5.4.0",
     "mongodb": "^3.2.7",
     "nodemailer": "^6.4.4",
     "telegraf": "^3.36.0"
