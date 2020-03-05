@@ -1,29 +1,21 @@
-const gplaces = require("../services/gplaces")();
-const library = require('../services/library')();
+const library = require('../services/springer')();
 
-module.exports = function() {
-  this.onUpdate = (ctx)=>{
+module.exports = function () {
+  this.onUpdate = (ctx) => {
     if (ctx.update.message.text === "books") {
       library.getByTitle('user experience')
         .then(res => {
           const data = res.data;
 
-          const collatedTitles = data.records.map(record => record.title).join(', ');
+          const collatedTitles = data.records.slice(5).map(record => record.title).join('\n');
 
-          const message = `The first ten articles are: ${collatedTitles}`;
+          const message = `<b>The first five articles are:</b> ${ '\n' + collatedTitles }`;
 
-          ctx.reply(message);
+          ctx.replyWithHTML(message);
         })
-        .catch(err => {
+        .catch(() => {
           ctx.reply("There has been an error, sorry");
         });
-    } else if (ctx.update.message.text == "places") {
-      gplaces.getPlaceById(3).then((answer)=>{
-        console.log(`answer is ${answer}`);
-        ctx.reply(answer);
-      }).catch((err)=>{
-        ctx.reply("There has been an error, sorry");
-      });
     }
   };
   return this;

@@ -12,10 +12,9 @@ module.exports = function() {
           api_key: process.env.SPRINGER_TOKEN,
         }
       })
-        .then(res => {
-          resolve(res);
-        }, err => {
-          reject(err);
+        .then(res => resolve(res), err => reject(err))
+        .catch(err => {
+          console.error(err);
         });
     });
   };
