@@ -1,14 +1,14 @@
-const mongoClient = require("mongodb").MongoClient;
-const express = require("express");
+const mongoClient = require('mongodb').MongoClient;
+const express = require('express');
 const app = express();
-const axios = require("axios");
-const router = new express.Router();
-const Telegraf = require("telegraf");
-require("dotenv").config();
+// const axios = require('axios');
+// const router = new express.Router();
+const Telegraf = require('telegraf');
+require('dotenv').config();
 
-let connection = undefined;
-// const mongoUrl = "mongodb://localhost:27017";
-const mongoUrl = "mongodb://localhost:27017";
+// let connection = undefined;
+// const mongoUrl = 'mongodb://localhost:27017';
+const mongoUrl = 'mongodb://localhost:27017';
 
 
 mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
@@ -16,24 +16,24 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
     console.log(err);
   } else {
     // MongoDB
-    db = con.db("student_pda");
+    db = con.db('student_pda');
     connection = con;
-    console.log("Connected with MongoDB!");
+    console.log('Connected with MongoDB!');
 
     // REST-API
-    require("./app/rest.js")(app, db);
+    require('./app/rest.js')(app, db);
     app.listen(8080, function() {
-      console.log("API listening on port 8080!");
+      console.log('API listening on port 8080!');
     });
 
     // TELEGRAM
     const bot = new Telegraf(process.env.BOT_TOKEN);
     const usecases = [];
-    usecases.push(require("./app/usecases/uniNotifier.js")().onUpdate);
-    usecases.push(require("./app/usecases/tasks.js")().onUpdate);
-    usecases.push(require("./app/usecases/sendAbsent.js")().onUpdate);
-    usecases.push(require("./app/usecases/books.js")().onUpdate);
-    usecases.push(require("./app/usecases/meals.js")().onUpdate);
+    usecases.push(require('./app/usecases/uniNotifier.js')().onUpdate);
+    usecases.push(require('./app/usecases/tasks.js')().onUpdate);
+    usecases.push(require('./app/usecases/sendAbsent.js')().onUpdate);
+    usecases.push(require('./app/usecases/books.js')().onUpdate);
+    usecases.push(require('./app/usecases/meals.js')().onUpdate);
     bot.startPolling();
 
     // give every usecase a chance to say something
