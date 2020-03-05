@@ -27,7 +27,7 @@ const buildURL = (origin, destination, travelMode = "walking") => {
     destination: destination,
     mode: travelMode,
     language: "de-DE",
-    key: "AIzaSyBvztu8GeWZp8dop0iNmFTC7SMdwTvX_oM",
+    key: process.env.GOOGLE_API_KEY,
   });
 
   console.log("buildURL", url + params);

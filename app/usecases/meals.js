@@ -10,6 +10,7 @@ module.exports = () => {
             console.log("return from getDirections", data);
             ctx.reply(data);
           });
+      ctx.reply(gmaps.getGoogleMapsRedirectionURL("Stuttgart DHBW Rotebühlplatz"));
     }
   };
   return this;
