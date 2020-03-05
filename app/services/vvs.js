@@ -29,8 +29,8 @@ module.exports = () => {
     return new Promise((resolve, reject) => {
       const trips = [];
 
-      let timeType = dep;
-      if (!isDepTime) timeType = arr;
+      let timeType = "dep";
+      if (!isDepTime) timeType = "arr";
 
       const apiUrl = "http://efastatic.vvs.de/vvs/XML_TRIP_REQUEST2?outputFormat=JSON&itdTime=" +
         time + "&locationServerActive=1&name_origin=" +
