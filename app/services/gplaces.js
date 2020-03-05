@@ -17,7 +17,7 @@ module.exports = function() {
           });
     });
   };
-  this.getPlaceByText = (query, optionalParameters)=>{
+  this.getPlaceByText = (query, optionalParameters)=>{ //with optionalParameters the search for places can be filtered e.g. only opened places. All possible parameters can be found in the wiki
     return new Promise((resolve, reject)=>{
       let url;
       if (optionalParameters) {
