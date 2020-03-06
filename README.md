@@ -10,10 +10,7 @@ Please read each step entirely before starting to execute the step - may save yo
 ## Installation
 1. Clone this project to your machine
 2. Execute `npm install` inside the repository root folder
-3. Create the file `.env` inside the repository root folder and add the following content to it:
-```
-BOT_TOKEN=<your-development-bot-token>
-```
+3. Create the file `.env` inside the repository root folder and add everything specified [here](https://github.com/dhbw-stg-tinf17a/ase-pda-project/wiki/Environment-Variables-needed).
 
 ## Linting
 In order to have consistent code style, this project will feature a `.eslintrc.json` file in the root directory. For most IDEs there will be a linting plugin that accepts this file and applies it to the project.
