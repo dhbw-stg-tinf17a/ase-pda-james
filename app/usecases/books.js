@@ -1,15 +1,19 @@
-const gplaces = require("../services/gplaces")();
-const watsonSpeech = require("../services/watsonSpeech")();
+const library = require("../services/springer")();
 
 module.exports = function() {
-  this.onUpdate = (ctx)=>{
-    if (ctx.update.message.text == "books") {
-      watsonSpeech.replyWithAudio(ctx, "Hello");
-    } else if (ctx.update.message.text == "places") {
-      gplaces.getPlaceById(3).then((answer)=>{
-        console.log(`answer is ${answer}`);
-        ctx.reply(answer);
-      }).catch((err)=>{
+  this.onUpdate = (ctx) => {
+    if (ctx.update.message.text === "books") {
+      library.getByTitle("user experience").then((res) => {
+        const data = res.data;
+
+        const collatedTitles = data.records.slice(5).map((record) => record.title).join("\n");
+
+        const message = `<b>The first five articles are:</b> ${ "\n" + collatedTitles }`;
+
+        ctx.reply("You searched for \"user experience\".").then(() => {
+          ctx.replyWithHTML(message);
+        });
+      }).catch(() => {
         ctx.reply("There has been an error, sorry");
       });
     }

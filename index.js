@@ -1,8 +1,6 @@
 const mongoClient = require("mongodb").MongoClient;
 const express = require("express");
 const app = express();
-const axios = require("axios");
-const router = new express.Router();
 const Telegraf = require("telegraf");
 require("dotenv").config();
 
@@ -11,7 +9,7 @@ let connection = undefined;
 const mongoUrl = "mongodb://localhost:27017";
 
 
-mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
+mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, con) {
   if (err) {
     console.log(err);
   } else {
@@ -22,7 +20,7 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
 
     // REST-API
     require("./app/rest.js")(app, db);
-    app.listen(8080, function() {
+    app.listen(8080, function () {
       console.log("API listening on port 8080!");
     });
 
@@ -37,8 +35,8 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
     bot.startPolling();
 
     // give every usecase a chance to say something
-    bot.use((ctx)=>{
-      usecases.forEach((usecase)=>{
+    bot.use((ctx) => {
+      usecases.forEach((usecase) => {
         usecase(ctx);
       });
     });
