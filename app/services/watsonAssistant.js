@@ -15,7 +15,7 @@ module.exports = function() {
       })
           .then((res) => {
             console.log(JSON.stringify(res, null, 2));
-            resolve(res.result);
+            resolve(res.result.session_id);
           })
           .catch((err) => {
             console.log(err);
