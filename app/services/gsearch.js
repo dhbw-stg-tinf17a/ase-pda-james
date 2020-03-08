@@ -14,14 +14,10 @@ module.exports.getSearchResults = (query) => {
     axios.get(url + params)
         .then((response) => {
           // handle success
-          console.log(response.data.items.link);
-          /* for (let i = 0; i < response.items.length; i++) {
-            const item = response.items[i];
-            // in production code, item.htmlTitle should have the HTML entities escaped.
-            document.getElementById("content").innerHTML += "<br>" + item.htmlTitle;
-          }*/
-          resolve(response.data.items.slice(0, 3).map((item)=>{
-            return item.title+"\n"+ item.link;
+          // return first 3 search results
+          // TODO: adapt to future service structure - may return formatted HTML String or JSON
+          resolve(response.data.items.slice(0, 3).map((item) => {
+            return item.title + "\n" + item.link;
           }).join("\n\n"));
         })
         .catch(function(error) {
