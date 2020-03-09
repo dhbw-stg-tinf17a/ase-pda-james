@@ -1,5 +1,5 @@
-const library = require("../services/springer");
-const calendar = require("../services/gcalendar")();
+const library = require("../services/springer")();
+const cal = require("../services/gcalendar");
 
 module.exports = function() {
   this.onUpdate = (ctx) => {
@@ -17,9 +17,17 @@ module.exports = function() {
       }).catch(() => {
         ctx.reply("There has been an error, sorry");
       });
-    } else if (ctx.update.message.text === "books event") {
-      calendar.getNextEvent().then((res) => {
-        ctx.reply(JSON.stringify(res));
+    } else if (ctx.update.message.text === "books events") {
+      cal.getNextEvent().then((res) => {
+        const eventsMessage =
+            res.map((event) => (`<b>${ event.title }</b> (${ event.start.date || event.start.dateTime } -` +
+                `${ event.end.date || event.end.dateTime })`),
+            ).join("\n\n");
+        ctx.reply("You're next 15 events are:\n").then(() => {
+          ctx.replyWithHTML(eventsMessage);
+        });
+      }).catch(() => {
+        ctx.reply("There has been an error, sorry");
       });
     }
   };
