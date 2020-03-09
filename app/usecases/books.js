@@ -4,7 +4,7 @@ const cal = require("../services/gcalendar");
 module.exports = function() {
   this.onUpdate = (ctx) => {
     if (ctx.update.message.text === "books") {
-      library.getByTitle("user experience").then((res) => {
+      library.getByTitle().then((res) => {
         const data = res.data;
 
         const collatedTitles = data.records.slice(5).map((record) => record.title).join("\n");
