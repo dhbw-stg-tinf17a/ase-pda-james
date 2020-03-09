@@ -1,5 +1,6 @@
-const library = require("../services/springer")();
+const library = require("../services/springer");
 const cal = require("../services/gcalendar");
+const watsonSpeech = require("../services/watsonSpeech")();
 
 module.exports = function() {
   this.onUpdate = (ctx) => {
@@ -28,6 +29,13 @@ module.exports = function() {
         });
       }).catch(() => {
         ctx.reply("There has been an error, sorry");
+      });
+    } else if (ctx.updateSubTypes.includes("voice")) {
+      watsonSpeech.s2t(ctx).then((transcription)=>{
+        ctx.reply(transcription);
+      }).catch((err)=>{
+        ctx.reply("There has been an error with the transcription of your voice message");
+        console.error(err);
       });
     }
   };
