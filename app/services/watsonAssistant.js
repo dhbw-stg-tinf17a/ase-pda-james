@@ -50,8 +50,8 @@ module.exports = function() {
         },
       })
           .then((res) => {
-            console.log(JSON.stringify(res, null, 2));
-            resolve(res.result);
+            console.log(JSON.stringify(res.result.output, null, 2));
+            resolve(res.result.output);
           })
           .catch((err) => {
             console.log(err);

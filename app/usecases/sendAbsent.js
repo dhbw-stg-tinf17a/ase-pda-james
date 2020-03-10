@@ -3,6 +3,8 @@ const mailer = require("../services/mailer")();
 const watsonSpeech = require("../services/watsonSpeech")();
 const watsonAssisstant = require("../services/watsonAssistant")();
 let sessionId;
+let absentTime;
+let absentReason;
 
 module.exports = function() {
   this.onUpdate = (ctx)=>{
@@ -13,34 +15,44 @@ module.exports = function() {
             watsonAssisstant.sendInput(sessionId, ctx.update.message.text)
                 .then((res) => {
                   assistantOutput = res;
-                  if (assistantOutput.output.intents[0].intent === "absent_welcome" &&
-                  assistantOutput.output.entities[0].value==="krank") {
-                    mailer.sendMail("melanie@stach24.com")
+                  console.log(assistantOutput);
+                  if (assistantOutput.generic[0].text === "absent_welcome") {
+                    ctx.reply("Warum gehst du nicht in die Uni?");
+                  } else if (assistantOutput.generic[0].text === "absent_reason_else") {
+                    ctx.reply("Wie lange wirst du nicht in die Uni kommen?");
+                  } else if (assistantOutput.generic[0].text === "absent_time") {
+                    ctx.reply("Ok");
+                    mailer.sendMail("jamesaseprojekt@gmail.com")
                         .then((answer)=>{
                           console.log(`answer is ${answer}`);
-                          ctx.reply("Gute Besserung! Ich habe ein Mail an alle Dozenten geschickt");
+                          ctx.reply("Ich habe nun ein Mail an das Sekretariat geschickt. Viel Erfolg");
                         })
                         .catch((err)=>{
                           ctx.reply("There has been an error, sorry");
                           console.log(`answer is ${err}`);
                         });
-                    if (assistantOutput.output.intents[0].intent === "absent_recommend") {
-                      gplaces.getPlaceByText("Apotheke")
-                          .then((answer)=>{
-                            console.log(`answer is ${answer}`);
-                            ctx.reply(answer.results[0].name);
-                          })
-                          .catch((err)=>{
-                            ctx.reply("There has been an error, sorry");
-                            console.log(`answer is ${err}`);
-                          });
-                    }
-                  } else if (assistantOutput.output.intents[0].intent === "absent_welcome" &&
-                  assistantOutput.output.entities[0].value==="interview") {
-                    ctx.reply("Wie lange wirst du nicht in die Uni kommen?");
-                  } else if (assistantOutput.output.intents[0].intent === "absent_welcome") {
-                    // watsonSpeech.replyWithAudio(ctx, "Warum gehst du nicht in die Uni?");
-                    ctx.reply("Warum gehst du nicht in die Uni?");
+                  } else if (assistantOutput.generic[0].text === "absent_reason_sick") {
+                    ctx.reply("Das tut mir leid. Gute Besserung");
+                    mailer.sendMail("jamesaseprojekt@gmail.com")
+                        .then((answer)=>{
+                          console.log(`answer is ${answer}`);
+                          ctx.reply("Ich habe nun eine Mail an das Sektretariat geschickt");
+                        })
+                        .catch((err)=>{
+                          ctx.reply("There has been an error, sorry");
+                          console.log(`answer is ${err}`);
+                        });
+
+                    gplaces.getPlaceByText("Apotheke")
+                        .then((answer)=>{
+                          console.log(`answer is ${answer}`);
+                          ctx.reply("Wenn du Medizin brauchst kannst du zu diesen Apotheken in deiner Nähe gehen" +
+                          answer.results[0].name);
+                        })
+                        .catch((err)=>{
+                          ctx.reply("There has been an error, sorry");
+                          console.log(`answer is ${err}`);
+                        });
                   }
                 })
                 .catch((err) => {
