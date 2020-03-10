@@ -1,4 +1,4 @@
-const library = require("../services/springer")();
+const library = require("../services/springer");
 const cal = require("../services/gcalendar");
 
 module.exports = function() {
