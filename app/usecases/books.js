@@ -18,7 +18,7 @@ module.exports = function() {
         ctx.reply("There has been an error, sorry");
       });
     } else if (ctx.update.message.text === "books events") {
-      cal.getNextEvent().then((res) => {
+      cal.getNextEvents().then((res) => {
         const eventsMessage =
             res.map((event) => (`<b>${ event.title }</b> (${ event.start.date || event.start.dateTime } -` +
                 `${ event.end.date || event.end.dateTime })`),
@@ -28,6 +28,18 @@ module.exports = function() {
         });
       }).catch(() => {
         ctx.reply("There has been an error, sorry");
+      });
+    } else if (ctx.update.message.text === "books freebusy") {
+      cal.getFreeBusy("2020-03-10T00:00:00+01:00",
+          "2020-03-20T00:00:00+01:00",
+          "1nc6dpksqqc9pk2jg85f0hd5hkn8ups1@import.calendar.google.com").then((calendars) => {
+        if (calendars) {
+          ctx.reply("busy found");
+        } else {
+          ctx.reply("no busy found");
+        }
+      }).catch((err) => {
+        ctx.reply("error occurred");
       });
     }
   };
