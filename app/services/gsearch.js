@@ -13,6 +13,7 @@ module.exports.getSearchResults = (query) => {
     });
     axios.get(url + params)
         .then((response) => {
+          console.error(url + params);
           // handle success
           // return first 3 search results
           // TODO: adapt to future service structure - may return formatted HTML String or JSON
