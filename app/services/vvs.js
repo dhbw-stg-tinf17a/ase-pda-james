@@ -152,8 +152,36 @@ module.exports = () => {
       };
 
       axios.get(apiUrl, apiParams).then((res) => {
-        console.log(res.data);
-        resolve(res.data);
+        const tripsRes = res.data.trips;
+        const trips = [];
+
+        tripsRes.forEach((trip) => {
+          const legs = [];
+          trip.legs.forEach((leg) => {
+            legs.push({
+              start: {
+                stopName: leg.points[0].name,
+                platform: leg.points[0].platformName,
+                date: leg.points[0].dateTime.date,
+                time: leg.points[0].dateTime.time,
+              },
+              stop: {
+                stopName: leg.points[1].name,
+                platform: leg.points[1].platformName,
+                date: leg.points[1].dateTime.date,
+                time: leg.points[1].dateTime.time,
+              },
+              mode: {
+                type: leg.mode.product,
+                code: leg.mode.symbol,
+                destination: leg.mode.destination,
+              },
+            });
+          });
+          trips.push(legs);
+        });
+
+        console.log(trips[0]);
       });
     });
   };

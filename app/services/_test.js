@@ -2,11 +2,13 @@ res = {
     legs: [{
         start: {
             stop_name:
+            platform:
             time:
             date:
         }
         end: {
-            stop_name
+            stop_name:
+            platform:
             time:
             date:
         }
