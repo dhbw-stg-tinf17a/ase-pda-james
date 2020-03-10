@@ -19,6 +19,48 @@ function VvsUnresolvableKeywordError(message, keyword) {
   return error;
 }
 
+function dateConverter(date) {
+  console.log("here");
+  const apiYear = date.getFullYear();
+  const apiMonth = () => {
+    const monthAsString = (date.getMonth() + 1).toString();
+    if (monthAsString.length == 1) {
+      return `0${monthAsString}`;
+    }
+    return monthAsString;
+  };
+  const apiDay = () => {
+    const dayAsString = date.getDate().toString();
+    if (dayAsString.length == 1) {
+      return `0${dayAsString}`;
+    }
+    return dayAsString;
+  };
+  return `${apiYear}${apiMonth()}${apiDay()}`;
+}
+
+function timeConverter(date) {
+  const apiHours = () => {
+    console.log("here");
+    const hourAsString = date.getHours().toString();
+    if (hourAsString.length == 1) {
+      return `0${hourAsString}`;
+    }
+    return hourAsString;
+  };
+
+  const apiMinutes = () => {
+    console.log("here");
+    const minutesAsString = date.getMinutes().toString();
+    if (minutesAsString.length == 1) {
+      return `0${minutesAsString}`;
+    }
+    return minutesAsString;
+  };
+
+  return `${apiHours()}${apiMinutes()}`;
+}
+
 module.exports = () => {
   this.getStopByKeyword = (key) => {
     return new Promise((resolve, reject) => {
@@ -87,33 +129,31 @@ module.exports = () => {
 
   this.getTrip = (tripParams) => {
     return new Promise((resolve, reject) => {
-      const trips = [];
-
-      let timeType = "dep";
-      if (!tripParams.isDepTime) timeType = "arr";
-
       const apiUrl = "http://efastatic.vvs.de/vvs/XML_TRIP_REQUEST2";
 
+      if (typeof tripParams.date == "undefined") {
+        tripParams.date = new Date();
+      }
+
+      let timeType = "dep";
+      if (tripParams.isArrTime) timeType = "arr";
+
       const apiParams = {
-        outputFormat: "JSON",
-        name_origin: tripParams.originId,
-        name_destination: tripParams.destinationId,
-        itdTime: tripParams.time,
-        itdDate: tripParams.date,
-        itdTripDateTimeDepArr: timeType,
+        params: {
+          outputFormat: "JSON",
+          name_origin: tripParams.originId,
+          type_origin: "stopID",
+          name_destination: tripParams.destinationId,
+          type_destination: "stopID",
+          itdDate: dateConverter(tripParams.date),
+          itdTime: timeConverter(tripParams.date),
+          itdTripDateTimeDepArr: timeType,
+        },
       };
 
-      axios.get(apiUrl, apiParams).then((res) =>{
-        if (res.status == 200) {
-          console.log(JSON.stringify(res.data));
-          res.data.trips.forEach((trip) => {
-            trips.push(trip);
-          });
-          console.log("Number of trips found: " + trips.length);
-          resolve(trips);
-        } else {
-          reject(new Error("API Error"));
-        }
+      axios.get(apiUrl, apiParams).then((res) => {
+        console.log(res.data);
+        resolve(res.data);
       });
     });
   };
