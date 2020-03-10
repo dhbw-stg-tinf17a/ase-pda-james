@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = function() {
   this.getPlaceById = (id)=>{
     return new Promise((resolve, reject)=>{
-      axios.get("https://maps.googleapis.com/maps/api/place/details/json?placeid=" +
+      axios.get("https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
       id + "&key=" + process.env.GOOGLE_PLACES_KEY)
           .then(function(response) {
             if (response.status == 200) {
