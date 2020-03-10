@@ -1,6 +1,6 @@
 const axios = require("axios");
 const htmlToText = require("html-to-text");
-
+require("dotenv").config({path: __dirname + "./../../.env"});
 /*
 USAGE EXAMPLE getDirections
  -----------------------------------------------------------------------

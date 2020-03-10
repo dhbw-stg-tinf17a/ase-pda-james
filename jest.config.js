@@ -1,6 +1,9 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
+// fix for: .env not loaded in jest tests
+require("dotenv").config();
+
 module.exports = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
@@ -178,7 +181,8 @@ module.exports = {
   // unmockedModulePathPatterns: undefined,
 
   // Indicates whether each individual test should be reported during the run
-  // verbose: undefined,
+  // fix: to have console logs in jest tests
+  verbose: false,
 
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
