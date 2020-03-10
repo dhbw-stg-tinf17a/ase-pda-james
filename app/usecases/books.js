@@ -54,7 +54,7 @@ module.exports = function() {
 
       cal.createEvent(testEvent).then((createdEvent) => {
         if (createdEvent !== {}) {
-          ctx.reply(`The event ${createdEvent.data.summary} was created successfully!`);
+          ctx.reply(`The event ${createdEvent.summary} was created successfully!`);
         } else {
           ctx.reply("Sorry, no event was created.");
         }

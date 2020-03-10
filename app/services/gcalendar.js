@@ -115,8 +115,7 @@ const createEvent = (event) => {
         resource: event,
       });
     }).then((res) => {
-      console.log(res);
-      resolve(res);
+      resolve(res.data);
     }).catch((err) => reject(err));
   });
 };
