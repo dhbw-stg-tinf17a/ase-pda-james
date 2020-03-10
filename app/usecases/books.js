@@ -41,6 +41,26 @@ module.exports = function() {
       }).catch((err) => {
         ctx.reply("error occurred");
       });
+    } else if (ctx.update.message.text === "books newevent") {
+      const testEvent = {
+        summary: "Test from James",
+        start: {
+          dateTime: "2020-03-15T10:00:00+01:00",
+        },
+        end: {
+          dateTime: "2020-03-15T10:00:00+01:00",
+        },
+      };
+
+      cal.createEvent(testEvent).then((createdEvent) => {
+        if (createdEvent !== {}) {
+          ctx.reply(`The event ${createdEvent.data.summary} was created successfully!`);
+        } else {
+          ctx.reply("Sorry, no event was created.");
+        }
+      }).catch((err) => {
+        ctx.reply("Sorry, an error occurred!");
+      });
     }
   };
   return this;

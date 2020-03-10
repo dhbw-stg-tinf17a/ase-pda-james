@@ -29,6 +29,9 @@ async function authenticate(scopes) {
       access_type: "offline",
       scope: scopes.join(" "),
     });
+
+    console.log("authorizeUrl", authorizeUrl);
+
     const server = http
         .createServer(async (req, res) => {
           try {
@@ -67,7 +70,6 @@ const getNextEvents = () => {
         orderBy: "startTime",
       }).then((res) => {
         const items = res.data.items.map(({summary, start, end}) => ({title: summary, start, end}));
-        console.log(items);
         resolve(items);
       }).catch((error) => {
         reject(error);
@@ -82,7 +84,7 @@ const getFreeBusy = (timeMin, timeMax, lectureCalendarId) => {
     authenticate(scopes).then((client) => {
       return google.calendar({version: "v3", auth: client});
     }).then((calendar) => {
-      return calendar.freebusy.query( {
+      return calendar.freebusy.query({
         requestBody: {
           timeMin,
           timeMax,
@@ -101,4 +103,22 @@ const getFreeBusy = (timeMin, timeMax, lectureCalendarId) => {
   });
 };
 
-module.exports = {getNextEvents, getFreeBusy};
+const createEvent = (event) => {
+  return new Promise((resolve, reject) => {
+    const scopes = ["https://www.googleapis.com/auth/calendar.events"];
+
+    authenticate(scopes).then((client) => {
+      return google.calendar({version: "v3", auth: client});
+    }).then((calendar) => {
+      return calendar.events.insert({
+        calendarId: "primary",
+        resource: event,
+      });
+    }).then((res) => {
+      console.log(res);
+      resolve(res);
+    }).catch((err) => reject(err));
+  });
+};
+
+module.exports = {getNextEvents, getFreeBusy, createEvent};
