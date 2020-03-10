@@ -17,7 +17,7 @@ module.exports = function() {
       const synthesizeParams = {
         text,
         accept: "audio/mp3",
-        voice: "en-US_AllisonVoice",
+        voice: "de-DE_DieterV3Voice",
       };
       textToSpeech.synthesize(synthesizeParams).then((response)=>{
         const audioStream = response.result;
@@ -37,7 +37,7 @@ module.exports = function() {
       });
     }).catch((err)=>{
       console.error(err);
-      ctx.reply("there has been an error smh");
+      ctx.reply("there has been an error with text to speech");
     });
   };
 
