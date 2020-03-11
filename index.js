@@ -9,7 +9,7 @@ let connection = undefined;
 const mongoUrl = "mongodb://localhost:27017";
 
 
-mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, con) {
+mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
   if (err) {
     console.log(err);
   } else {
@@ -20,7 +20,7 @@ mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, con) {
 
     // REST-API
     require("./app/rest.js")(app, db);
-    app.listen(8080, function () {
+    app.listen(8080, function() {
       console.log("API listening on port 8080!");
     });
 
@@ -28,7 +28,7 @@ mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, con) {
     const bot = new Telegraf(process.env.BOT_TOKEN);
     const usecases = [];
     usecases.push(require("./app/usecases/uniNotifier.js")().onUpdate);
-    usecases.push(require("./app/usecases/tasks.js")().onUpdate);
+    usecases.push(require("./app/usecases/tasks.js")(db).onUpdate);
     usecases.push(require("./app/usecases/sendAbsent.js")().onUpdate);
     usecases.push(require("./app/usecases/books.js")().onUpdate);
     usecases.push(require("./app/usecases/meals.js")().onUpdate);
