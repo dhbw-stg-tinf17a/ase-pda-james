@@ -32,7 +32,7 @@ module.exports = function() {
     } else if (ctx.update.message.text === "books freebusy") {
       cal.getFreeBusy("2020-03-10T00:00:00+01:00",
           "2020-03-20T00:00:00+01:00",
-          "1nc6dpksqqc9pk2jg85f0hd5hkn8ups1@import.calendar.google.com").then((calendars) => {
+          process.env.CALENDAR_ID).then((calendars) => {
         if (calendars) {
           ctx.reply("busy found");
         } else {
