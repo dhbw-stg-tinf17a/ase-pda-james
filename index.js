@@ -19,7 +19,6 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
     console.log("Connected with MongoDB!");
 
     // REST-API
-    require("./app/rest.js")(app, db);
     app.listen(8080, function() {
       console.log("API listening on port 8080!");
     });
@@ -33,6 +32,8 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
     usecases.push(require("./app/usecases/books.js")().onUpdate);
     usecases.push(require("./app/usecases/meals.js")().onUpdate);
     bot.startPolling();
+
+    require("./app/rest.js")(app, db, bot);
 
     // give every usecase a chance to say something
     bot.use((ctx) => {
