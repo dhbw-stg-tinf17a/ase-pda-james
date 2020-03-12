@@ -1,8 +1,8 @@
 const gplaces = require("../services/gplaces")();
 const mailer = require("../services/mailer")();
 
-module.exports = function() {
-  this.onUpdate = (ctx)=>{
+module.exports = () => {
+  this.onUpdate = (ctx) => {
     if (ctx.update.message.text == "sick") {
       mailer.sendMail("melanie@stach24.com").then((answer)=>{
         console.log(`answer is ${answer}`);

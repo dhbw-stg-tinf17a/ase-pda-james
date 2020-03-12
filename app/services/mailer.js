@@ -1,7 +1,8 @@
 const nodemailer = require("nodemailer");
-module.exports = function() {
-  this.sendMail = (recipient) =>{
-    return new Promise((resolve, reject)=>{
+
+module.exports = () => {
+  this.sendMail = (recipient) => {
+    return new Promise((resolve, reject) => {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {

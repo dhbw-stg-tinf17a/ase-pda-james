@@ -2,9 +2,9 @@ const TextToSpeechV1 = require("ibm-watson/text-to-speech/v1");
 const {IamAuthenticator} = require("ibm-watson/auth");
 const fs = require("fs");
 
-module.exports = function() {
-  this.t2s = (text)=>{
-    return new Promise((resolve, reject)=>{
+module.exports = () => {
+  this.t2s = (text) => {
+    return new Promise((resolve, reject) => {
       const textToSpeech = new TextToSpeechV1({
         authenticator: new IamAuthenticator({
           apikey: process.env.WATSON_T2S,
@@ -16,21 +16,21 @@ module.exports = function() {
         accept: "audio/mp3",
         voice: "en-US_AllisonVoice",
       };
-      textToSpeech.synthesize(synthesizeParams).then((response)=>{
+      textToSpeech.synthesize(synthesizeParams).then((response) => {
         const audioStream = response.result;
         resolve(audioStream);
-      }).catch((err)=>{
+      }).catch((err) => {
         console.error(err);
         reject(err);
       });
     });
   };
   this.replyWithAudio = (ctx, text) => {
-    this.t2s(text).then((audioStream)=>{
-      ctx.replyWithAudio({source: audioStream}).catch((err)=>{
+    this.t2s(text).then((audioStream) => {
+      ctx.replyWithAudio({source: audioStream}).catch((err) => {
         console.error(err);
       });
-    }).catch((err)=>{
+    }).catch((err) => {
       console.error(err);
       ctx.reply("there has been an error smh");
     });

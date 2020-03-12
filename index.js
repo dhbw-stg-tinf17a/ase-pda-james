@@ -9,7 +9,7 @@ let connection = undefined;
 const mongoUrl = "mongodb://localhost:27017";
 
 
-mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, con) {
+mongoClient.connect(mongoUrl, {useNewUrlParser: true}, ((err, con) => {
   if (err) {
     console.log(err);
   } else {
@@ -20,9 +20,9 @@ mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, con) {
 
     // REST-API
     require("./app/rest.js")(app, db);
-    app.listen(8080, function () {
+    app.listen(8080, (() => {
       console.log("API listening on port 8080!");
-    });
+    }));
 
     // TELEGRAM
     const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -41,4 +41,4 @@ mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, con) {
       });
     });
   }
-});
+}));

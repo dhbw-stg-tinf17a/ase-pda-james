@@ -1,5 +1,5 @@
-module.exports = function() {
-  this.onUpdate = (ctx)=>{
+module.exports = () => {
+  this.onUpdate = (ctx) => {
   };
   return this;
 };

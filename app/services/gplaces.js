@@ -1,8 +1,8 @@
 const axios = require("axios");
 
-module.exports = function() {
-  this.getPlaceById = (id)=>{
-    return new Promise((resolve, reject)=>{
+module.exports = () => {
+  this.getPlaceById = (id) => {
+    return new Promise((resolve, reject) => {
       axios.get("https://maps.googleapis.com/maps/api/place/details/json?placeid=" +
       id + "&key=" + process.env.GOOGLE_PLACES_KEY)
           .then(function(response) {
@@ -19,8 +19,8 @@ module.exports = function() {
   };
   // with optionalParameters the search for places can be filtered e.g. only opened places.
   // All possible parameters can be found in the wiki
-  this.getPlaceByText = (query, optionalParameters)=>{
-    return new Promise((resolve, reject)=>{
+  this.getPlaceByText = (query, optionalParameters) => {
+    return new Promise((resolve, reject) => {
       let url;
       if (optionalParameters) {
         url="https://maps.googleapis.com/maps/api/place/textsearch/json?query=" +
