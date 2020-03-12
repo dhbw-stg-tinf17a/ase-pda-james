@@ -19,7 +19,7 @@ function VvsUnresolvableKeywordError(message, keyword) {
   return error;
 }
 
-function dateConverter(date) {
+function apiDateConverter(date) {
   console.log("here");
   const apiYear = date.getFullYear();
   const apiMonth = () => {
@@ -39,7 +39,7 @@ function dateConverter(date) {
   return `${apiYear}${apiMonth()}${apiDay()}`;
 }
 
-function timeConverter(date) {
+function apiTimeConverter(date) {
   const apiHours = () => {
     console.log("here");
     const hourAsString = date.getHours().toString();
@@ -59,6 +59,20 @@ function timeConverter(date) {
   };
 
   return `${apiHours()}${apiMinutes()}`;
+}
+
+function resDateConverter(date, time) {
+  const dateComps = date.split(".");
+  const timeComps = time.split(":");
+
+  const year = dateComps[2];
+  const month = dateComps[1];
+  const day = dateComps[0];
+
+  const hours = timeComps[0];
+  const minutes = timeComps[1];
+
+  return new Date(year, month - 1, day, hours, minutes, 0, 0);
 }
 
 module.exports = () => {
@@ -145,8 +159,8 @@ module.exports = () => {
           type_origin: "stopID",
           name_destination: tripParams.destinationId,
           type_destination: "stopID",
-          itdDate: dateConverter(tripParams.date),
-          itdTime: timeConverter(tripParams.date),
+          itdDate: apiDateConverter(tripParams.date),
+          itdTime: apiTimeConverter(tripParams.date),
           itdTripDateTimeDepArr: timeType,
         },
       };
@@ -162,14 +176,12 @@ module.exports = () => {
               start: {
                 stopName: leg.points[0].name,
                 platform: leg.points[0].platformName,
-                date: leg.points[0].dateTime.date,
-                time: leg.points[0].dateTime.time,
+                date: resDateConverter(leg.points[0].dateTime.date, leg.points[0].dateTime.time),
               },
-              stop: {
+              end: {
                 stopName: leg.points[1].name,
                 platform: leg.points[1].platformName,
-                date: leg.points[1].dateTime.date,
-                time: leg.points[1].dateTime.time,
+                date: resDateConverter(leg.points[1].dateTime.date, leg.points[1].dateTime.time),
               },
               mode: {
                 type: leg.mode.product,
@@ -178,10 +190,15 @@ module.exports = () => {
               },
             });
           });
-          trips.push(legs);
+          trips.push({
+            origin: legs[0].start.stopName,
+            destination: legs[legs.length - 1].end.stopName,
+            duration: (
+              (legs[legs.length - 1].end.date - legs[0].start.date) / 1000 / 60 / 60
+            ),
+            legs: legs,
+          });
         });
-
-        console.log(trips[0]);
       });
     });
   };
