@@ -1,5 +1,6 @@
 const library = require("../services/springer");
 const cal = require("../services/gcalendar");
+const watsonSpeech = require("../services/watsonSpeech")();
 
 module.exports = function() {
   this.onUpdate = (ctx) => {
