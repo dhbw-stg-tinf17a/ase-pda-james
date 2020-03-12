@@ -12,7 +12,7 @@ module.exports = function() {
         authenticator: new IamAuthenticator({
           apikey: process.env.WATSON_T2S,
         }),
-        url: "https://api.eu-de.text-to-speech.watson.cloud.ibm.com/instances/82ee9d6c-387d-4215-893c-30e1920eb53c",
+        url: process.env.WATSON_T2S_URL,
       });
       const synthesizeParams = {
         text,
@@ -48,7 +48,7 @@ module.exports = function() {
         authenticator: new IamAuthenticator({
           apikey: process.env.WATSON_S2T,
         }),
-        url: "https://api.eu-de.speech-to-text.watson.cloud.ibm.com/instances/55f33aba-9e0b-49e0-84f8-b43e0ed1e958",
+        url: process.env.WATSON_S2T_URL,
       });
 
       const params = {
