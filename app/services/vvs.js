@@ -4,7 +4,7 @@ const errorPrefix = "[VVS Service Error] ";
 function VvsApiError(message, httpCode) {
   const error = new Error(errorPrefix + message);
   error.httpCode = httpCode;
-  return error
+  return error;
 }
 
 function VvsMultiplePointsError(message, points) {
@@ -16,6 +16,12 @@ function VvsMultiplePointsError(message, points) {
 function VvsUnresolvableKeywordError(message, keyword) {
   const error = new Error(errorPrefix + message);
   error.keyword = keyword;
+  return error;
+}
+
+function VvsInvalidParametersError(message, params) {
+  const error = new Error(errorPrefix + message);
+  error.params = params;
   return error;
 }
 
@@ -104,7 +110,7 @@ module.exports = () => {
         }
 
         // Query keyword not resolvable
-        if (typeof res === "undefined") {
+        if (typeof pointRes === "undefined") {
           VvsUnresolvableKeywordError.prototype = Object.create(Error.prototype);
           const err = new VvsUnresolvableKeywordError("The query is not valid. " +
             "Please provide a valid query or try again.", key);
@@ -169,6 +175,24 @@ module.exports = () => {
         const tripsRes = res.data.trips;
         const trips = [];
 
+        // --- ERROR HANDLING ------------------------------------------------------------------------------------------
+
+        // API response error
+        if (res.status != 200) {
+          VvsApiError.prototype = Object.create(Error.prototype);
+          const err = new VvsApiError("The API did not perform successfully.", res.status);
+
+          reject(err);
+        }
+
+        // Parameter Error
+        if (typeof tripRes == "undefined") {
+          VvsInvalidParametersError.prototype = Object.create(Error.prototype);
+          const err = new VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
+
+          reject(err);
+        }
+
         tripsRes.forEach((trip) => {
           const legs = [];
           trip.legs.forEach((leg) => {
@@ -200,6 +224,8 @@ module.exports = () => {
           });
         });
       });
+
+      resolve(trips);
     });
   };
 
