@@ -26,11 +26,11 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
     // TELEGRAM
     const bot = new Telegraf(process.env.BOT_TOKEN);
     const usecases = [];
-    usecases.push(require("./app/usecases/uniNotifier.js")().onUpdate);
+    // usecases.push(require("./app/usecases/uniNotifier.js")().onUpdate);
     usecases.push(require("./app/usecases/tasks.js")(db).onUpdate);
-    usecases.push(require("./app/usecases/sendAbsent.js")().onUpdate);
-    usecases.push(require("./app/usecases/books.js")().onUpdate);
-    usecases.push(require("./app/usecases/meals.js")().onUpdate);
+    // usecases.push(require("./app/usecases/sendAbsent.js")().onUpdate);
+    // usecases.push(require("./app/usecases/books.js")().onUpdate);
+    // usecases.push(require("./app/usecases/meals.js")().onUpdate);
     bot.startPolling();
 
     require("./app/rest.js")(app, db, bot);

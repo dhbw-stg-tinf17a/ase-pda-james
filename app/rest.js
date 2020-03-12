@@ -1,4 +1,5 @@
 const axios = require("axios");
+const todo = require("./services/todo")(db);
 
 module.exports = function(app, db, ctx) {
   const preferences = require("./services/preferences")(db);
@@ -14,7 +15,7 @@ module.exports = function(app, db, ctx) {
       preferences.set("ms_todo_token", authToken).then(()=>{
         preferences.get("chat_id_ms_todo").then((chatId)=>{
           res.send("Danke, bitte kehre zurück zu Telegram.");
-          ctx.telegram.sendMessage(chatId, "Die Integration mit Microsoft Todo wurde erfolgreich durchgeführt.");
+          todo.chooseFolder(ctx, chatId);
         }).catch((err)=>{
           res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
         });
