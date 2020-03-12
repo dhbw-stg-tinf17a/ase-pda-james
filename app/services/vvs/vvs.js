@@ -87,8 +87,8 @@ module.exports = () => {
           type_origin: "stopID",
           name_destination: tripParams.destinationId,
           type_destination: "stopID",
-          itdDate: conv.apiDateConverter(tripParams.date),
-          itdTime: conv.apiTimeConverter(tripParams.date),
+          itdDate: conv.apiDateConverter(tripParams.date, "date"),
+          itdTime: conv.apiDateConverter(tripParams.date, "time"),
           itdTripDateTimeDepArr: timeType,
         },
       };

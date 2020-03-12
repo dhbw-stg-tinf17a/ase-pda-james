@@ -1,42 +1,43 @@
-function apiDateConverter(date) {
-  console.log("here");
-  const apiYear = date.getFullYear();
-  const apiMonth = () => {
-    const monthAsString = (date.getMonth() + 1).toString();
-    if (monthAsString.length == 1) {
-      return `0${monthAsString}`;
-    }
-    return monthAsString;
-  };
-  const apiDay = () => {
-    const dayAsString = date.getDate().toString();
-    if (dayAsString.length == 1) {
-      return `0${dayAsString}`;
-    }
-    return dayAsString;
-  };
-  return `${apiYear}${apiMonth()}${apiDay()}`;
+function dateCompToString(date, type) {
+  let compAsString;
+  switch (type) {
+    case "month":
+      compAsString = (date.getMonth() + 1).toString();
+      break;
+    case "day":
+      compAsString = date.getDate().toString();
+      break;
+    case "hours":
+      compAsString = date.getHours().toString();
+      break;
+    case "minutes":
+      compAsString = date.getMinutes().toString();
+      break;
+    default:
+      return new Error("Date Component Type invalid");
+  }
+
+  if (compAsString.length == 1) {
+    return `0${compAsString}`;
+  }
+  return compAsString;
 }
 
-function apiTimeConverter(date) {
-  const apiHours = () => {
-    console.log("here");
-    const hourAsString = date.getHours().toString();
-    if (hourAsString.length == 1) {
-      return `0${hourAsString}`;
-    }
-    return hourAsString;
-  };
+function apiDateConverter(date, part) {
+  if (part == "date") {
+    const apiYear = date.getFullYear();
+    const apiMonth = dateCompToString(date, "month");
+    const apiDay = dateCompToString(date, "day");
 
-  const apiMinutes = () => {
-    console.log("here");
-    const minutesAsString = date.getMinutes().toString();
-    if (minutesAsString.length == 1) {
-      return `0${minutesAsString}`;
-    }
-    return minutesAsString;
-  };
-  return `${apiHours()}${apiMinutes()}`;
+    return `${apiYear}${apiMonth}${apiDay}`;
+  } else if (part == "time") {
+    const apiHours = dateCompToString(date, "hours");
+    const apiMinutes = dateCompToString(date, "minutes");
+
+    return `${apiHours}${apiMinutes}`;
+  }
+
+  return new Error("Date Part invalid");
 }
 
 function resDateConverter(date, time) {
@@ -53,4 +54,4 @@ function resDateConverter(date, time) {
   return new Date(year, month - 1, day, hours, minutes, 0, 0);
 }
 
-module.exports = {apiDateConverter, apiTimeConverter, resDateConverter};
+module.exports = {apiDateConverter, resDateConverter};
