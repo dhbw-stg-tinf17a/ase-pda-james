@@ -3,24 +3,14 @@ const axios = require("axios");
 module.exports = function(db) {
   const preferences = require("../services/preferences")(db);
 
-  this.getTodoList = () => {
+  this.getTodos = () => {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
         preferences.get("ms_todo_folder_id").then((folderId)=>{
-          axios.post(`https://outlook.office.com/api/v2.0/me/taskfolders('${folderId}')/tasks`, {
-            "Subject": "Shop for dinner",
-            "StartDateTime": {
-              "DateTime": "2016-04-23T18:00:00",
-              "TimeZone": "Pacific Standard Time",
-            },
-            "DueDateTime": {
-              "DateTime": "2020-04-25T13:00:00",
-              "TimeZone": "Pacific Standard Time",
-            },
-          }, {
+          axios.get(`https://outlook.office.com/api/v2.0/me/taskfolders('${folderId}')/tasks`, {
             headers: {"Authorization": `Bearer ${token}`},
           }).then((res)=>{
-            resolve(res);
+            resolve(res.data.value);
           }).catch((err)=>{
             reject(err);
           });

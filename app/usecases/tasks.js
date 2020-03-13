@@ -6,11 +6,17 @@ module.exports = function() {
   this.onUpdate = (ctx)=>{
     if (ctx.update.message && ctx.update.message.text === "todo-auth") {
       msTodo.authorizeUser(ctx);
-    } else if (ctx.update.message && ctx.update.message.text === "todo-post") {
-      msTodo.getTodoList().then((res)=>{
-        ctx.reply("done");
+    } else if (ctx.update.message && ctx.update.message.text === "todos") {
+      msTodo.getTodos().then((todos)=>{
+        let toSend = "Du hast folgende Aufgaben offen:\n";
+        if (todos.length != 0) {
+          todos.forEach((todo)=>{
+            toSend += `- ${todo.Subject}\n`;
+          });
+        }
+        ctx.reply(toSend);
       }).catch((err)=>{
-        console.error(err.response);
+        console.error(err);
       });
     } else if (ctx.updateType == "callback_query") {
       msTodo.getChosenFolderId(ctx.callbackQuery.data).then((folderId)=>{
