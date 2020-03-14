@@ -77,6 +77,7 @@ module.exports = function() {
                       Straße: street,
                       Postleitzahl: postalCode[0],
                       Stadt: addressArray[1].replace(/\s\d{5}\s/ig, ""),
+                      Name: result.name,
                     },
                 );
               });
