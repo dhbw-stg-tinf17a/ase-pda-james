@@ -65,10 +65,17 @@ module.exports = function() {
                 addressArray = result.formatted_address.split(",");
                 if (addressArray.length === 3) {
                   street=addressArray[0];
+                  city= addressArray[1];
                 } else { // check for element with street name and house number
-                  addressArray.forEach((element) =>{
-                    if (element.test(/[A-Z][a-z]{?}\sd{?},/)) {
-                      street=element;
+                  const streetRegEx= new RegExp(/\s*[A-Z][a-zßüäö]+\s?\d+/);
+                  console.log(addressArray);
+                  addressArray.forEach((element, index) =>{
+                    console.log(streetRegEx.test(element));
+                    console.log(element);
+                    if (streetRegEx.test(element)) {
+                      street = element.replace(/\s/, "");
+                      city = addressArray[index+1];
+                      console.log(street);
                     }
                   });
                 }
@@ -76,7 +83,7 @@ module.exports = function() {
                     {
                       Straße: street,
                       Postleitzahl: postalCode[0],
-                      Stadt: addressArray[1].replace(/\s\d{5}\s/ig, ""),
+                      Stadt: city.replace(/\s\d{5}\s/ig, ""),
                       Name: result.name,
                     },
                 );
