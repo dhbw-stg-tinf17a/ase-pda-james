@@ -1,7 +1,7 @@
-const library = require("../services/springer");
-const cal = require("../services/gcalendar");
-
 module.exports = function(db, oAuth2Client) {
+  const library = require("../services/springer");
+  const cal = require("../services/gcalendar")(db, oAuth2Client);
+
   this.onUpdate = (ctx) => {
     if (ctx.update.message.text === "books") {
       library.getByTitle().then((res) => {
@@ -18,7 +18,7 @@ module.exports = function(db, oAuth2Client) {
         ctx.reply("There has been an error, sorry");
       });
     } else if (ctx.update.message.text === "books events") {
-      cal.getNextEvents(oAuth2Client, db).then((res) => {
+      cal.getNextEvents().then((res) => {
         const eventsMessage =
             res.map((event) => (`<b>${ event.title }</b> (${ event.start.date || event.start.dateTime } -` +
                 `${ event.end.date || event.end.dateTime })`),
@@ -30,7 +30,7 @@ module.exports = function(db, oAuth2Client) {
         ctx.reply("There has been an error, sorry");
       });
     } else if (ctx.update.message.text === "books freebusy") {
-      cal.getFreeBusy(oAuth2Client, db, "2020-03-10T00:00:00+01:00",
+      cal.getFreeBusy("2020-03-10T00:00:00+01:00",
           "2020-03-20T00:00:00+01:00",
           process.env.CALENDAR_ID).then((calendars) => {
         if (calendars) {
@@ -52,7 +52,7 @@ module.exports = function(db, oAuth2Client) {
         },
       };
 
-      cal.createEvent(oAuth2Client, db, testEvent).then((createdEvent) => {
+      cal.createEvent(testEvent).then((createdEvent) => {
         if (createdEvent !== {}) {
           ctx.reply(`The event ${createdEvent.summary} was created successfully!`);
         } else {
@@ -62,7 +62,7 @@ module.exports = function(db, oAuth2Client) {
         ctx.reply("Sorry, an error occurred!");
       });
     } else if (ctx.update.message.text === "books auth") {
-      cal.authenticateUser(ctx, db, oAuth2Client);
+      cal.authenticateUser(ctx);
     }
   };
   return this;
