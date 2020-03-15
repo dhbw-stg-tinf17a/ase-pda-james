@@ -1,8 +1,8 @@
-const library = require("../services/springer");
-const cal = require("../services/gcalendar");
-const watsonSpeech = require("../services/watsonSpeech")();
+module.exports = function(db, oAuth2Client) {
+  const library = require("../services/springer");
+  const cal = require("../services/gcalendar")(db, oAuth2Client);
+  const watsonSpeech = require("../services/watsonSpeech")();
 
-module.exports = function() {
   this.onUpdate = (ctx) => {
     if (ctx.update.message.text === "books") {
       library.getByTitle().then((res) => {
@@ -62,6 +62,8 @@ module.exports = function() {
       }).catch((err) => {
         ctx.reply("Sorry, an error occurred!");
       });
+    } else if (ctx.update.message.text === "books auth") {
+      cal.authenticateUser(ctx);
     }
   };
   return this;
