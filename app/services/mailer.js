@@ -22,7 +22,7 @@ module.exports = function() {
         if (error) {
           reject(error);
         } else {
-          resolve("Email sent: " + info.response);
+          resolve("Die Email wurde an " + recipient +" gesendet");
         }
       });
     });
