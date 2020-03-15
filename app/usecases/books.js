@@ -1,6 +1,7 @@
 module.exports = function(db, oAuth2Client) {
   const library = require("../services/springer");
   const cal = require("../services/gcalendar")(db, oAuth2Client);
+  const watsonSpeech = require("../services/watsonSpeech")();
 
   this.onUpdate = (ctx) => {
     if (ctx.update.message.text === "books") {
