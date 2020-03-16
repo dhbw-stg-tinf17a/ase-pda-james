@@ -79,38 +79,35 @@ module.exports = function() {
       };
       const params = Object.assign(requiredParameters, optionalParameters);
 
-      axios.get(gPlacesSearchEndpoint, {params})
+      axios.get(gPlacesTextSearchEndpoint, {params})
           .then(function(response) {
             if (response.status == 200) {
-              let postalCode;
               let street;
-              let addressArray;
+              let postalCode;
+              let city;
+              const streetRegEx= new RegExp(/([A-zßäüö.]+[\s-]*[A-zßäüö.]+)+\s\d+/);
+              const cityRegEx= new RegExp(/(\d{5})\s((?:[A-zßäüö.]+[\s-]*[A-zßäüö.]+)*),/);
+              let streetRegExRes;
+              let cityRegExRes;
               const formatedAddress = [];
               response.data.results.forEach((result) => {
-                postalCode = result.formatted_address.match(/\d{5}/);
-                addressArray = result.formatted_address.split(",");
-                if (addressArray.length === 3) {
-                  street=addressArray[0];
-                  city= addressArray[1];
-                } else { // check for element with street name and house number
-                  const streetRegEx= new RegExp(/\s*[A-Z][a-zßüäö]+\s?\d+/);
-                  console.log(addressArray);
-                  addressArray.forEach((element, index) =>{
-                    console.log(streetRegEx.test(element));
-                    console.log(element);
-                    if (streetRegEx.test(element)) {
-                      street = element.replace(/\s/, "");
-                      city = addressArray[index+1];
-                      console.log(street);
-                    }
-                  });
+                streetRegExRes= streetRegEx.exec(result.formatted_address);
+                if (streetRegExRes) {
+                  street=streetRegExRes[0];
+                } else {
+                  streetRegExRes = result.formatted_address.split(",", 1);
+                  street=streetRegExRes[0];
                 }
+                cityRegExRes = cityRegEx.exec(result.formatted_address);
+                postalCode = cityRegExRes[1];
+                city= cityRegExRes[2];
                 formatedAddress.push(
                     {
-                      Straße: street,
-                      Postleitzahl: postalCode[0],
-                      Stadt: city.replace(/\s\d{5}\s/ig, ""),
-                      Name: result.name,
+                      street: street,
+                      originalStreetName: result.formatted_address,
+                      postalCode: postalCode,
+                      city: city,
+                      name: result.name,
                     },
                 );
               });

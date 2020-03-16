@@ -1,8 +1,8 @@
 const axios = require("axios");
+const gplaces = require("./services/gplaces")();
 
 module.exports = function(app, db, ctx, oAuth2Client) {
   const preferences = require("./services/preferences")(db);
-
   app.get("/mstodo", (req, res) => {
     const code = req.query.code;
     const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +
@@ -40,11 +40,17 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     }).then((chatId) => {
       console.log(chatId);
       res.send("Danke, bitte kehre zu Telegram zurück.");
-      ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.")
+      ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.");
     }).catch((err) => {
       if (err) {
         console.error(err);
       }
     });
+  });
+  app.get("/places", (req, res) => {
+    gplaces.getFormattedAddress("apotheke").then((result)=> {
+      res.send(result);
+    },
+    ).catch((err)=>res.status(500).send("There was an error!"));
   });
 };
