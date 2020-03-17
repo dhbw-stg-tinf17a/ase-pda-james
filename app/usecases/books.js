@@ -1,10 +1,11 @@
 module.exports = function(db, oAuth2Client) {
+  const Markup = require("telegraf/markup");
   const library = require("../services/springer");
   const cal = require("../services/gcalendar")(db, oAuth2Client);
-  const watsonSpeech = require("../services/watsonSpeech")();
+  const preferences = require("../services/preferences")(db);
 
   this.onUpdate = (ctx) => {
-    if (ctx.update.message.text === "books") {
+    if (ctx.update.message && ctx.update.message.text === "books") {
       library.getByTitle().then((res) => {
         const data = res.data;
 
@@ -18,7 +19,7 @@ module.exports = function(db, oAuth2Client) {
       }).catch(() => {
         ctx.reply("There has been an error, sorry");
       });
-    } else if (ctx.update.message.text === "books events") {
+    } else if (ctx.update.message && ctx.update.message.text === "books events") {
       cal.getNextEvents().then((res) => {
         const eventsMessage =
             res.map((event) => (`<b>${ event.title }</b> (${ event.start.date || event.start.dateTime } -` +
@@ -30,7 +31,7 @@ module.exports = function(db, oAuth2Client) {
       }).catch(() => {
         ctx.reply("There has been an error, sorry");
       });
-    } else if (ctx.update.message.text === "books freebusy") {
+    } else if (ctx.update.message && ctx.update.message.text === "books freebusy") {
       cal.getFreeBusy("2020-03-10T00:00:00+01:00",
           "2020-03-20T00:00:00+01:00",
           process.env.CALENDAR_ID).then((calendars) => {
@@ -42,7 +43,7 @@ module.exports = function(db, oAuth2Client) {
       }).catch((err) => {
         ctx.reply("error occurred");
       });
-    } else if (ctx.update.message.text === "books newevent") {
+    } else if (ctx.update.message && ctx.update.message.text === "books newevent") {
       const testEvent = {
         summary: "Test from James",
         start: {
@@ -62,21 +63,25 @@ module.exports = function(db, oAuth2Client) {
       }).catch((err) => {
         ctx.reply("Sorry, an error occurred!");
       });
-    } else if (ctx.update.message.text === "books auth") {
+    } else if (ctx.update.message && ctx.update.message.text === "books auth") {
       cal.authenticateUser(ctx);
-    } else if (ctx.update.message.text === "books cals") {
+    } else if (ctx.update.message && ctx.update.message.text === "books cals") {
       cal.getCalendars().then((cals) => {
-        const calendarNames = cals.map((resCal) => resCal.summary);
-        const keyboardButtons = [...calendarNames.map((name) => [{text: name}])];
+        const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, resCal.summary)]);
 
-        ctx.reply(cals, {
-          reply_markup: {
-            keyboard: keyboardButtons,
-            one_time_keyboard: true,
-          },
-        });
+        ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
       }).catch((err) => {
         ctx.reply("Sorry, an error occurred!");
+      });
+    } else if (ctx.updateType === "callback_query") {
+      cal.getCalendars().then((calendars) => {
+        const lectureCalendarId = calendars.filter((calendar) => ctx.callbackQuery.data === calendar.summary)[0].id;
+
+        return preferences.set("lecture_calendar_id", lectureCalendarId);
+      }).then(() => {
+        ctx.reply("Super, dann haben wir deinen Vorlesungskalender eingerichtet!");
+      }).catch((err) => {
+        ctx.reply("Da hat wohl etwas nicht funktioniert, sorry!");
       });
     }
   };

@@ -100,7 +100,7 @@ module.exports = function(db, oAuth2Client) {
       }).then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
-        return calendar.calendarList.list({});
+        return calendar.calendarList.list({showHidden: true});
       }).then((res) => {
         const items = res.data.items.map((item) => ({id: item.id, summary: item.summaryOverride || item.summary}));
         resolve(items);
