@@ -55,7 +55,7 @@ module.exports = function(db, oAuth2Client) {
 
       cal.createEvent(testEvent).then((createdEvent) => {
         if (createdEvent !== {}) {
-          ctx.reply(`The event ${createdEvent.summary} was created successfully!`);
+          ctx.reply(`The event ${ createdEvent.summary } was created successfully!`);
         } else {
           ctx.reply("Sorry, no event was created.");
         }
@@ -64,6 +64,20 @@ module.exports = function(db, oAuth2Client) {
       });
     } else if (ctx.update.message.text === "books auth") {
       cal.authenticateUser(ctx);
+    } else if (ctx.update.message.text === "books cals") {
+      cal.getCalendars().then((cals) => {
+        const calendarNames = cals.map((resCal) => resCal.summary);
+        const keyboardButtons = [...calendarNames.map((name) => [{text: name}])];
+
+        ctx.reply(cals, {
+          reply_markup: {
+            keyboard: keyboardButtons,
+            one_time_keyboard: true,
+          },
+        });
+      }).catch((err) => {
+        ctx.reply("Sorry, an error occurred!");
+      });
     }
   };
   return this;

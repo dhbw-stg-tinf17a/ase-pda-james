@@ -14,7 +14,7 @@ module.exports = function() {
         assistantId: process.env.WATSON_ASSISSTANT_ID,
       })
           .then((res) => {
-            console.log(JSON.stringify(res, null, 2));
+            // console.log(JSON.stringify(res, null, 2));
             resolve(res.result.session_id);
           })
           .catch((err) => {
@@ -30,7 +30,7 @@ module.exports = function() {
         sessionId: sessionId,
       })
           .then((res) => {
-            console.log(JSON.stringify(res, null, 2));
+            // console.log(JSON.stringify(res, null, 2));
             resolve(res);
           })
           .catch((err) => {
@@ -50,7 +50,7 @@ module.exports = function() {
         },
       })
           .then((res) => {
-            console.log(JSON.stringify(res.result.output, null, 2));
+            // console.log(JSON.stringify(res.result.output, null, 2));
             resolve(res.result.output);
           })
           .catch((err) => {
