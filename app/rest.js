@@ -40,7 +40,7 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     }).then((chatId) => {
       console.log(chatId);
       res.send("Danke, bitte kehre zu Telegram zurück.");
-      ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.")
+      ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.");
     }).catch((err) => {
       if (err) {
         console.error(err);
