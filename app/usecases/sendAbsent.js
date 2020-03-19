@@ -43,7 +43,9 @@ module.exports = function() {
                           console.log(`answer is ${err}`);
                         });
 
-                    gplaces.getPlacesByText("Apotheke")
+                    gplaces.getPlacesByText({
+                      query: "Apotheke",
+                    })
                         .then((answer)=>{
                           console.log(`answer is ${answer}`);
                           ctx.reply("Wenn du Medizin brauchst kannst du zu diesen Apotheken in deiner Nähe gehen" +

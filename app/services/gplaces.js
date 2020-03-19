@@ -24,19 +24,14 @@ module.exports = function() {
   };
   // with optionalParameters the search for places can be filtered e.g. only opened places.
   // All possible parameters can be found in the wiki
-  this.getPlacesByText = (query, type, location, radius, optionalParameters)=>{
+  this.getPlacesByText = (params)=>{
     return new Promise((resolve, reject)=>{
-      if (location) {
-        const requiredParameters= {
-          location: location,
-          radius: radius,
-          rankby: "distance",
-          keyword: query,
-          type: type,
-          key: process.env.GOOGLE_PLACES_KEY,
-        };
-        const params = Object.assign(requiredParameters, optionalParameters);
-
+      params.key = process.env.GOOGLE_PLACES_KEY;
+      if ("location" in params && params.location) {
+        if ("query" in params) {
+          params.keyword = params.query;
+          delete params.query;
+        }
         axios.get(gPlacesNearbySearchEndpoint, {params})
             .then(function(response) {
               if (response.status == 200) {
@@ -50,12 +45,6 @@ module.exports = function() {
               reject(new Error("Axios Error"));
             });
       } else {
-        const requiredParameters= {
-          query: query,
-          key: process.env.GOOGLE_PLACES_KEY,
-        };
-        const params = Object.assign(requiredParameters, optionalParameters);
-
         axios.get(gPlacesTextSearchEndpoint, {params})
             .then(function(response) {
               if (response.status == 200) {
