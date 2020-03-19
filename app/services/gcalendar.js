@@ -62,6 +62,8 @@ module.exports = function(db, oAuth2Client) {
           },
         });
       }).then((res) => {
+        console.log(res.data.calendars);
+        console.log(res.data.calendars.primary);
         resolve(res.data.calendars);
       }).catch((err) => {
         console.error(err);
@@ -85,6 +87,23 @@ module.exports = function(db, oAuth2Client) {
         });
       }).then((res) => {
         resolve(res.data);
+      }).catch((err) => reject(err));
+    });
+  };
+
+  this.getCalendars = () => {
+    return new Promise((resolve, reject) => {
+      preferences.get("google_auth_tokens").then((credentials) => {
+        oAuth2Client.credentials = JSON.parse(credentials);
+
+        return oAuth2Client;
+      }).then((client) => {
+        const calendar = google.calendar({version: "v3", auth: client});
+
+        return calendar.calendarList.list({showHidden: true});
+      }).then((res) => {
+        const items = res.data.items.map((item) => ({id: item.id, summary: item.summaryOverride || item.summary}));
+        resolve(items);
       }).catch((err) => reject(err));
     });
   };

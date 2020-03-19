@@ -19,7 +19,7 @@ const gmaps = require("<path-here>services/gmaps");
 gmaps.getGoogleMapsRedirectionURL("Gerber Stuttgart");
  */
 
-const buildURL = (origin, destination, travelMode = "walking") => {
+const buildURL = (origin, destination, travelMode) => {
   // build URL
   const url = new URL("https://maps.googleapis.com/maps/api/directions/json?");
   const params = new URLSearchParams({
@@ -34,10 +34,10 @@ const buildURL = (origin, destination, travelMode = "walking") => {
   return url + params;
 };
 
-
-module.exports.getDirections = (origin, destination) => {
+// travelMode :   driving | walking | transit | bicycling
+module.exports.getDirections = (origin, destination, travelMode = "walking") => {
   return new Promise((resolve, reject) => {
-    axios.get(buildURL(origin, destination))
+    axios.get(buildURL(origin, destination, travelMode))
         .then((response) => {
           // handle success
           const distance = response.data.routes[0].legs[0].distance.text;
@@ -49,8 +49,8 @@ module.exports.getDirections = (origin, destination) => {
             const htmlText = step.html_instructions;
             return htmlToText.fromString(htmlText);
           });
-          const string = distance + "\n" + duration + "\n" + steps.join("\n");
-          resolve(string);
+
+          resolve({distance: distance, duration: duration, steps: steps});
         })
         .catch(function(error) {
           // handle error
