@@ -93,7 +93,6 @@ module.exports = function() {
                 formatedAddress.push(
                     {
                       street: street,
-                      originalStreetName: result.formatted_address,
                       postalCode: postalCode,
                       city: city,
                       name: result.name,
