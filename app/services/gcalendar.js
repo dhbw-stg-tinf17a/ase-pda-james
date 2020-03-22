@@ -17,6 +17,36 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
+  this.getTimeUntilNextEvent = (calendarId = "primary") => {
+    return new Promise((resolve, reject) => {
+      preferences.get("google_auth_tokens").then((credentials) => {
+        oAuth2Client.credentials = JSON.parse(credentials);
+
+        return oAuth2Client;
+      }).then((client) => {
+        const calendar = google.calendar({version: "v3", auth: client});
+
+        return calendar.events.list({
+          calendarId,
+          timeMin: (new Date()).toISOString(),
+          maxResults: 1,
+          singleEvents: true,
+          orderBy: "startTime",
+        });
+      }).then((res) => {
+        const event = res.data.items[0];
+        const start = event.start.date ?
+            new Date(event.start.date) :
+            new Date(event.start.dateTime);
+
+        const timeUntil = Math.ceil((start.getTime() - (new Date()).getTime()) / 60000);
+        resolve(timeUntil);
+      }).catch((error) => {
+        reject(error);
+      });
+    });
+  };
+
   this.getNextEvents = () => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {

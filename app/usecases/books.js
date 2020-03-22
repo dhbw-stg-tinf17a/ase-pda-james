@@ -83,6 +83,10 @@ module.exports = function(db, oAuth2Client) {
       }).catch((err) => {
         ctx.reply("Da hat wohl etwas nicht funktioniert, sorry!");
       });
+    } else if (ctx.update.message && ctx.update.message.text === "books time") {
+      cal.getTimeUntilNextEvent().then((start) => {
+        ctx.reply(`Start time is ${start}.`);
+      });
     }
   };
   return this;
