@@ -32,10 +32,10 @@ module.exports = function(db, oAuth2Client) {
         ctx.reply("There has been an error, sorry");
       });
     } else if (ctx.update.message && ctx.update.message.text === "books freebusy") {
-      cal.getFreeBusy("2020-03-10T00:00:00+01:00",
+      cal.getBusySlotsByCalendarId("2020-03-10T00:00:00+01:00",
           "2020-03-20T00:00:00+01:00",
-          process.env.CALENDAR_ID).then((calendars) => {
-        if (calendars) {
+          process.env.CALENDAR_ID).then((busySlots) => {
+        if (busySlots) {
           ctx.reply("busy found");
         } else {
           ctx.reply("no busy found");

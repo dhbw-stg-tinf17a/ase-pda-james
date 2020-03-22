@@ -72,7 +72,7 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  this.getFreeBusy = (timeMin, timeMax, lectureCalendarId) => {
+  this.getBusySlotsByCalendarId = (timeMin, timeMax, calendarId) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
         oAuth2Client.credentials = JSON.parse(credentials);
@@ -86,17 +86,13 @@ module.exports = function(db, oAuth2Client) {
             timeMin,
             timeMax,
             items: [
-              {id: "primary"},
-              {id: lectureCalendarId},
+              {id: calendarId},
             ],
           },
         });
       }).then((res) => {
-        console.log(res.data.calendars);
-        console.log(res.data.calendars.primary);
-        resolve(res.data.calendars);
+        resolve(res.data.calendars[calendarId].busy);
       }).catch((err) => {
-        console.error(err);
         reject(err);
       });
     });
