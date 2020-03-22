@@ -102,6 +102,54 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
+  this.getStartOfFirstEvent = (timeMin, timeMax, lectureCalendarId) => {
+    return new Promise((resolve, reject) => {
+      preferences.get("google_auth_tokens").then((credentials) => {
+        oAuth2Client.credentials = JSON.parse(credentials);
+
+        return oAuth2Client;
+      }).then((client) => {
+        const calendar = google.calendar({version: "v3", auth: client});
+
+        return calendar.freebusy.query({
+          requestBody: {
+            timeMin,
+            timeMax,
+            items: [
+              {id: "primary"},
+              {id: lectureCalendarId},
+            ],
+          },
+        });
+      }).then((res) => {
+        // merge busy slots from all calendars into one array
+        const calendarKeys = Object.keys(res.data.calendars);
+        const allSlots = calendarKeys.map((key) => [...res.data.calendars[key].busy]).flat();
+
+        // custom sort function
+        const sortSlots = (a, b) => {
+          if ((new Date(a.start)).getTime() > (new Date(b.start)).getTime()) {
+            return 1;
+          } else if ((new Date(a.start)).getTime() < (new Date(b.start)).getTime()) {
+            return -1;
+          } else {
+            return 0;
+          }
+        };
+
+        // sort slots by start
+        allSlots.sort(sortSlots);
+
+        const startOfFirst = allSlots.length > 0 ? new Date(allSlots[0].start) : null;
+
+        resolve(startOfFirst);
+      }).catch((err) => {
+        console.error(err);
+        reject(err);
+      });
+    });
+  };
+
   this.createEvent = (event) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {

@@ -85,7 +85,19 @@ module.exports = function(db, oAuth2Client) {
       });
     } else if (ctx.update.message && ctx.update.message.text === "books time") {
       cal.getTimeUntilNextEvent().then((start) => {
-        ctx.reply(`Start time is ${start}.`);
+        ctx.reply(`Start time is ${ start }.`);
+      });
+    } else if (ctx.update.message && ctx.update.message.text === "books a") {
+      cal.getStartOfFirstEvent("2020-03-22T00:00:00+01:00",
+          "2020-03-22T01:00:00+01:00",
+          process.env.CALENDAR_ID).then((startOfFirst) => {
+        if (startOfFirst) {
+          ctx.reply(`start of first event: ${startOfFirst}`);
+        } else {
+          ctx.reply("none");
+        }
+      }).catch((err) => {
+        ctx.reply("error occurred");
       });
     }
   };
