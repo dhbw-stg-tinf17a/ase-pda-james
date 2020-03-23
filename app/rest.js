@@ -48,7 +48,7 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     });
   });
   app.get("/places", (req, res) => {
-    gplaces.getPlacesByText({location: "52.5200066,13.404954", rankby: "distance"}).then((result)=> {
+    gplaces.getPlaces({location: "52.5200066,13.404954", rankby: "distance"}).then((result)=> {
       res.send(result);
     },
     ).catch((err)=>res.status(500).send("There was an error!"));

@@ -24,7 +24,7 @@ module.exports = function() {
   };
   // with optionalParameters the search for places can be filtered e.g. only opened places.
   // All possible parameters can be found in the wiki
-  this.getPlacesByText = (params)=>{
+  this.getPlaces = (params)=>{
     return new Promise((resolve, reject)=>{
       params.key = process.env.GOOGLE_PLACES_KEY;
       if ("location" in params && params.location) {

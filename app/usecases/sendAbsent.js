@@ -43,7 +43,7 @@ module.exports = function() {
                           console.log(`answer is ${err}`);
                         });
 
-                    gplaces.getPlacesByText({
+                    gplaces.getPlaces({
                       query: "Apotheke",
                     })
                         .then((answer)=>{
