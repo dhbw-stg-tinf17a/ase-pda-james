@@ -1,8 +1,8 @@
 const axios = require("axios");
+const gplaces = require("./services/gplaces")();
 
 module.exports = function(app, db, ctx, oAuth2Client) {
   const preferences = require("./services/preferences")(db);
-
   app.get("/mstodo", (req, res) => {
     const code = req.query.code;
     const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +
@@ -46,5 +46,11 @@ module.exports = function(app, db, ctx, oAuth2Client) {
         console.error(err);
       }
     });
+  });
+  app.get("/places", (req, res) => {
+    gplaces.getPlaces({location: "52.5200066,13.404954", rankby: "distance"}).then((result)=> {
+      res.send(result);
+    },
+    ).catch((err)=>res.status(500).send("There was an error!"));
   });
 };

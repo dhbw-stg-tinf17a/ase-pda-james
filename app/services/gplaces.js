@@ -24,19 +24,14 @@ module.exports = function() {
   };
   // with optionalParameters the search for places can be filtered e.g. only opened places.
   // All possible parameters can be found in the wiki
-  this.getPlacesByText = (query, type, location, radius, optionalParameters)=>{
+  this.getPlaces = (params)=>{
     return new Promise((resolve, reject)=>{
-      if (location) {
-        const requiredParameters= {
-          location: location,
-          radius: radius,
-          rankby: "distance",
-          keyword: query,
-          type: type,
-          key: process.env.GOOGLE_PLACES_KEY,
-        };
-        const params = Object.assign(requiredParameters, optionalParameters);
-
+      params.key = process.env.GOOGLE_PLACES_KEY;
+      if ("location" in params && params.location) {
+        if ("query" in params) {
+          params.keyword = params.query;
+          delete params.query;
+        }
         axios.get(gPlacesNearbySearchEndpoint, {params})
             .then(function(response) {
               if (response.status == 200) {
@@ -50,12 +45,6 @@ module.exports = function() {
               reject(new Error("Axios Error"));
             });
       } else {
-        const requiredParameters= {
-          query: query,
-          key: process.env.GOOGLE_PLACES_KEY,
-        };
-        const params = Object.assign(requiredParameters, optionalParameters);
-
         axios.get(gPlacesTextSearchEndpoint, {params})
             .then(function(response) {
               if (response.status == 200) {
@@ -69,6 +58,56 @@ module.exports = function() {
               reject(new Error("Axios Error"));
             });
       }
+    });
+  };
+  this.getFormattedAddress = (query, optionalParameters)=>{
+    return new Promise((resolve, reject)=>{
+      const requiredParameters= {
+        query: query,
+        key: process.env.GOOGLE_PLACES_KEY,
+      };
+      const params = Object.assign(requiredParameters, optionalParameters);
+
+      axios.get(gPlacesTextSearchEndpoint, {params})
+          .then(function(response) {
+            if (response.status == 200) {
+              let street;
+              let postalCode;
+              let city;
+              const streetRegEx= new RegExp(/([A-zßäüö.]+[\s-]*[A-zßäüö.]+)+\s\d+/);
+              const cityRegEx= new RegExp(/(\d{5})\s((?:[A-zßäüö.]+[\s-]*[A-zßäüö.]+)*),/);
+              let streetRegExRes;
+              let cityRegExRes;
+              const formatedAddress = [];
+              response.data.results.forEach((result) => {
+                streetRegExRes= streetRegEx.exec(result.formatted_address);
+                if (streetRegExRes) {
+                  street=streetRegExRes[0];
+                } else {
+                  streetRegExRes = result.formatted_address.split(",", 1);
+                  street=streetRegExRes[0];
+                }
+                cityRegExRes = cityRegEx.exec(result.formatted_address);
+                postalCode = cityRegExRes[1];
+                city= cityRegExRes[2];
+                formatedAddress.push(
+                    {
+                      street: street,
+                      postalCode: postalCode,
+                      city: city,
+                      name: result.name,
+                    },
+                );
+              });
+              resolve(formatedAddress);
+            } else {
+              console.log(response.data);
+              reject(new Error("API Error"));
+            }
+          }).catch(function(error) {
+            console.log(error);
+            reject(new Error("Axios Error"));
+          });
     });
   };
   return this;
