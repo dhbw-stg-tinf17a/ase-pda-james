@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 module.exports = function() {
-  this.sendMail = (recipient) =>{
+  this.sendMail = (recipient, subject, text, htmlText) =>{
     return new Promise((resolve, reject)=>{
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -13,16 +13,16 @@ module.exports = function() {
       const mailOptions = {
         from: process.env.MAILER_USER,
         to: recipient,
-        subject: "Krankmeldung",
-        text: "Guten Tag, aufgrund von Krankheit kann ich heute leider nicht an Ihrer Vorlseung teilnehmen." +
-        "Mit freundlichen Grüßen",
+        subject: subject,
+        text: text,
+        html: htmlText,
       };
 
       transporter.sendMail(mailOptions, function(error, info) {
         if (error) {
           reject(error);
         } else {
-          resolve("Email sent: " + info.response);
+          resolve("Die Email wurde an " + recipient +" gesendet");
         }
       });
     });
