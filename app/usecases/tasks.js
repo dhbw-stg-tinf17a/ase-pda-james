@@ -4,14 +4,12 @@ module.exports = () => {
       const inlineKeyboardMarkup = {inline_keyboard: [[]]};
 
       const tasks = ["Antwort A", "Antwort B", "Antwort C"];
-      let i = 0;
-      tasks.forEach((task)=>{
+      tasks.forEach((task, i)=>{
         inlineKeyboardMarkup.inline_keyboard[0].push({
           text: task,
           callback_data: "tasks_" + i,
           // callback_data must start with '<usecase-name>_'
         });
-        i++;
       });
       ctx.reply("Frage?",
           {reply_markup: inlineKeyboardMarkup});

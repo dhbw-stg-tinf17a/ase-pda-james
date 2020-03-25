@@ -6,7 +6,6 @@ let sessionId;
 
 module.exports = class Manager {
   constructor() {
-    this.carname = "ciao";
   }
 
   start(oAuth2Client) {
