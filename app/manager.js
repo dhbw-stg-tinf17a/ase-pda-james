@@ -12,11 +12,11 @@ module.exports = class Manager {
   start(oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
-    this.usecases.absent = require("./usecases/sendAbsent.js")().onUpdate;
-    this.usecases.uniNotifier = require("./usecases/uniNotifier.js")().onUpdate;
-    this.usecases.tasks = require("./usecases/tasks.js")(db).onUpdate;
-    this.usecases.book = require("./usecases/books.js")(db, oAuth2Client).onUpdate;
-    this.usecases.meals = require("./usecases/meals.js")().onUpdate;
+    this.usecases.absent = require("./usecases/sendAbsent.js")();
+    this.usecases.uniNotifier = require("./usecases/uniNotifier.js")();
+    this.usecases.tasks = require("./usecases/tasks.js")(db);
+    this.usecases.book = require("./usecases/books.js")(db, oAuth2Client);
+    this.usecases.meals = require("./usecases/meals.js")();
     // TODO add misc usecase
 
     this.bot.startPolling();
@@ -33,14 +33,23 @@ module.exports = class Manager {
     this.bot.on("text", (ctx)=>{
       this.handleTextWithWatsonAssistant(ctx, ctx.update.message.text);
     });
+
+    this.bot.on("callback_query", (ctx)=>{
+      ctx.answerCbQuery();
+      const usecaseName = ctx.callbackQuery.data.split("_")[0];
+      if (this.usecases[usecaseName]) {
+        this.usecases[usecaseName].onCallbackQuery(ctx);
+      }
+    });
   }
 
   handleTextWithWatsonAssistant(ctx, transcription) {
     this.checkSession().then(() => {
       watsonAssisstant.sendInput(sessionId, transcription).then((waRes) => {
         const usecaseName = waRes.generic[0].text.split("_")[0];
+        console.log(usecaseName);
         if (this.usecases[usecaseName]) {
-          this.usecases[usecaseName](ctx, waRes);
+          this.usecases[usecaseName].onUpdate(ctx, waRes);
         }
       });
     });

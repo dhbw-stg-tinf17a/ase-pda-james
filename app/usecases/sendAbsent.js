@@ -6,7 +6,7 @@ let sessionId;
 let absentTime;
 let absentReason;
 
-module.exports = function() {
+module.exports = () => {
   this.onUpdate = (ctx, waRes)=>{
     if (waRes.generic[0].text === "absent_welcome") {
       watsonSpeech.replyWithAudio(ctx, "Warum gehst du nicht in die Uni?");
@@ -46,6 +46,9 @@ module.exports = function() {
             console.log(`answer is ${err}`);
           });
     }
+  };
+  this.onCallbackQuery = (ctx)=>{
+
   };
   return this;
 };
