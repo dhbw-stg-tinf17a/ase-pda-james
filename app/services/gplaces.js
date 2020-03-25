@@ -35,7 +35,20 @@ module.exports = function() {
         axios.get(gPlacesNearbySearchEndpoint, {params})
             .then(function(response) {
               if (response.status == 200) {
-                resolve(response.data);
+                if (response.data.status === "OK") {
+                  resolve(response.data);
+                } else {
+                  switch (expression) {
+                    case x:
+                      // code block
+                      break;
+                    case y:
+                      // code block
+                      break;
+                    default:
+                      // code block
+                  }
+                }
               } else {
                 console.log(response.data);
                 reject(new Error("API Error"));
