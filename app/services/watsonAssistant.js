@@ -1,6 +1,6 @@
 const AssistantV2 = require("ibm-watson/assistant/v2");
 const {IamAuthenticator} = require("ibm-watson/auth");
-let sessionId= "af11c111-860d-4071-b6d2-550bf20c016e";
+let sessionId;
 const assistant = new AssistantV2({
   version: "2019-02-28",
   authenticator: new IamAuthenticator({
@@ -51,34 +51,24 @@ module.exports = function() {
         },
       })
           .then((res) => {
-            console.log("ERFOLG");
-
             resolve(res.result.output);
           })
           .catch((err) => {
-            console.log("Test0");
             console.log(err);
             if (err.message === "Invalid Session") {
-              console.log("Test");
-              console.log(sessionId);
-              this.createSession().then(() => {
-                console.log(sessionId);
-                console.log("Test1");
-                watsonAssisstant.sendInput(userInput)
-                    .then((res) => {
-                      console.log("ERFOLG");
-
-                      resolve(res.result.output);
-                    })
-                    .catch((err) => {
-                      console.log("ERRROORO");
-                      reject(err);
-                    });
-              }).catch((err) => {
-                console.log("Test2");
-                console.log(err);
-                reject(err);
-              });
+              this.createSession()
+                  .then(() => {
+                    this.sendInput(userInput)
+                        .then((res) => {
+                          resolve(res);
+                        })
+                        .catch((err) => {
+                          reject(err);
+                        });
+                  })
+                  .catch((err) => {
+                    reject(err);
+                  });
             }
           });
     });
