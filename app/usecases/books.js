@@ -1,4 +1,4 @@
-module.exports = function(db, oAuth2Client) {
+module.exports = (db, oAuth2Client) => {
   const Markup = require("telegraf/markup");
   const library = require("../services/springer");
   const cal = require("../services/gcalendar")(db, oAuth2Client);
