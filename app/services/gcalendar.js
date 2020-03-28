@@ -1,4 +1,5 @@
 const {google} = require("googleapis");
+const {busyToFree} = require("../utils/calendarHelpers");
 
 module.exports = function(db, oAuth2Client) {
   const preferences = require("./preferences")(db);
@@ -47,7 +48,7 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  this.getNextEvents = () => {
+  this.getNextEvents = (calendarId = "primary") => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
         oAuth2Client.credentials = JSON.parse(credentials);
@@ -57,7 +58,7 @@ module.exports = function(db, oAuth2Client) {
         const calendar = google.calendar({version: "v3", auth: client});
 
         calendar.events.list({
-          calendarId: "primary",
+          calendarId,
           timeMin: (new Date()).toISOString(),
           maxResults: 15,
           singleEvents: true,
@@ -136,6 +137,8 @@ module.exports = function(db, oAuth2Client) {
         // sort slots by start
         allSlots.sort(sortSlots);
 
+        console.log(allSlots);
+
         const startOfFirst = allSlots.length > 0 ? new Date(allSlots[0].start) : null;
 
         resolve(startOfFirst);
@@ -179,6 +182,41 @@ module.exports = function(db, oAuth2Client) {
         const items = res.data.items.map((item) => ({id: item.id, summary: item.summaryOverride || item.summary}));
         resolve(items);
       }).catch((err) => reject(err));
+    });
+  };
+
+  this.getFreeSlots = (lectureCalendarId) => {
+    return new Promise((resolve, reject) => {
+      preferences.get("google_auth_tokens").then((credentials) => {
+        oAuth2Client.credentials = JSON.parse(credentials);
+
+        return oAuth2Client;
+      }).then((client) => {
+        const calendar = google.calendar({version: "v3", auth: client});
+
+        const now = new Date();
+        let endOfDay = new Date().setHours(23, 59, 59, 999);
+        endOfDay = new Date(endOfDay);
+
+        return calendar.freebusy.query({
+          requestBody: {
+            timeMin: now.toISOString(),
+            timeMax: endOfDay.toISOString(),
+            items: [
+              {id: "primary"},
+              {id: lectureCalendarId},
+            ],
+          },
+        });
+      }).then((res) => {
+        const calendars = Object.keys(res.data.calendars);
+        const freeSlotsByCalendar = calendars.map((calendar) => busyToFree(res.data.calendars[calendar].busy));
+        console.log("freeSlotsByCalendar", freeSlotsByCalendar);
+        resolve(freeSlotsByCalendar);
+      }).catch((err) => {
+        console.error(err);
+        reject(err);
+      });
     });
   };
 
