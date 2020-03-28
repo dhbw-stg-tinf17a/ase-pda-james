@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const e = require("./mailerErrors");
 module.exports = function() {
   this.sendMail = (recipient, subject, text, htmlText) =>{
     return new Promise((resolve, reject)=>{
@@ -18,13 +19,15 @@ module.exports = function() {
         html: htmlText,
       };
 
-      transporter.sendMail(mailOptions, function(error, info) {
-        if (error) {
-          reject(error);
-        } else {
-          resolve("Die Email wurde an " + recipient +" gesendet");
-        }
-      });
+      transporter.sendMail(mailOptions)
+          .then((res) => {
+            resolve(res);
+          })
+          .catch((err) => {
+            e.VvsApiError.prototype = Object.create(Error.prototype);
+            const error = new e.VvsApiError("The API did not perform successfully.", err);
+            reject(error);
+          });
     });
   };
   return this;
