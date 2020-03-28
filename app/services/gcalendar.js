@@ -185,6 +185,7 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
+  // not finished, use at own risk
   this.getFreeSlots = (lectureCalendarId) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
@@ -211,7 +212,6 @@ module.exports = function(db, oAuth2Client) {
       }).then((res) => {
         const calendars = Object.keys(res.data.calendars);
         const freeSlotsByCalendar = calendars.map((calendar) => busyToFree(res.data.calendars[calendar].busy));
-        console.log("freeSlotsByCalendar", freeSlotsByCalendar);
         resolve(freeSlotsByCalendar);
       }).catch((err) => {
         console.error(err);
