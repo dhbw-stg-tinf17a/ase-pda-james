@@ -1,11 +1,31 @@
+const watsonSpeech = require("../services/watsonSpeech")();
+
 module.exports = (db, oAuth2Client) => {
   const Markup = require("telegraf/markup");
   const library = require("../services/springer");
   const cal = require("../services/gcalendar")(db, oAuth2Client);
   const preferences = require("../services/preferences")(db);
 
-  this.onUpdate = (ctx) => {
-    if (ctx.update.message && ctx.update.message.text === "books") {
+  this.onUpdate = (ctx, waRes) => {
+    if (waRes.generic[0].text === "book_welcome") {
+      watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?").then(() => {
+        const keyword = ctx.update.message ? ctx.update.message.text : null;
+      });
+
+      watsonSpeech.replyWithAudio(ctx, "An welchem Tag soll ich einen Termin freihalten?");
+    } else if (waRes.generic[0].text === "book_slots") {
+      const dateEntity = waRes.entities.filter((entity) => entity.entity === "sys-date");
+      const date = dateEntity.length ? new Date(dateEntity.value) : new Date();
+      watsonSpeech.replyWithAudio(ctx, "Alles klar!");
+      console.log(date);
+      console.log(waRes);
+
+      // do free slots stuff
+    }
+    /**
+     * Here for reference
+     */
+    /* if (ctx.update.message && ctx.update.message.text === "books") {
       library.getByTitle().then((res) => {
         const data = res.data;
 
@@ -104,7 +124,12 @@ module.exports = (db, oAuth2Client) => {
       }).catch((err) => {
         ctx.reply("error occurred");
       });
-    }
+    } */
   };
+
+  this.onCallbackQuery = (ctx)=>{
+
+  };
+
   return this;
 };
