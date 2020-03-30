@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 module.exports = function() {
-  this.sendMail = (recipient, subject, text, htmlText) =>{
+  this.sendMail = (mail) =>{
     return new Promise((resolve, reject)=>{
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -12,17 +12,17 @@ module.exports = function() {
 
       const mailOptions = {
         from: process.env.MAILER_USER,
-        to: recipient,
-        subject: subject,
-        text: text,
-        html: htmlText,
+        to: mail.recipient,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.htmlText,
       };
 
       transporter.sendMail(mailOptions, function(error, info) {
         if (error) {
           reject(error);
         } else {
-          resolve("Die Email wurde an " + recipient +" gesendet");
+          resolve("Die Email wurde an " + mail.recipient +" gesendet");
         }
       });
     });
