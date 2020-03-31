@@ -6,16 +6,25 @@ module.exports = function(db) {
   this.getTodos = () => {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
-        preferences.get("ms_todo_folder_id").then((folderId)=>{
-          axios.get(`https://outlook.office.com/api/v2.0/me/taskfolders('${folderId}')/tasks`, {
-            headers: {"Authorization": `Bearer ${token}`},
-          }).then((res)=>{
-            resolve(res.data.value);
+        if (token) {
+          preferences.get("ms_todo_folder_id").then((folderId)=>{
+            if (folderId) {
+              axios.get(`https://outlook.office.com/api/v2.0/me/taskfolders('${folderId}')/tasks`, {
+                headers: {"Authorization": `Bearer ${token}`},
+              }).then((res)=>{
+                resolve(res.data.value);
+              }).catch((err)=>{
+                reject(err);
+              });
+            } else {
+              reject(new Error("ms_todo_folder_id is not saved"));
+            }
           }).catch((err)=>{
             reject(err);
           });
-        }).catch((err)=>{
-        });
+        } else {
+          reject(new Error("ms_todo_token is not saved"));
+        }
       }).catch((err)=>{
         reject(err);
       });
@@ -28,7 +37,7 @@ module.exports = function(db) {
       const scope = "&scope=https%3A%2F%2Foutlook.office.com%2Ftasks.readwrite";
       const responseType = "&response_type=code";
       const redirectUri = "&redirect_uri=http://localhost:8080/mstodo";
-      ctx.reply(base + client + scope + responseType + redirectUri);
+      ctx.reply("Bitte melde dich bei Microsoft Todo an:\n" + base + client + scope + responseType + redirectUri);
     }).catch((err)=>{
       ctx.reply("Tut mir Leid, da hat etwas nicht funktioniert");
       console.error(err);
@@ -47,7 +56,7 @@ module.exports = function(db) {
         tasks.forEach((task)=>{
           inlineKeyboardMarkup.inline_keyboard[0].push({
             text: task.Name,
-            callback_data: i,
+            callback_data: "tasks_" + i,
           });
           i++;
         });
@@ -63,7 +72,7 @@ module.exports = function(db) {
     });
   };
 
-  this.getChosenFolderId = (callbackData) => {
+  this.getChosenFolderId = (index) => {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
         axios.get("https://outlook.office.com/api/v2.0/me/taskfolders", {
@@ -71,7 +80,7 @@ module.exports = function(db) {
         }).then((res)=>{
           let i = 0;
           res.data.value.forEach((folder)=>{
-            if (i == callbackData) {
+            if (i == index) {
               resolve(folder.Id);
             }
             i++;

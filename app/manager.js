@@ -46,7 +46,6 @@ module.exports = class Manager {
     this.checkSession().then(() => {
       watsonAssisstant.sendInput(sessionId, transcription).then((waRes) => {
         const usecaseName = waRes.generic[0].text.split("_")[0];
-        console.log(usecaseName);
         if (this.usecases[usecaseName]) {
           this.usecases[usecaseName].onUpdate(ctx, waRes);
         }
