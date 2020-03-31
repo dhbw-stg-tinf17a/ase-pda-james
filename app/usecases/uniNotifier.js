@@ -1,19 +1,18 @@
-const vvs = require('../services/vvs')()
-
-module.exports = function() {
-  this.onUpdate = (ctx)=>{
-    if (ctx.update.message.text == "vvs") {
+const vvs = require("../services/vvs/vvs")();
+module.exports = () => {
+  this.onUpdate = (ctx) => {
+    if (ctx.update.message.text === "vvs") {
       vvs.getStopId("Hulb").then((res) => {
-        console.log("Stop Names and IDs:\n" + res)
-        ctx.reply("Which station do you mean?\n")
+        console.log("Stop Names and IDs:\n" + res);
+        ctx.reply("Which station do you mean?\n");
         res.forEach((stop) => {
-          ctx.reply(stop.stopName + " (" + stop.stopId + ")")
-        })
+          ctx.reply(stop.stopName + " (" + stop.stopId + ")");
+        });
       }).catch((err) => {
-        console.log(err)
-        ctx.reply("An error occurred.")
-      }
-    )}
+        console.log(err);
+        ctx.reply("An error occurred.");
+      });
+    }
   };
   return this;
 };

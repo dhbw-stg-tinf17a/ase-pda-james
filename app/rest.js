@@ -1,10 +1,10 @@
 const axios = require("axios");
+const gplaces = require("./services/gplaces")();
 const todo = require("./services/todo")(db);
 
-module.exports = function(app, db, ctx) {
+module.exports = function(app, db, ctx, oAuth2Client) {
   const preferences = require("./services/preferences")(db);
-
-  app.get("/mstodo", (req, res)=>{
+  app.get("/mstodo", (req, res) => {
     const code = req.query.code;
     const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +
         "&code=" + code + "&client_secret=" + process.env.MS_TODO_CLIENT_SECRET +
@@ -27,5 +27,31 @@ module.exports = function(app, db, ctx) {
       console.error(err);
       res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
     });
+  });
+
+  app.get("/oauth2callback", (req, res) => {
+    const code = req.query.code;
+    oAuth2Client.getToken(code).then((data) => {
+      const tokens = data.res.data;
+      oAuth2Client.credentials = tokens;
+
+      preferences.set("google_auth_tokens", JSON.stringify(tokens));
+    }).then(() => {
+      return preferences.get("chat_id_google_auth");
+    }).then((chatId) => {
+      console.log(chatId);
+      res.send("Danke, bitte kehre zu Telegram zurück.");
+      ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.");
+    }).catch((err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
+  });
+  app.get("/places", (req, res) => {
+    gplaces.getPlaces({location: "52.5200066,13.404954"}).then((result)=> {
+      res.send(result);
+    },
+    ).catch((err)=>res.status(500).send(err));
   });
 };
