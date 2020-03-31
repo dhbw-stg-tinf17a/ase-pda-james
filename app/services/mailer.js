@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const e = require("./mailerErrors");
 module.exports = function() {
-  this.sendMail = (recipient, subject, text, htmlText) =>{
+  this.sendMail = (mail) =>{
     return new Promise((resolve, reject)=>{
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -13,10 +13,10 @@ module.exports = function() {
 
       const mailOptions = {
         from: process.env.MAILER_USER,
-        to: recipient,
-        subject: subject,
-        text: text,
-        html: htmlText,
+        to: mail.recipient,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.htmlText,
       };
 
       transporter.sendMail(mailOptions)
