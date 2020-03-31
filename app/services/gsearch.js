@@ -22,7 +22,6 @@ module.exports.getSearchResults = (query) => {
         })
         .catch(function(error) {
           // handle error
-          console.error(error);
           reject(error);
         });
   });

@@ -1,5 +1,5 @@
 const vvs = require("../services/vvs/vvs")();
-module.exports = function() {
+module.exports = () => {
   this.onUpdate = (ctx) => {
     if (ctx.update.message.text === "vvs") {
       vvs.getStopId("Hulb").then((res) => {

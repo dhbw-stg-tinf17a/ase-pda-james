@@ -32,7 +32,7 @@ module.exports = function() {
   // answers to a given context with spoken language
   this.replyWithAudio = (ctx, text) => {
     this.t2s(text).then((audioStream)=>{
-      ctx.replyWithAudio({source: audioStream}).catch((err)=>{
+      ctx.replyWithVoice({source: audioStream}).catch((err)=>{
         console.error(err);
       });
     }).catch((err)=>{

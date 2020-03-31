@@ -1,12 +1,12 @@
-const {google} = require("googleapis");
-const path = require("path");
-const fs = require("fs");
-
+require("dotenv").config();
 const mongoClient = require("mongodb").MongoClient;
 const express = require("express");
 const app = express();
-const Telegraf = require("telegraf");
-require("dotenv").config();
+const path = require("path");
+const {google} = require("googleapis");
+const fs = require("fs");
+
+const Manager = require("./app/Manager");
 
 let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
@@ -45,23 +45,11 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
       console.log("API listening on port 8080!");
     });
 
-    // TELEGRAM
-    const bot = new Telegraf(process.env.BOT_TOKEN);
-    const usecases = [];
-    usecases.push(require("./app/usecases/uniNotifier.js")().onUpdate);
-    usecases.push(require("./app/usecases/tasks.js")(db).onUpdate);
-    usecases.push(require("./app/usecases/sendAbsent.js")().onUpdate);
-    usecases.push(require("./app/usecases/books.js")(db, oAuth2Client).onUpdate);
-    usecases.push(require("./app/usecases/meals.js")().onUpdate);
-    bot.startPolling();
 
-    require("./app/rest.js")(app, db, bot, oAuth2Client);
+    // Manager
+    const manager = new Manager();
+    manager.start(oAuth2Client);
 
-    // give every usecase a chance to say something
-    bot.use((ctx) => {
-      usecases.forEach((usecase) => {
-        usecase(ctx);
-      });
-    });
+    require("./app/rest.js")(app, db, manager.getTelegramBot(), oAuth2Client);
   }
 });
