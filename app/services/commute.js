@@ -1,28 +1,33 @@
-module.exports = function(db, origin, destination) {
+module.exports = async function(db, origin, destination) {
   const prefs = require("./preferences")(db);
 
-  this.onUpdate((ctx) => {
-    const commutePref = prefs.get("commute");
+  const commutePref = await prefs.get("commute");
+  const validCommutePrefs = ["driving", "walking", "bicycling", "vvs"];
 
-    if (typeof commutePref == "undefined") {
-      // add dialogue to add commute preference
-    }
+  if (!validCommutePrefs.includes(commutePref)) {
+    return new Error("Invalid preference.");
+  }
 
-    if (commutePref != "vvs" || commutePref != "gmaps") {
-      return new Error(`Invalid commuting preference in Database ${db}`);
-    }
+  if (commutePref !== "vvs") {
+    const gmaps = require("../services/gmaps");
+    const directions = await gmaps.getDirections(origin, destination, commutePref);
+    const gMapsUrl = gmaps.getGoogleMapsRedirectionURL(destination);
 
-    if (commutePref == "vvs") {
-      const vvs = require("./vvs/vvs")();
+    return [directions, gMapsUrl];
+  }
 
-      const start = vvs.getStopByKeyword(origin);
-      const end = vvs.getStopByKeyword(destination);
-    }
+  const vvs = require("../services/vvs/vvs")();
+  const transitStartAddress = origin;
+  const transitStopAddress = destination;
 
-    if (commutePref == "gmaps") {
-      const gmaps = require("./gmaps")();
+  const transitStart = await vvs.getStopByKeyword(transitStartAddress);
+  const transitStop = await vvs.getStopByKeyword(transitStopAddress);
 
-      const url = new URL(gmaps.getGoogleMapsRedirectionLink(destination));
-    }
+  const transitStartId = transitStart.stopID;
+  const transitStopId = transitStop.stopID;
+
+  return directions = await vvs.getTrip({
+    originId: transitStartId,
+    destinationId: transitStopId,
   });
 };
