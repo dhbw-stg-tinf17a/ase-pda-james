@@ -70,14 +70,19 @@ module.exports = function() {
   this.message = (userInput)=>{
     return new Promise((resolve, reject)=>{
       assistant.message({
-        assistantId: process.env.WATSON_ASSISSTANT_ID,
-        sessionId: sessionId,
-        input: {
+        "assistantId": process.env.WATSON_ASSISSTANT_ID,
+        "sessionId": sessionId,
+        "input": {
           "message_type": "text",
           "text": userInput,
+          "options": {
+            "return_context": true,
+          },
         },
-      })
+      },
+      )
           .then((res) => {
+            res.result.output.context= res.result.context.skills["main skill"].user_defined;
             resolve(res.result.output);
           })
           .catch((err) => {
