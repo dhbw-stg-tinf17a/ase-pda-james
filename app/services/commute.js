@@ -26,8 +26,10 @@ module.exports = async function(db, origin, destination) {
   const transitStartId = transitStart.stopID;
   const transitStopId = transitStop.stopID;
 
-  return directions = await vvs.getTrip({
+  const trip = await vvs.getTrip({
     originId: transitStartId,
     destinationId: transitStopId,
   });
+
+  return trip;
 };
