@@ -1,23 +1,6 @@
 const axios = require("axios");
 const htmlToText = require("html-to-text");
 require("dotenv").config({path: __dirname + "./../../.env"});
-/*
- USAGE EXAMPLE getDirections
- -----------------------------------------------------------------------
- // import gmaps
- const gmaps = require("<path-here>services/gmaps");
-
- gmaps.getDirections("Stuttgart DHBW Rotebühlplatz", "Gerber Stuttgart")
- .then((data) => {      console.log(data);    });
-
- //logs a directions string
-
-
- USAGE EXAMPLE getGoogleMapsRedirectionURL
- -----------------------------------------------------------------------
- const gmaps = require("<path-here>services/gmaps");
- gmaps.getGoogleMapsRedirectionURL("Gerber Stuttgart");
- */
 
 const buildURL = (origin, destination, travelMode, arrivalTime) => {
   // build URL
@@ -32,7 +15,7 @@ const buildURL = (origin, destination, travelMode, arrivalTime) => {
   };
 
   if (arrivalTime !== null) {
-    params.arrival_time=arrivalTime;
+    params.arrival_time = arrivalTime;
   }
 
   params = new URLSearchParams(params);
