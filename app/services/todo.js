@@ -12,14 +12,23 @@ module.exports = function(db) {
               axios.get(`https://outlook.office.com/api/v2.0/me/taskfolders('${folderId}')/tasks`, {
                 headers: {"Authorization": `Bearer ${token}`},
               }).then((res)=>{
-                resolve(res.data.value);
+                const todos = res.data.value;
+                todos.sort((a, b)=>{
+                  const aDate = new Date(a.DueDateTime.DateTime);
+                  const bDate = new Date(b.DueDateTime.DateTime);
+                  if (aDate > bDate) {
+                    return 1;
+                  } else if (aDate < bDate) {
+                    return -1;
+                  }
+                  return 0;
+                });
+                resolve(todos);
               }).catch((err)=>{
                 if (err.response.status == 401) {
                   this.requestRefresh().then(()=>{
                     this.getTodos().then(resolve).catch(reject);
-                  }).catch((err)=>{
-                    console.error(err);
-                  });
+                  }).catch(reject);
                 } else {
                   reject(err);
                 }
@@ -43,33 +52,25 @@ module.exports = function(db) {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
         if (token) {
-          preferences.get("ms_todo_folder_id").then((folderId)=>{
-            if (folderId) {
-              axios.delete(`https://outlook.office.com/api/v2.0/me/tasks('${
-                taskId
-              }')`, {
-                headers: {"Authorization": `Bearer ${token}`},
-              }).then((res)=>{
-                resolve();
+          axios.delete(`https://outlook.office.com/api/v2.0/me/tasks('${
+            taskId
+          }')`, {
+            headers: {"Authorization": `Bearer ${token}`},
+          }).then((res)=>{
+            resolve();
+          }).catch((err)=>{
+            if (err.response.status == 401) {
+              this.requestRefresh().then(()=>{
+                this.deleteTodo(taskId).then(resolve).catch(reject);
               }).catch((err)=>{
-                if (err.response.status == 401) {
-                  this.requestRefresh().then(()=>{
-                    this.deleteTodo(taskId).then(resolve).catch(reject);
-                  }).catch((err)=>{
-                    console.error(err);
-                  });
-                } else {
-                  reject(err);
-                }
+                reject(err);
               });
             } else {
-              reject(new Error("ms_todo_folder_id is not saved"));
+              reject(err);
             }
-          }).catch((err)=>{
-            reject(err);
           });
         } else {
-          reject(new Error("ms_todo_token is not saved"));
+          reject(new Error("ms_todo_folder_id is not saved"));
         }
       }).catch((err)=>{
         reject(err);
@@ -93,6 +94,7 @@ module.exports = function(db) {
               reject(err);
             });
           }).catch((err)=>{
+            reject(err);
           });
         }).catch((err)=>{
           reject(err);

@@ -8,18 +8,6 @@ module.exports = function() {
       msTodo.authorizeUser(ctx);
     } else if (waRes.generic[0].text === "tasks_show") {
       msTodo.getTodos().then((todos)=>{
-        // sorting tasks by duedate
-        todos.sort((a, b)=>{
-          const aDate = new Date(a.DueDateTime.DateTime);
-          const bDate = new Date(b.DueDateTime.DateTime);
-          if (aDate > bDate) {
-            return 1;
-          } else if (aDate < bDate) {
-            return -1;
-          }
-          return 0;
-        });
-
         // show tasks to user
         let inlineKeyboardMarkup = {inline_keyboard: [[]]};
         let toSend = "Du hast folgende Aufgaben offen:\n";
