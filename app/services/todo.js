@@ -14,7 +14,15 @@ module.exports = function(db) {
               }).then((res)=>{
                 resolve(res.data.value);
               }).catch((err)=>{
-                reject(err);
+                if (err.response.status == 401) {
+                  this.requestRefresh().then(()=>{
+                    this.getTodos().then(resolve).catch(reject);
+                  }).catch((err)=>{
+                    console.error(err);
+                  });
+                } else {
+                  reject(err);
+                }
               });
             } else {
               reject(new Error("ms_todo_folder_id is not saved"));
@@ -30,11 +38,36 @@ module.exports = function(db) {
       });
     });
   };
+  this.requestRefresh = ()=>{
+    return new Promise((resolve, reject)=>{
+      preferences.get("ms_todo_refresh_token").then((rfToken)=>{
+        const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +
+        "&refresh_token=" + rfToken + "&client_secret=" + process.env.MS_TODO_CLIENT_SECRET +
+        "&grant_type=refresh_token";
+        axios.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", queryParams,
+        ).then((tokenRes)=>{
+          const authToken = tokenRes.data.access_token;
+          preferences.set("ms_todo_token", authToken).then(()=>{
+            preferences.get("chat_id_ms_todo").then((chatId)=>{
+              resolve(authToken);
+            }).catch((err)=>{
+              reject(err);
+            });
+          }).catch((err)=>{
+          });
+        }).catch((err)=>{
+          reject(err);
+        });
+      }).catch((err)=>{
+        reject(err);
+      });
+    });
+  };
   this.authorizeUser = (ctx) => {
     preferences.set("chat_id_ms_todo", ctx.chat.id).then(()=>{
       const base = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
       const client = `?client_id=${process.env.MS_TODO_CLIENT_ID}`;
-      const scope = "&scope=https%3A%2F%2Foutlook.office.com%2Ftasks.readwrite";
+      const scope = "&scope=https%3A%2F%2Foutlook.office.com%2Ftasks.readwrite%20offline_access";
       const responseType = "&response_type=code";
       const redirectUri = "&redirect_uri=http://localhost:8080/mstodo";
       ctx.reply("Bitte melde dich bei Microsoft Todo an:\n" + base + client + scope + responseType + redirectUri);

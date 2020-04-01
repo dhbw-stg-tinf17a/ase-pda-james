@@ -12,10 +12,15 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     axios.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", queryParams,
     ).then((tokenRes)=>{
       const authToken = tokenRes.data.access_token;
+      const refreshToken = tokenRes.data.refresh_token;
       preferences.set("ms_todo_token", authToken).then(()=>{
-        preferences.get("chat_id_ms_todo").then((chatId)=>{
-          res.send("Danke, bitte kehre zurück zu Telegram.");
-          todo.chooseFolder(ctx, chatId);
+        preferences.set("ms_todo_refresh_token", refreshToken).then(()=>{
+          preferences.get("chat_id_ms_todo").then((chatId)=>{
+            res.send("Danke, bitte kehre zurück zu Telegram.");
+            todo.chooseFolder(ctx, chatId);
+          }).catch((err)=>{
+            res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
+          });
         }).catch((err)=>{
           res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
         });
