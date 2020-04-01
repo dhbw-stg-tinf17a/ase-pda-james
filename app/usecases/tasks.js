@@ -8,13 +8,46 @@ module.exports = function() {
       msTodo.authorizeUser(ctx);
     } else if (waRes.generic[0].text === "tasks_show") {
       msTodo.getTodos().then((todos)=>{
+        // sorting tasks by duedate
+        todos.sort((a, b)=>{
+          const aDate = new Date(a.DueDateTime.DateTime);
+          const bDate = new Date(b.DueDateTime.DateTime);
+          if (aDate > bDate) {
+            return 1;
+          } else if (aDate < bDate) {
+            return -1;
+          }
+          return 0;
+        });
+
+        // show tasks to user
+        let inlineKeyboardMarkup = {inline_keyboard: [[]]};
         let toSend = "Du hast folgende Aufgaben offen:\n";
         if (todos.length != 0) {
-          todos.forEach((todo)=>{
+          todos.forEach((todo, i)=>{
             toSend += `- ${todo.Subject}\n`;
           });
+          toSend += "\n" + `Ich empfehle dir, dass du mit ${todos[0].Subject} beginnst, es ist am frühsten fällig :)\n`;
+          toSend += "Gib mir Bescheid, wenn du die Aufgabe erledigt hast oder abbrichst:";
+
+          inlineKeyboardMarkup = {inline_keyboard: [[{
+            text: "Erledigt",
+            callback_data: "tasks_exercise_done",
+          }], [{
+            text: "Braucht noch Zeit",
+            callback_data: "tasks_exercise_notdone",
+          }]]};
+
+          preferences.set("ms_task_id", todos[0].Id).catch((err)=>{
+            console.error(err);
+            ctx.reply("Tut mir Leid, es gab einen Fehler mit den Preferences.");
+          });
+        } else {
+          toSend = "Du hast im Moment keine Aufgaben in deiner ToDo Liste 🔥";
         }
-        ctx.reply(toSend);
+
+
+        ctx.reply(toSend, {reply_markup: inlineKeyboardMarkup});
       }).catch((err)=>{
         if (err.message=="ms_todo_token is not saved") {
           msTodo.authorizeUser(ctx);
@@ -28,19 +61,49 @@ module.exports = function() {
   };
 
   this.onCallbackQuery = (ctx)=>{
-    const data = ctx.callbackQuery.data.split("_")[1];
+    const data = ctx.callbackQuery.data.substr("tasks_".length);
 
-    msTodo.getChosenFolderId(data).then((folderId)=>{
-      preferences.set("ms_todo_folder_id", folderId).then(()=>{
-        ctx.reply("Sehr schön, dann sind wir fertig mit der Microsoft Todo Einrichtung 🙌");
-      }).catch((err)=>{
-        console.error(err);
-        ctx.reply("Ein Fehler ist aufgetreten.");
-      });
-    }).catch((err)=>{
-      console.error(err);
-      ctx.reply("Ein Fehler ist aufgetreten.");
-    });
+    const type = data.split("_")[0];
+    const details = data.split("_")[1];
+    switch (type) {
+      case "choosefolder":
+        if (details) {
+          msTodo.getChosenFolderId(details).then((folderId)=>{
+            preferences.set("ms_todo_folder_id", folderId).then(()=>{
+              ctx.editMessageReplyMarkup({inline_keyboard: [[]]});
+              ctx.reply("Sehr schön, dann sind wir fertig mit der Microsoft Todo Einrichtung 🙌 " +
+              "Ab jetzt kannst du mich immer Fragen welche Aufgaben du noch machen musst.");
+            }).catch((err)=>{
+              console.error(err);
+              ctx.reply("Ein Fehler ist aufgetreten.");
+            });
+          }).catch((err)=>{
+            console.error(err);
+            ctx.reply("Ein Fehler ist aufgetreten.");
+          });
+        }
+        break;
+      case "exercise":
+        if (details=="done") {
+          preferences.get("ms_task_id").then((taskId)=>{
+            msTodo.deleteTodo(taskId).then(()=>{
+              ctx.reply("Super! Ich habe die Aufgabe aus deiner ToDo Liste entfernt ✅");
+            }).catch((err)=>{
+              console.error(err);
+              ctx.reply("Tut mir Leid, es gab einen Fehler mit den der MS ToDo API.");
+              console.log(taskId);
+            });
+          }).catch((err)=>{
+            console.error(err);
+            ctx.reply("Tut mir Leid, es gab einen Fehler mit den Preferences.");
+          });
+          // msTodo.deleteTodo
+        } else {
+          ctx.reply("Okay :) Ich lasse die Aufgabe also erstmal in der ToDo Liste stehen");
+        }
+        ctx.editMessageReplyMarkup({inline_keyboard: [[]]});
+        break;
+    }
   };
   return this;
 };

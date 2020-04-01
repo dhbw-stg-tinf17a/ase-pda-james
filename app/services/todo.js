@@ -38,6 +38,45 @@ module.exports = function(db) {
       });
     });
   };
+
+  this.deleteTodo = (taskId)=>{
+    return new Promise((resolve, reject)=>{
+      preferences.get("ms_todo_token").then((token)=>{
+        if (token) {
+          preferences.get("ms_todo_folder_id").then((folderId)=>{
+            if (folderId) {
+              axios.delete(`https://outlook.office.com/api/v2.0/me/tasks('${
+                taskId
+              }')`, {
+                headers: {"Authorization": `Bearer ${token}`},
+              }).then((res)=>{
+                resolve();
+              }).catch((err)=>{
+                if (err.response.status == 401) {
+                  this.requestRefresh().then(()=>{
+                    this.deleteTodo(taskId).then(resolve).catch(reject);
+                  }).catch((err)=>{
+                    console.error(err);
+                  });
+                } else {
+                  reject(err);
+                }
+              });
+            } else {
+              reject(new Error("ms_todo_folder_id is not saved"));
+            }
+          }).catch((err)=>{
+            reject(err);
+          });
+        } else {
+          reject(new Error("ms_todo_token is not saved"));
+        }
+      }).catch((err)=>{
+        reject(err);
+      });
+    });
+  };
+
   this.requestRefresh = ()=>{
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_refresh_token").then((rfToken)=>{
@@ -89,7 +128,7 @@ module.exports = function(db) {
         tasks.forEach((task)=>{
           inlineKeyboardMarkup.inline_keyboard[0].push({
             text: task.Name,
-            callback_data: "tasks_" + i,
+            callback_data: "tasks_choosefolder_" + i,
           });
           i++;
         });
