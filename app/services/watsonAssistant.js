@@ -62,7 +62,7 @@ module.exports = function() {
             resolve("success");
           })
           .catch((err) => {
-            console.log(err);
+            console.error(err);
             reject(err);
           });
     });
@@ -86,7 +86,7 @@ module.exports = function() {
             resolve(res.result.output);
           })
           .catch((err) => {
-            console.log(err);
+            console.error(err);
             reject(err);
           });
     });
@@ -102,7 +102,7 @@ module.exports = function() {
             resolve("success");
           })
           .catch((err) => {
-            console.log(err);
+            console.error(err);
             reject(err);
           });
     });
