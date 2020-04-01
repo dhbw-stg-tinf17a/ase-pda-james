@@ -6,7 +6,6 @@
   "scripts": {
     "start-dev": "nodemon node index.js",
     "start": "node index.js",
-    "pretest": "node ./scripts/pretest.js",
     "test": "jest"
   },
   "author": "",
