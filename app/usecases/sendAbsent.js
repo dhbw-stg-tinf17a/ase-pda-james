@@ -44,7 +44,6 @@ module.exports = (db, oAuth2Client) => {
         })
             .then((answer)=>{
               watsonSpeech.replyWithAudio(ctx, "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:");
-              console.log(answer.results[0].place_id);
               gplaces.getPlaceById(answer.results[0].place_id)
                   .then((res) => ctx.reply(res.result.url))
                   .catch((err) => ctx.reply("error: " + err + answer.results[0].name));
@@ -93,7 +92,7 @@ module.exports = (db, oAuth2Client) => {
     if (startAbsentTime !== null && endAbsentTime !== null) {
       startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
       endAbsent = endAbsentDay + "T" + endAbsentTime + "+02:00";
-    } else if (startAbsentTimeIndex !== null && endAbsentTimeIndex === null ) {
+    } else if (startAbsentTime !== null && endAbsentTime === null ) {
       startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
       endAbsent = endAbsentDay + "T" + "22:30:00" + "+02:00";
     } else {

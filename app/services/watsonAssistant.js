@@ -1,5 +1,6 @@
 const AssistantV2 = require("ibm-watson/assistant/v2");
 const {IamAuthenticator} = require("ibm-watson/auth");
+let sessionId;
 const assistant = new AssistantV2({
   version: "2019-02-28",
   authenticator: new IamAuthenticator({
@@ -8,14 +9,57 @@ const assistant = new AssistantV2({
   url: "https://api.eu-de.assistant.watson.cloud.ibm.com/instances/0a89d17c-0872-409f-bf4d-8dca04742177",
 });
 module.exports = function() {
+  this.sendInput = (userInput)=>{
+    return new Promise((resolve, reject)=>{
+      if (!sessionId) {
+        this.createSession()
+            .then(() => {
+              this.message(userInput)
+                  .then((res) => {
+                    resolve(res);
+                  })
+                  .catch((err) => {
+                    reject(err);
+                  });
+            })
+            .catch((err) => {
+              reject(err);
+            });
+      } else {
+        this.message(userInput)
+            .then((res) => {
+              resolve(res);
+            })
+            .catch((err) => {
+              if (err.message === "Invalid Session") {
+                this.createSession()
+                    .then(() => {
+                      this.message(userInput)
+                          .then((res) => {
+                            resolve(res);
+                          })
+                          .catch((err) => {
+                            reject(err);
+                          });
+                    })
+                    .catch((err) => {
+                      reject(err);
+                    });
+              }
+            });
+      }
+    });
+  };
+
+
   this.createSession = ()=>{
     return new Promise((resolve, reject)=>{
       assistant.createSession({
         assistantId: process.env.WATSON_ASSISSTANT_ID,
       })
           .then((res) => {
-            // console.log(JSON.stringify(res, null, 2));
-            resolve(res.result.session_id);
+            sessionId = res.result.session_id;
+            resolve("success");
           })
           .catch((err) => {
             console.log(err);
@@ -23,35 +67,39 @@ module.exports = function() {
           });
     });
   };
-  this.deleteSession = (sessionId)=>{
+  this.message = (userInput)=>{
+    return new Promise((resolve, reject)=>{
+      assistant.message({
+        "assistantId": process.env.WATSON_ASSISSTANT_ID,
+        "sessionId": sessionId,
+        "input": {
+          "message_type": "text",
+          "text": userInput,
+          "options": {
+            "return_context": true,
+          },
+        },
+      },
+      )
+          .then((res) => {
+            res.result.output.context= res.result.context.skills["main skill"].user_defined;
+            resolve(res.result.output);
+          })
+          .catch((err) => {
+            console.log(err);
+            reject(err);
+          });
+    });
+  };
+  this.deleteSession = ()=>{
     return new Promise((resolve, reject)=>{
       assistant.deleteSession({
         assistantId: process.env.WATSON_ASSISSTANT_KEY,
         sessionId: sessionId,
       })
           .then((res) => {
-            // console.log(JSON.stringify(res, null, 2));
-            resolve(res);
-          })
-          .catch((err) => {
-            console.log(err);
-            reject(err);
-          });
-    });
-  };
-  this.sendInput = (sessionId, userInput)=>{
-    return new Promise((resolve, reject)=>{
-      assistant.message({
-        assistantId: process.env.WATSON_ASSISSTANT_ID,
-        sessionId: sessionId,
-        input: {
-          "message_type": "text",
-          "text": userInput,
-        },
-      })
-          .then((res) => {
-            // console.log(JSON.stringify(res.result.output, null, 2));
-            resolve(res.result.output);
+            sessionId="";
+            resolve("success");
           })
           .catch((err) => {
             console.log(err);
