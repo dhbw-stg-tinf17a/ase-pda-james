@@ -1,6 +1,5 @@
 const AssistantV2 = require("ibm-watson/assistant/v2");
 const {IamAuthenticator} = require("ibm-watson/auth");
-let sessionId;
 const assistant = new AssistantV2({
   version: "2019-02-28",
   authenticator: new IamAuthenticator({
@@ -9,9 +8,10 @@ const assistant = new AssistantV2({
   url: "https://api.eu-de.assistant.watson.cloud.ibm.com/instances/0a89d17c-0872-409f-bf4d-8dca04742177",
 });
 module.exports = function() {
+  let sessionId;
   this.sendInput = (userInput)=>{
     return new Promise((resolve, reject)=>{
-      if (!sessionId) {
+      if (!this.sessionId) {
         this.createSession()
             .then(() => {
               this.message(userInput)
@@ -58,7 +58,7 @@ module.exports = function() {
         assistantId: process.env.WATSON_ASSISSTANT_ID,
       })
           .then((res) => {
-            sessionId = res.result.session_id;
+            this.sessionId = res.result.session_id;
             resolve("success");
           })
           .catch((err) => {
@@ -71,7 +71,7 @@ module.exports = function() {
     return new Promise((resolve, reject)=>{
       assistant.message({
         "assistantId": process.env.WATSON_ASSISSTANT_ID,
-        "sessionId": sessionId,
+        "sessionId": this.sessionId,
         "input": {
           "message_type": "text",
           "text": userInput,
@@ -95,10 +95,10 @@ module.exports = function() {
     return new Promise((resolve, reject)=>{
       assistant.deleteSession({
         assistantId: process.env.WATSON_ASSISSTANT_KEY,
-        sessionId: sessionId,
+        sessionId: this.sessionId,
       })
           .then((res) => {
-            sessionId="";
+            this.sessionId="";
             resolve("success");
           })
           .catch((err) => {
