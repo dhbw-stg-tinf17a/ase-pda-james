@@ -1,43 +1,42 @@
 const axios = require("axios");
 const htmlToText = require("html-to-text");
 require("dotenv").config({path: __dirname + "./../../.env"});
-/*
-USAGE EXAMPLE getDirections
- -----------------------------------------------------------------------
-// import gmaps
-const gmaps = require("<path-here>services/gmaps");
 
-gmaps.getDirections("Stuttgart DHBW Rotebühlplatz", "Gerber Stuttgart")
-    .then((data) => {      console.log(data);    });
-
-//logs a directions string
-
-
-USAGE EXAMPLE getGoogleMapsRedirectionURL
- -----------------------------------------------------------------------
-const gmaps = require("<path-here>services/gmaps");
-gmaps.getGoogleMapsRedirectionURL("Gerber Stuttgart");
- */
-
-const buildURL = (origin, destination, travelMode) => {
+const buildURL = (config) => {
   // build URL
   const url = new URL("https://maps.googleapis.com/maps/api/directions/json?");
-  const params = new URLSearchParams({
-    origin: origin,
-    destination: destination,
-    mode: travelMode,
+
+  let params = {
+    origin: config.origin || "",
+    destination: config.destination || "",
+    mode: config.travelMode || "walking",
     language: "de-DE",
     key: process.env.GOOGLE_API_KEY,
-  });
+  };
+
+  if (config.arrivalTime) {
+    params.arrival_time = config.arrivalTime;
+  }
+
+  params = new URLSearchParams(params);
 
   console.log("buildURL", url + params);
   return url + params;
 };
 
-// travelMode :   driving | walking | transit | bicycling
-module.exports.getDirections = (origin, destination, travelMode = "walking") => {
+
+/*
+ * config: {
+ *     origin,
+ *     destination,
+ *     travelMode: driving | walking | transit | bicycling
+ *     arrivalTime: null | (integer) Specifies the desired time of arrival for transit directions,
+ *                  in seconds since midnight, January 1, 1970 UTC
+ *     }
+ */
+module.exports.getDirections = (config) => {
   return new Promise((resolve, reject) => {
-    axios.get(buildURL(origin, destination, travelMode))
+    axios.get(buildURL(config))
         .then((response) => {
           // handle success
           const distance = response.data.routes[0].legs[0].distance.text;
