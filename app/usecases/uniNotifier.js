@@ -38,12 +38,22 @@ module.exports = function(db, oAuth2Client) {
         return new Error("Invalid preference.");
       }
 
+      let nextEvent;
+
+      cal.getNextEvents(lectureCal).then((res) => {
+        nextEvent = res[5];
+      });
+
       if (commutePref === "vvs") {
         const origin = await vvs.getStopByKeyword(homeAddr);
         const destination = await vvs.getStopByKeyword(uniAddr);
         const now = new Date();
-        const lectureStart = new Date(2020, 3, 1, 16);
-        console.log(lectureStart);
+        const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        console.log(nowDate);
+        const tomorrowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        console.log(tomorrowDate);
+        const lectureStart = new Date(nextEvent.start.dateTime);
+        const lectureDate = new Date(lectureStart.getFullYear(), lectureStart.getMonth(), lectureStart.getDate());
 
         vvs.getTrip({
           originId: origin.stopID,
@@ -66,6 +76,12 @@ module.exports = function(db, oAuth2Client) {
           const arrTime = lastLeg.end.date;
 
           if (interchanges === 1) interchanges = "ein";
+
+          if (lectureDate == tomorrowDate) {
+            watsonSpeech.replyWithAudio(ctx, "Die Vorlesung findet morgen oder später statt");
+          } else if (lectureDate > tomorrowDate) {
+            watsonSpeech.replyWithAudio(ctx, "Du hast heute und morgen erstmal keine Vorlesungen. Genieß die Freiheit.");
+          }
 
           watsonSpeech.replyWithAudio(ctx,
               `Du bist gut in der Zeit. Nimm die Bahn um ${depTime} von der Haltestelle ${legs[0].start.stopName}. Du kommst ${arrTime} an der Haltestelle ${lastLeg.end.stopName} an. Die Fahrt dauert ${duration} Minuten. Du musst ${interchanges} mal umsteigen.`);
