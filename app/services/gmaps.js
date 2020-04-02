@@ -2,20 +2,20 @@ const axios = require("axios");
 const htmlToText = require("html-to-text");
 require("dotenv").config({path: __dirname + "./../../.env"});
 
-const buildURL = (origin, destination, travelMode, arrivalTime) => {
+const buildURL = (config) => {
   // build URL
   const url = new URL("https://maps.googleapis.com/maps/api/directions/json?");
 
   let params = {
-    origin: origin,
-    destination: destination,
-    mode: travelMode,
+    origin: config.origin || "",
+    destination: config.destination || "",
+    mode: config.travelMode || "walking",
     language: "de-DE",
     key: process.env.GOOGLE_API_KEY,
   };
 
-  if (arrivalTime !== null) {
-    params.arrival_time = arrivalTime;
+  if (config.arrivalTime) {
+    params.arrival_time = config.arrivalTime;
   }
 
   params = new URLSearchParams(params);
@@ -24,14 +24,19 @@ const buildURL = (origin, destination, travelMode, arrivalTime) => {
   return url + params;
 };
 
-// travelMode :   driving | walking | transit | bicycling
-// arrivalTime (integer) Specifies the desired time of arrival for transit directions,
-// in seconds since midnight, January 1, 1970 UTC
 
-// if you want to not set travelMode specifically but arrivalTime set it travelMode to undefined
-module.exports.getDirections = (origin, destination, travelMode = "walking", arrivalTime = null) => {
+/*
+ * config: {
+ *     origin,
+ *     destination,
+ *     travelMode: driving | walking | transit | bicycling
+ *     arrivalTime: null | (integer) Specifies the desired time of arrival for transit directions,
+ *                  in seconds since midnight, January 1, 1970 UTC
+ *     }
+ */
+module.exports.getDirections = (config) => {
   return new Promise((resolve, reject) => {
-    axios.get(buildURL(origin, destination, travelMode, arrivalTime))
+    axios.get(buildURL(config))
         .then((response) => {
           // handle success
           const distance = response.data.routes[0].legs[0].distance.text;
