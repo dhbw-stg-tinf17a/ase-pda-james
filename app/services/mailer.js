@@ -26,6 +26,7 @@ module.exports = function() {
           .catch((err) => {
             e.MailerApiError.prototype = Object.create(Error.prototype);
             const error = new e.MailerApiError("The API did not perform successfully.", err);
+            console.error(error);
             reject(error);
           });
     });
