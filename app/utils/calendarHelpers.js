@@ -5,7 +5,6 @@ const pairwise = (arr, func) => {
 };
 
 const busyToFree = (busySlots) => {
-  console.log("busySlots", busySlots);
   const freeSlots = [];
 
   switch (busySlots.length) {

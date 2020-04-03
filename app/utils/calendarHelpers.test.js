@@ -26,3 +26,26 @@ describe("Pairwise helper", () => {
     expect(counter).toEqual(1);
   });
 });
+
+describe("busyToFree helper", () => {
+  let busyToFree;
+
+  beforeEach(() => {
+    busyToFree = require("./calendarHelpers").busyToFree;
+  });
+
+  test("Should work with empty array", () => {
+    const result = busyToFree([]);
+    expect(result).toHaveLength(1);
+  });
+
+  // TODO: implement functionality and test
+  // test("Should work with array length 1", () => {  });
+
+  test("Should work with array length 2", () => {
+    const result = busyToFree([{start: "A", end: "B"}, {start: "C", end: "D"}]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toHaveProperty("start");
+    expect(result[0]).toHaveProperty("end");
+  });
+});
