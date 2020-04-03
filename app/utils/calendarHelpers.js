@@ -24,4 +24,4 @@ const busyToFree = (busySlots) => {
   return freeSlots;
 };
 
-module.exports = {busyToFree};
+module.exports = {busyToFree, pairwise};
