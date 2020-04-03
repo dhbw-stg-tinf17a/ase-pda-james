@@ -2,16 +2,16 @@ const gplaces = require("../services/gplaces")();
 const mailer = require("../services/mailer")();
 const watsonSpeech = require("../services/watsonSpeech")();
 const lectureCalId="1nc6dpksqqc9pk2jg85f0hd5hkn8ups1@import.calendar.google.com"; // TO-DO Replace with Preference of lecture calendar
-let absentReason;
-let startAbsent;
-let endAbsent;
-let startAbsentDay = null;
-let endAbsentDay;
-let startAbsentTime = null;
-let endAbsentTime;
 
 
 module.exports = (db, oAuth2Client) => {
+  this.absentReason = null;
+  this.startAbsent = null;
+  this.endAbsent = null;
+  this.startAbsentDay = null;
+  this.endAbsentDay = null;
+  this.startAbsentTime = null;
+  this.endAbsentTime = null;
   const gcalendar = require("../services/gcalendar")(db, oAuth2Client);
   const preferences = require("../services/preferences")(db);
   const mail ={
@@ -57,14 +57,14 @@ module.exports = (db, oAuth2Client) => {
 
   this.convertEntityDates = (waRes) => {
     waRes.entities.forEach((entity) => {
-      if (entity.entity === "sys-date" && startAbsentDay === null ) {
-        startAbsentDay = entity.value;
+      if (entity.entity === "sys-date" && this.startAbsentDay === null ) {
+        this.startAbsentDay = entity.value;
       } else if (entity.entity === "sys-date") {
-        endAbsentDay = entity.value;
-      } else if (entity.entity === "sys-time" && startAbsentTime === null) {
-        startAbsentTime = entity.value;
+        this.endAbsentDay = entity.value;
+      } else if (entity.entity === "sys-time" && this.startAbsentTime === null) {
+        this.startAbsentTime = entity.value;
       } else if (entity.entity === "sys-time") {
-        endAbsentTime = entity.value;
+        this.endAbsentTime = entity.value;
       }
     });
   };
@@ -72,57 +72,58 @@ module.exports = (db, oAuth2Client) => {
   this.convertEntityReasons = (waRes) => {
     waRes.entities.forEach((entity) => {
       if (entity.entity === "absent_reason" ) {
-        absentReason= entity.value;
+        this.absentReason= entity.value;
       }
     });
   };
 
   this.setAbsentTimes =() =>{
-    if (!startAbsentDay) {
+    if (!this.startAbsentDay) {
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, "0");
       const mm = String(today.getMonth() + 1).padStart(2, "0");
       const yyyy = today.getFullYear();
-      startAbsentDay = yyyy + "-" + mm + "-" + dd;
-      endAbsentDay = startAbsentDay;
+      this.startAbsentDay = yyyy + "-" + mm + "-" + dd;
+      this.endAbsentDay = this.startAbsentDay;
     }
-    if (!endAbsentDay) {
-      endAbsentDay = startAbsentDay;
+    if (!this.endAbsentDay) {
+      this.endAbsentDay = this.startAbsentDay;
     }
-    if (startAbsentTime !== null && endAbsentTime !== null) {
-      startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
-      endAbsent = endAbsentDay + "T" + endAbsentTime + "+02:00";
-    } else if (startAbsentTime !== null && endAbsentTime === null ) {
-      startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
-      endAbsent = endAbsentDay + "T" + "22:30:00" + "+02:00";
+    if (this.startAbsentTime !== null && this.endAbsentTime !== null) {
+      this.startAbsent = this.startAbsentDay + "T" + this.startAbsentTime + "+02:00";
+      this.endAbsent = this.endAbsentDay + "T" + this.endAbsentTime + "+02:00";
+    } else if (this.startAbsentTime !== null && this.endAbsentTime === null ) {
+      this.startAbsent = this.startAbsentDay + "T" + this.startAbsentTime + "+02:00";
+      this.endAbsent = this.endAbsentDay + "T" + "22:30:00" + "+02:00";
     } else {
-      startAbsent = startAbsentDay + "T" + "06:00:00" + "+02:00";
-      endAbsent = endAbsentDay + "T" + "22:30:00" + "+02:00";
+      this.startAbsent = this.startAbsentDay + "T" + "06:00:00" + "+02:00";
+      this.endAbsent = this.endAbsentDay + "T" + "22:30:00" + "+02:00";
     }
+    console.log(this.startAbsent, this.endAbsent);
   };
 
-  this.sendMail =(ctx) =>{
+  this.sendMail = (ctx) =>{
     this.setAbsentTimes();
-    if ( absentReason=== "Krankheit") {
-      mail.htmlText="<p>Guten Tag,</p> </br> <p>Ich kann am " + startAbsentDay + " von " + startAbsentTime +" bis " +
-      endAbsentTime + " aufgrund von "+ absentReason +
+    if ( this.absentReason=== "Krankheit") {
+      mail.htmlText="<p>Guten Tag,</p> </br> <p>Ich kann am " + this.startAbsentDay + " von " + this.startAbsentTime +" bis " +
+      this.endAbsentTime + " aufgrund von "+ this.absentReason +
       " die Vorlesungen nicht besuchen.</p> </br> <p> Mit freundlichen Grüßen</p>";
     } else {
-      mail.htmlText="<p>Guten Tag,</p> </br> <p>Ich kann am " + startAbsentDay + " von " + startAbsentTime +" bis " +
-      endAbsentTime + " aufgrund eines "+ absentReason +
+      mail.htmlText="<p>Guten Tag,</p> </br> <p>Ich kann am " + this.startAbsentDay + " von " + this.startAbsentTime +" bis " +
+      this.endAbsentTime + " aufgrund eines "+ this.absentReason +
       " die Vorlesungen nicht besuchen.</p> </br> <p> Mit freundlichen Grüßen</p>";
     }
     preferences.get("name").then((res) => {
       mail.htmlText= mail.htmlText + "</br> <p>" + res + "</p>";
     });
-    gcalendar.getBusySlotsByCalendarId(startAbsent, endAbsent, lectureCalId)
+    gcalendar.getBusySlotsByCalendarId(this.startAbsent, this.endAbsent, lectureCalId)
         .then((res) => {
           if (res.length === 0) {
             watsonSpeech.replyWithAudio(ctx, "Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg");
           } else {
             mailer.sendMail(mail)
                 .then(()=>{
-                  if (absentReason === "Krankheit") {
+                  if (this.absentReason === "Krankheit") {
                     watsonSpeech.replyWithAudio(ctx, "Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser");
                   } else {
                     watsonSpeech.replyWithAudio(ctx, "Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg");
@@ -143,11 +144,11 @@ module.exports = (db, oAuth2Client) => {
               });
         });
 
-    startAbsentDay=null;
-    endAbsentDay=null;
-    startAbsentDayFound=null;
-    startAbsentTime=null;
-    endAbsentTime=null;
+    this.startAbsentDay=null;
+    this.endAbsentDay=null;
+    this.startAbsentDayFound=null;
+    this.startAbsentTime=null;
+    this.endAbsentTime=null;
   };
   return this;
 };

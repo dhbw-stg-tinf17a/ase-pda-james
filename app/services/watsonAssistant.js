@@ -8,7 +8,6 @@ const assistant = new AssistantV2({
   url: "https://api.eu-de.assistant.watson.cloud.ibm.com/instances/0a89d17c-0872-409f-bf4d-8dca04742177",
 });
 module.exports = function() {
-  let sessionId;
   this.sendInput = (userInput)=>{
     return new Promise((resolve, reject)=>{
       if (!this.sessionId) {
@@ -82,7 +81,8 @@ module.exports = function() {
       },
       )
           .then((res) => {
-            res.result.output.context= res.result.context.skills["main skill"].user_defined;
+            res.result.output.context = res.result.context.skills["main skill"].user_defined;
+            console.log(res.result);
             resolve(res.result.output);
           })
           .catch((err) => {
@@ -107,5 +107,29 @@ module.exports = function() {
           });
     });
   };
+
+  this.setContext = (context)=>{
+    return new Promise((resolve, reject)=>{
+      assistant.message({
+        "assistantId": process.env.WATSON_ASSISSTANT_ID,
+        "sessionId": this.sessionId,
+        "context": {
+          "skills": {
+            "main skill": {
+              "user_defined": context,
+            },
+          },
+        },
+      })
+          .then((res) => {
+            resolve(res);
+          })
+          .catch((err) => {
+            console.error(err);
+            reject(err);
+          });
+    });
+  };
+
   return this;
 };

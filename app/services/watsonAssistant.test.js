@@ -1,5 +1,5 @@
-const searchResponse = require("../../__fixtures__/watsonAssistantResponse");
-const messageResponse = require("../../__fixtures__/watsonContextResponse");
+const searchResponse = require("../../__fixtures__/watsonAssistant/watsonAssistantResponse");
+const messageResponse = require("../../__fixtures__/watsonAssistant/watsonContextResponse");
 beforeEach(() => {
   jest.resetModules();
 });
