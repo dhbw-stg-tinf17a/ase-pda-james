@@ -1,5 +1,6 @@
 const axios = require("axios");
 const gplaces = require("./services/gplaces")();
+const todo = require("./services/todo")(db);
 
 module.exports = function(app, db, ctx, oAuth2Client) {
   const preferences = require("./services/preferences")(db);
@@ -9,20 +10,25 @@ module.exports = function(app, db, ctx, oAuth2Client) {
         "&code=" + code + "&client_secret=" + process.env.MS_TODO_CLIENT_SECRET +
         "&grant_type=authorization_code" + "&redirect_uri=http://localhost:8080/mstodo";
     axios.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", queryParams,
-    ).then((tokenRes) => {
+    ).then((tokenRes)=>{
       const authToken = tokenRes.data.access_token;
-      preferences.set("ms_todo_token", authToken).then(() => {
-        preferences.get("chat_id_ms_todo").then((chatId) => {
-          res.send("Danke, bitte kehre zurück zu Telegram.");
-          ctx.telegram.sendMessage(chatId, "Die Integration mit Microsoft Todo wurde erfolgreich durchgeführt.");
-        }).catch((err) => {
+      const refreshToken = tokenRes.data.refresh_token;
+      preferences.set("ms_todo_token", authToken).then(()=>{
+        preferences.set("ms_todo_refresh_token", refreshToken).then(()=>{
+          preferences.get("chat_id_ms_todo").then((chatId)=>{
+            res.send("Danke, bitte kehre zurück zu Telegram.");
+            todo.chooseFolder(ctx, chatId);
+          }).catch((err)=>{
+            res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
+          });
+        }).catch((err)=>{
           res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
         });
-      }).catch((err) => {
+      }).catch((err)=>{
         console.error(err);
         res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
       });
-    }).catch((err) => {
+    }).catch((err)=>{
       console.error(err);
       res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
     });
