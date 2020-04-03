@@ -1,5 +1,4 @@
 const axios = require("axios");
-const springer = require("./gmaps");
 const searchResponse = require("../../__fixtures__/gmapsResponse");
 
 jest.mock("axios");

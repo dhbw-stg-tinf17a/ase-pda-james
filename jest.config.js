@@ -183,7 +183,15 @@ module.exports = {
   // Indicates whether each individual test should be reported during the run
   // fix: to have console logs in jest tests
   verbose: false,
-
+  collectCoverage: true,
+  collectCoverageFrom: [
+    "**/*.js", "!**.test.js",
+  ],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/coverage/",
+    "/jest.config.js",
+  ],
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
 
