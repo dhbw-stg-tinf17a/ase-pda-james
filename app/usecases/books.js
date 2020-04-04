@@ -1,23 +1,33 @@
 const watsonSpeech = require("../services/watsonSpeech")();
+const Markup = require("telegraf/markup");
+const library = require("../services/springer");
+const {formatSlotButtonText} = require("../utils/bookHelpers");
 
 module.exports = (db, oAuth2Client) => {
-  const Markup = require("telegraf/markup");
-  const library = require("../services/springer");
   const calendar = require("../services/gcalendar")(db, oAuth2Client);
   const preferences = require("../services/preferences")(db);
 
   let date = "";
+  let keyword = "";
 
   this.onUpdate = (ctx, waRes) => {
     if (waRes.generic[0].text === "book_welcome") {
       calendar.authenticateUser(ctx);
       watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?");
     } else if (waRes.generic[0].text === "book_which-day") {
+      keyword = waRes.context.keyword;
       watsonSpeech.replyWithAudio(ctx, "Wann möchtest du lernen?");
     } else if (waRes.generic[0].text === "book_slots") {
-      date = waRes.entities.filter((entity) => entity.entity === "sys-date")[0].value;
-      watsonSpeech.replyWithAudio(ctx, "Alles klar!");
-      // do free slots stuff
+      date = waRes.context.bookDate;
+      watsonSpeech.replyWithAudio(ctx, "Alles klar! Wähle einen freien Termin, der für dich passt.");
+
+      calendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
+        const buttons = freeSlots.map((slot, index) => {
+          return [Markup.callbackButton(formatSlotButtonText(slot), `book_slot-${ index }`)];
+        });
+
+        ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
+      });
     }
     /**
      * Here for reference

@@ -204,7 +204,6 @@ module.exports = function(db, oAuth2Client) {
             timeMin: now.toISOString(),
             timeMax: endOfDay.toISOString(),
             items: [
-              {id: "primary"},
               {id: lectureCalendarId},
             ],
           },
