@@ -40,11 +40,8 @@ module.exports = (db, oAuth2Client) => {
     /* if (ctx.update.message && ctx.update.message.text === "books") {
       library.getByTitle().then((res) => {
         const data = res.data;
-
         const collatedTitles = data.records.slice(5).map((record) => record.title).join("\n");
-
         const message = `<b>The first five articles are:</b> ${ "\n" + collatedTitles }`;
-
         ctx.reply("You searched for \"user experience\".").then(() => {
           ctx.replyWithHTML(message);
         });
@@ -85,7 +82,6 @@ module.exports = (db, oAuth2Client) => {
           dateTime: "2020-03-15T10:00:00+01:00",
         },
       };
-
       cal.createEvent(testEvent).then((createdEvent) => {
         if (createdEvent !== {}) {
           ctx.reply(`The event ${ createdEvent.summary } was created successfully!`);
@@ -100,7 +96,6 @@ module.exports = (db, oAuth2Client) => {
     } else if (ctx.update.message && ctx.update.message.text === "books cals") {
       cal.getCalendars().then((cals) => {
         const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, resCal.summary)]);
-
         ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
       }).catch((err) => {
         ctx.reply("Sorry, an error occurred!");
@@ -108,7 +103,6 @@ module.exports = (db, oAuth2Client) => {
     } else if (ctx.updateType === "callback_query") {
       cal.getCalendars().then((calendars) => {
         const lectureCalendarId = calendars.filter((calendar) => ctx.callbackQuery.data === calendar.summary)[0].id;
-
         return preferences.set("lecture_calendar_id", lectureCalendarId);
       }).then(() => {
         ctx.reply("Super, dann haben wir deinen Vorlesungskalender eingerichtet!");
