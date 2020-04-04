@@ -4,8 +4,9 @@ const library = require("../services/springer");
 const {createFreeSlotButtons} = require("../utils/bookHelpers");
 
 module.exports = (db, oAuth2Client) => {
-  const calendar = require("../services/gcalendar")(db, oAuth2Client);
+  const gCalendar = require("../services/gcalendar")(db, oAuth2Client);
   const preferences = require("../services/preferences")(db);
+  const gPlaces = require("../services/gplaces")();
 
   let date = "";
   let keyword = "";
@@ -14,7 +15,7 @@ module.exports = (db, oAuth2Client) => {
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       case "book_welcome":
-        calendar.authenticateUser(ctx);
+        gCalendar.authenticateUser(ctx);
         watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?");
         break;
       case "book_which-day":
@@ -25,7 +26,7 @@ module.exports = (db, oAuth2Client) => {
         date = waRes.context.bookDate;
         watsonSpeech.replyWithAudio(ctx, "Alles klar! Wähle einen freien Termin, der für dich passt.");
 
-        calendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
+        gCalendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
           const buttons = createFreeSlotButtons(freeSlots);
 
           ctx.reply("Freie Termine:", Markup.inlineKeyboard(buttons).extra());
@@ -140,10 +141,17 @@ module.exports = (db, oAuth2Client) => {
 
     switch (actionType) {
       case "slot":
-        calendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
+        gCalendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
           timeslot = freeSlots[actionDetail];
-
-          watsonSpeech.replyWithAudio(ctx, "Alles klar! Möchtest du in der nächsten Bibliothek lernen?");
+        }).then(() => {
+          return gPlaces.getPlaces({
+            query: "Bibliothek",
+            location: "48.805960, 9.234850", // TODO: Replace with Preference of home address
+            rankby: "distance",
+          });
+        }).then((places) => {
+          console.log(places.results[0].vicinity);
+          console.log(places.results[0].opening_hours);
         });
         break;
       default:
