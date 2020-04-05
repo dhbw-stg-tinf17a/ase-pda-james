@@ -8,7 +8,7 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     const code = req.query.code;
     const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +
         "&code=" + code + "&client_secret=" + process.env.MS_TODO_CLIENT_SECRET +
-        "&grant_type=authorization_code" + "&redirect_uri=http://localhost:8080/mstodo";
+        "&grant_type=authorization_code" + `&redirect_uri=${process.env.BACKEND_URL}/mstodo`;
     axios.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", queryParams,
     ).then((tokenRes)=>{
       const authToken = tokenRes.data.access_token;
