@@ -5,7 +5,7 @@ pipeline {
       steps {
         withCredentials([file(credentialsId: 'ase-james-env', variable: 'SECRET')]) {
           sh "> .env"
-          sh "echo `cat $${SECRET}` > .env"
+          sh "echo `cat ${SECRET}` > .env"
         }
       }
     }
