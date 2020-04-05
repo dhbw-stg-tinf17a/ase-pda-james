@@ -10,7 +10,6 @@ module.exports = function(db) {
               if (err) {
                 reject(err);
               } else {
-                console.log("recuuuursion!");
                 this.get(key).then(resolve).catch(reject);
               }
             });

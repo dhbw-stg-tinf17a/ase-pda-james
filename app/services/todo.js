@@ -7,9 +7,7 @@ module.exports = function(db) {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
         if (token) {
-          console.log(`token: ${token}`);
           preferences.get("ms_todo_folder_id").then((folderId)=>{
-            console.log(`folderId: ${folderId}`);
             if (folderId) {
               axios.get(`https://outlook.office.com/api/v2.0/me/taskfolders('${folderId}')/tasks`, {
                 headers: {"Authorization": `Bearer ${token}`},
@@ -112,7 +110,7 @@ module.exports = function(db) {
       const client = `?client_id=${process.env.MS_TODO_CLIENT_ID}`;
       const scope = "&scope=https%3A%2F%2Foutlook.office.com%2Ftasks.readwrite%20offline_access";
       const responseType = "&response_type=code";
-      const redirectUri = "&redirect_uri=http://localhost:8080/mstodo";
+      const redirectUri = `&redirect_uri=${process.env.BACKEND_URL}/mstodo`;
       ctx.reply("Bitte melde dich bei Microsoft Todo an:\n" + base + client + scope + responseType + redirectUri);
     }).catch((err)=>{
       ctx.reply("Tut mir Leid, da hat etwas nicht funktioniert");
