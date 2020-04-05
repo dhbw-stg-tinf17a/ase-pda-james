@@ -6,10 +6,12 @@ module.exports = function(db) {
           reject(err);
         } else {
           if (!prefs) {
+            console.log("creating new collection");
             db.createCollection("preferences", function(err, res) {
               if (err) {
                 reject(err);
               } else {
+                console.log("recuuuursion!");
                 this.get(key).then(resolve).catch(reject);
               }
             });

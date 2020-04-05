@@ -7,7 +7,9 @@ module.exports = function(db) {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
         if (token) {
+          console.log(`token: ${token}`);
           preferences.get("ms_todo_folder_id").then((folderId)=>{
+            console.log(`folderId: ${folderId}`);
             if (folderId) {
               axios.get(`https://outlook.office.com/api/v2.0/me/taskfolders('${folderId}')/tasks`, {
                 headers: {"Authorization": `Bearer ${token}`},
