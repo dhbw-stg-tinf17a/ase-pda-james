@@ -6,8 +6,7 @@ module.exports = function(db) {
           reject(err);
         } else {
           if (!prefs) {
-            console.log("creating new collection");
-            db.createCollection("preferences", function(err, res) {
+            db.collection("preferences").insertOne({}, function(err, res) {
               if (err) {
                 reject(err);
               } else {
