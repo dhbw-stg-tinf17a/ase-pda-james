@@ -42,8 +42,8 @@ module.exports = function() {
         } else if (err.message=="ms_todo_folder_id is not saved") {
           msTodo.chooseFolder(ctx, ctx.message.chat.id);
         } else {
+          console.error(err);
         }
-        console.error(err);
       });
     }
   };
