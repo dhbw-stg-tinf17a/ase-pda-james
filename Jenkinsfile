@@ -23,9 +23,11 @@ pipeline {
       }
     }
 
-    stage('deploy') {
-      steps {
-        sh 'docker-compose up -d'
+    if(env.BRANCH_NAME == 'dev'){
+      stage('deploy') {
+        steps {
+          sh 'docker-compose up -d'
+        }
       }
     }
   }
