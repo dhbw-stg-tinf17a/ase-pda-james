@@ -15,7 +15,6 @@ if (process.env.production) {
   mongoUrl = "mongodb://mongo:27017";
 }
 
-
 mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
   if (err) {
     console.log(err);
