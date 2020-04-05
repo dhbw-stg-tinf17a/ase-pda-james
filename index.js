@@ -6,7 +6,7 @@ const path = require("path");
 const {google} = require("googleapis");
 const fs = require("fs");
 
-const Manager = require("./app/Manager");
+const Manager = require("./app/manager");
 
 let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
