@@ -11,7 +11,7 @@ const Manager = require("./app/manager");
 let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
 let mongoUrl = "mongodb://localhost:27017";
-if (process.env.production) {
+if (process.env.PROD) {
   mongoUrl = "mongodb://mongo:27017";
 }
 
