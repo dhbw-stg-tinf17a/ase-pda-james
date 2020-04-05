@@ -1,18 +1,28 @@
+const watsonSpeech = require("../services/watsonSpeech")();
+const moment = require("moment");
+
 module.exports = (db, oAuth2Client) => {
   const Markup = require("telegraf/markup");
   const library = require("../services/springer");
-  const cal = require("../services/gcalendar")(db, oAuth2Client);
+  const calendar = require("../services/gcalendar")(db, oAuth2Client);
   const preferences = require("../services/preferences")(db);
 
-  this.onUpdate = (ctx) => {
-    if (ctx.update.message && ctx.update.message.text === "books") {
+  this.onUpdate = (ctx, waRes) => {
+    if (waRes.generic[0].text === "book_welcome") {
+      console.log(waRes);
+      calendar.authenticateUser(ctx);
+    } else if (waRes.generic[0].text === "book_keyword") {
+      console.log(waRes);
+      calendar.authenticateUser(ctx);
+    }
+    /**
+     * Here for reference
+     */
+    /* if (ctx.update.message && ctx.update.message.text === "books") {
       library.getByTitle().then((res) => {
         const data = res.data;
-
         const collatedTitles = data.records.slice(5).map((record) => record.title).join("\n");
-
         const message = `<b>The first five articles are:</b> ${ "\n" + collatedTitles }`;
-
         ctx.reply("You searched for \"user experience\".").then(() => {
           ctx.replyWithHTML(message);
         });
@@ -53,7 +63,6 @@ module.exports = (db, oAuth2Client) => {
           dateTime: "2020-03-15T10:00:00+01:00",
         },
       };
-
       cal.createEvent(testEvent).then((createdEvent) => {
         if (createdEvent !== {}) {
           ctx.reply(`The event ${ createdEvent.summary } was created successfully!`);
@@ -68,7 +77,6 @@ module.exports = (db, oAuth2Client) => {
     } else if (ctx.update.message && ctx.update.message.text === "books cals") {
       cal.getCalendars().then((cals) => {
         const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, resCal.summary)]);
-
         ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
       }).catch((err) => {
         ctx.reply("Sorry, an error occurred!");
@@ -76,7 +84,6 @@ module.exports = (db, oAuth2Client) => {
     } else if (ctx.updateType === "callback_query") {
       cal.getCalendars().then((calendars) => {
         const lectureCalendarId = calendars.filter((calendar) => ctx.callbackQuery.data === calendar.summary)[0].id;
-
         return preferences.set("lecture_calendar_id", lectureCalendarId);
       }).then(() => {
         ctx.reply("Super, dann haben wir deinen Vorlesungskalender eingerichtet!");
@@ -104,7 +111,12 @@ module.exports = (db, oAuth2Client) => {
       }).catch((err) => {
         ctx.reply("error occurred");
       });
-    }
+    } */
   };
+
+  this.onCallbackQuery = (ctx) => {
+
+  };
+
   return this;
 };
