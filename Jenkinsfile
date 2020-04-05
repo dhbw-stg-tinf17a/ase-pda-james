@@ -10,6 +10,12 @@ pipeline {
       }
     }
 
+    stage('run tests') {
+      steps {
+        sh 'npm test'
+      }
+    }
+
     stage('build backend') {
       steps {
         sh 'docker build -t ase-james .'
