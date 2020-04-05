@@ -8,6 +8,7 @@ module.exports = function() {
       msTodo.authorizeUser(ctx);
     } else if (waRes.generic[0].text === "tasks_show") {
       msTodo.getTodos().then((todos)=>{
+        console.log(todos);
         // show tasks to user
         let inlineKeyboardMarkup = {inline_keyboard: [[]]};
         let toSend = "Du hast folgende Aufgaben offen:\n";
@@ -37,6 +38,7 @@ module.exports = function() {
 
         ctx.reply(toSend, {reply_markup: inlineKeyboardMarkup});
       }).catch((err)=>{
+        console.log(err);
         if (err.message=="ms_todo_token is not saved") {
           msTodo.authorizeUser(ctx);
         } else if (err.message=="ms_todo_folder_id is not saved") {
