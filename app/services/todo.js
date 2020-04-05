@@ -1,6 +1,5 @@
 const axios = require("axios");
 
-
 module.exports = function(db) {
   const preferences = require("../services/preferences")(db);
 
