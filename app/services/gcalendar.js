@@ -1,5 +1,6 @@
 const {google} = require("googleapis");
 const {busyToFree} = require("../utils/calendarHelpers");
+const moment = require("moment");
 
 module.exports = function(db, oAuth2Client) {
   const preferences = require("./preferences")(db);
@@ -29,7 +30,7 @@ module.exports = function(db, oAuth2Client) {
 
         return calendar.events.list({
           calendarId,
-          timeMin: (new Date()).toISOString(),
+          timeMin: moment().toISOString(),
           maxResults: 1,
           singleEvents: true,
           orderBy: "startTime",
@@ -59,7 +60,7 @@ module.exports = function(db, oAuth2Client) {
 
         calendar.events.list({
           calendarId,
-          timeMin: (new Date()).toISOString(),
+          timeMin: moment().toISOString(),
           maxResults: 15,
           singleEvents: true,
           orderBy: "startTime",
@@ -73,7 +74,10 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  this.getBusySlotsByCalendarId = (timeMin, timeMax, calendarId) => {
+  this.getBusySlotsByCalendarId = (
+      timeMin = moment().toISOString(),
+      timeMax = moment().add(1, "d").toISOString(),
+      calendarId) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
         oAuth2Client.credentials = JSON.parse(credentials);
@@ -99,7 +103,9 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  this.getStartOfFirstEvent = (timeMin, timeMax, lectureCalendarId) => {
+  this.getStartOfFirstEvent = (timeMin = moment().toISOString(),
+      timeMax = moment().add(1, "d").toISOString(),
+      lectureCalendarId) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
         oAuth2Client.credentials = JSON.parse(credentials);
@@ -195,14 +201,10 @@ module.exports = function(db, oAuth2Client) {
       }).then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
-        const now = new Date();
-        let endOfDay = new Date().setHours(23, 59, 59, 999);
-        endOfDay = new Date(endOfDay);
-
         return calendar.freebusy.query({
           requestBody: {
-            timeMin: now.toISOString(),
-            timeMax: endOfDay.toISOString(),
+            timeMin: moment().toISOString(),
+            timeMax: moment().endOf("day").toISOString(),
             items: [
               {id: "primary"},
               {id: lectureCalendarId},

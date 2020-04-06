@@ -20,18 +20,18 @@ module.exports = function() {
           if (res.status !== 200) {
             e.GPlacesApiError.prototype = Object.create(Error.prototype);
             const err = new e.GPlacesApiError("The API did not perform successfully.", res.status);
-            console.log(err);
+            console.error(err);
             reject(err);
           } else {
             e.GPlacesInvalidParametersError.prototype = Object.create(Error.prototype);
             const err = new e.GPlacesInvalidParametersError("The entered parameter is invalid.", id);
-            console.log(err);
+            console.error(err);
             reject(err);
           }
         }
       })
           .catch((err) => {
-            console.log(err);
+            console.error(err);
             reject(new Error("Axios Error" + err));
           });
     });
@@ -110,18 +110,18 @@ module.exports = function() {
               if (res.status !== 200) {
                 e.GPlacesApiError.prototype = Object.create(Error.prototype);
                 const err = new e.GPlacesApiError("The API did not perform successfully.", res.status);
-                console.log(err);
+                console.error(err);
                 reject(err);
               } else {
                 e.GPlacesInvalidParametersError.prototype = Object.create(Error.prototype);
                 const err = new e.GPlacesInvalidParametersError("The entered parameters are invalid.", params);
-                console.log(err);
+                console.error(err);
                 reject(err);
               }
             }
           })
           .catch((err) => {
-            console.log("Axios Error" + err);
+            console.error("Axios Error" + err);
             reject(new Error("Axios Error" + err));
           });
     });
@@ -138,18 +138,18 @@ module.exports = function() {
               if (res.status !== 200) {
                 e.GPlacesApiError.prototype = Object.create(Error.prototype);
                 const err = new e.GPlacesApiError("The API did not perform successfully.", res.status);
-                console.log(err);
+                console.error(err);
                 reject(err);
               } else {
                 e.GPlacesInvalidParametersError.prototype = Object.create(Error.prototype);
                 const err = new e.GPlacesInvalidParametersError("The entered parameters are invalid.", params);
-                console.log(err);
+                console.error(err);
                 reject(err);
               }
             }
           })
           .catch((err) => {
-            console.log("Axios Error" + err);
+            console.error("Axios Error" + err);
             reject(new Error("Axios Error" + err));
           });
     });
