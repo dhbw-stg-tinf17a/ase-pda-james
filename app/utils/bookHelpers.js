@@ -46,9 +46,18 @@ const createEmailText = (keyword, records) => {
 const createEmailOptions = (keyword, emailText) => {
   return {
     recipient: "erik.littwin@gmail.com",
-    subject: `Rechercheergebnisse zum Thema ${keyword}`,
+    subject: `Rechercheergebnisse zum Thema ${ keyword }`,
     htmlText: emailText,
   };
 };
 
-module.exports = {createFreeSlotButtons, formatSlotButtonText, formatSlotButtonData, createEventTitle, createEmailText, createEmailOptions};
+module.exports = {
+  createFreeSlotButtons,
+  formatSlotButtonText,
+  formatSlotButtonData,
+  createEventTitle,
+  createEmailText,
+  createEmailOptions,
+  transformResearchResult,
+  createResearchLinks,
+};
