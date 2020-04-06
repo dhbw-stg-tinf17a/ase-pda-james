@@ -1,7 +1,6 @@
 const axios = require("axios");
 const htmlToText = require("html-to-text");
 require("dotenv").config({path: __dirname + "./../../.env"});
-const URL = require("url").URL;
 
 const buildURL = (config) => {
   // build URL
