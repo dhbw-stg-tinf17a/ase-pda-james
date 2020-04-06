@@ -7,5 +7,5 @@ jest.mock("axios");
 test("fetches results from Springer API", () => {
   axios.get.mockResolvedValue(searchResponse);
 
-  return springer.getByTitle("user experience").then((data) => expect(data).toEqual(searchResponse));
+  return springer.getByKeyword("user experience").then((data) => expect(data).toEqual(searchResponse));
 });

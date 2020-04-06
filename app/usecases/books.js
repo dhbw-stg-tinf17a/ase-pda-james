@@ -1,7 +1,8 @@
 const watsonSpeech = require("../services/watsonSpeech")();
 const Markup = require("telegraf/markup");
 const library = require("../services/springer");
-const {createFreeSlotButtons} = require("../utils/bookHelpers");
+const mail = require("../services/mailer")();
+const {createFreeSlotButtons, createEmailText, createEmailOptions} = require("../utils/bookHelpers");
 
 module.exports = (db, oAuth2Client) => {
   const gCalendar = require("../services/gcalendar")(db, oAuth2Client);
@@ -11,6 +12,7 @@ module.exports = (db, oAuth2Client) => {
   let date = "";
   let keyword = "";
   let timeslot = {};
+  let libraryAddress = "";
 
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
@@ -150,8 +152,18 @@ module.exports = (db, oAuth2Client) => {
             rankby: "distance",
           });
         }).then((places) => {
-          console.log(places.results[0].vicinity);
-          console.log(places.results[0].opening_hours);
+          libraryAddress = places.results[0].vicinity;
+
+          // TODO: Get opening hours and check whether open for studying, else set home address
+        }).then(() => {
+          return library.getByKeyword(keyword);
+        }).then((data) => {
+          const emailMessage = createEmailText(keyword, data.records);
+          const emailOptions = createEmailOptions(keyword, emailMessage);
+
+          return mail.sendMail(emailOptions);
+        }).then(() => {
+          ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${keyword} geschickt.`);
         });
         break;
       default:
