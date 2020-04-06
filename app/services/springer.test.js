@@ -1,11 +1,16 @@
 const axios = require("axios");
-const springer = require("./springer");
 const searchResponse = require("../../__fixtures__/springerResponse");
 
 jest.mock("axios");
 
-test("fetches results from Springer API", () => {
-  axios.get.mockResolvedValue(searchResponse);
+describe("Springer service", () => {
+  let springer;
 
-  return springer.getByKeyword("user experience").then((data) => expect(data).toEqual(searchResponse));
+  beforeEach(() => springer = require("./springer"));
+
+  test("fetches results from Springer API", () => {
+    axios.get.mockResolvedValue({data: searchResponse});
+
+    return springer.getByKeyword("user experience").then((data) => expect(data).toEqual(searchResponse));
+  });
 });
