@@ -14,7 +14,7 @@ module.exports = (db, oAuth2Client) => {
   let commutePref;
   let lectureCal;
 
-  prefs.set("homeAddr", "Im Wiesengrund 40, Nufringen");
+  prefs.set("homeAddr", "Ernsthaldenstraße 47, Stuttgart");
   prefs.set("uniAddr", "Rotebühlplatz 41, Stuttgart");
   prefs.set("commute", "vvs");
   prefs.set("lectureCal", "jamesaseprojekt@gmail.com");
@@ -94,7 +94,35 @@ module.exports = (db, oAuth2Client) => {
               speakableTime.dep, legs[0].start.stopName, speakableTime.arr,
               lastLeg.end.stopName, timeParams.commuteDuration, interchanges,
           ));
+          // TODO: Formatted summary of transit itinerary.
         }
+      }).catch((err) => {
+        switch (err.name) {
+          case "VvsApiError":
+            ctx.reply("Die VVS-API hat nicht funktioniert. Versuche es nochmal.");
+            break;
+          case "VvsMultiplePointsError":
+            ctx.reply(
+                "Eine oder mehrere Adresse(n) innerhalb Deiner Präferenzen sorgen für mehrdeutige Ergebnisse." +
+                "Die Adresse(n) müssen genauer in den Präferenzen angegeben werden",
+            );
+            break;
+          case "VvsUnresolvableKeywordError":
+            ctx.reply(
+                "Eine oder mehrere Adresse(n) innerhalb Deiner Präferenzen sorgen für keine Ergebnisse." +
+                "Bitte überprüfe Deine Adresse(n) in Präferenzen auf mögliche Tippfehler",
+            );
+            break;
+          case "VvsInvalidParametersError":
+            ctx.reply(
+                "Die Suchparameter sind nicht gültig. Das ist ein internes Problem der Anwendung.",
+            );
+            break;
+          default:
+            ctx.reply("Beim VVS-Service ist etwas schiefgelaufen. Versuche es nochmal.");
+            break;
+        }
+
       });
     // ==== NON-TRANSIT CASE ===========================================================================================
     } else {
@@ -121,6 +149,8 @@ module.exports = (db, oAuth2Client) => {
 
         watsonSpeech.replyWithAudio(ctx, speak.googleMapsUrl);
         ctx.reply(routeUrl);
+      }).catch(() => {
+        return ctx.reply("Beim Google-Maps-Service ist etwas schiefgelaufen. Versuche es nochmal.");
       });
     }
   };
