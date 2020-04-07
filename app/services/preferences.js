@@ -26,7 +26,6 @@ module.exports = function(db) {
               }
             });
           } else {
-            console.log("try to update",key,value)
             db.collection("preferences").updateOne({}, {$set: {[key]: value}}, (err)=>{
               if (err) {
                 reject(err);
