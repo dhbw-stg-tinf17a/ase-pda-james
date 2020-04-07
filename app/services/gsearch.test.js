@@ -3,11 +3,13 @@ const searchResponse = require("../../__fixtures__/gsearchResponse");
 jest.mock("axios");
 let gsearch;
 
-beforeEach(() => {
-  gsearch = require("./gsearch");
-});
 
 describe("gsearch test cases", () => {
+  beforeEach(() => {
+    gsearch = require("./gsearch");
+  });
+
+
   test("gmaps.getSearchResults returns something", () => {
     axios.get.mockResolvedValue({data: searchResponse});
     return gsearch.getSearchResults("Apotheke Stuttgart Stadtmitte").then((data) => {

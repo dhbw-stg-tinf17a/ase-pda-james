@@ -45,7 +45,7 @@ module.exports.getGoogleMapsRedirectionURL = (destination) => {
     query: destination,
   });
 
-  console.log("buildURL", url + params);
+  // console.log("buildURL", url + params);
   return url + params;
 };
 

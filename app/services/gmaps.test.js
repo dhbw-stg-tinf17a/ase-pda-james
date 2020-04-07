@@ -4,14 +4,15 @@ jest.mock("axios");
 
 const {buildURL} = require("../utils/gmapsHelpers");
 
-let gmaps;
-
-beforeEach(() => {
-  gmaps = require("./gmaps");
-});
-
 
 describe("gmaps test cases", () => {
+  let gmaps;
+
+  beforeEach(() => {
+    gmaps = require("./gmaps");
+  });
+
+
   test("resolves promise", () => {
     axios.get.mockResolvedValue({data: searchResponse});
     const config = {
@@ -88,6 +89,13 @@ describe("gmaps test cases", () => {
 });
 
 describe("gmaps helper functions", () => {
+  let gmaps;
+
+  beforeEach(() => {
+    gmaps = require("./gmaps");
+  });
+
+
   test("gmaps.getGoogleMapsRedirectionURL has content", () => {
     const config = {
       origin: "Stuttgart Hauptbahnhof",
