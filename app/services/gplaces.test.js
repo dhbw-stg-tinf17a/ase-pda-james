@@ -1,6 +1,8 @@
 const axios = require("axios");
 const searchResponse = require("../../__fixtures__/gplacesResponse");
 const searchIdResponse = require("../../__fixtures__/gplacesIdResponse");
+const failSearchResponse = require("../../__fixtures__/gplacesFailResponse");
+const apiFailSearchResponse = require("../../__fixtures__/gplacesApiFailResponse");
 
 jest.mock("axios");
 
@@ -62,8 +64,68 @@ describe("gplaces getFormattedAddress", () => {
   });
 });
 
+describe("gplaces getPlaceById", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: failSearchResponse});
+    return gplaces.getPlaceById("4f89212bf76dde31f092cfc14d7506555d85b5c7")
+        .catch((err) => {
+          expect(err.message).toBe("[GPlaces Service Error] The entered parameter is invalid.");
+        });
+  });
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: apiFailSearchResponse});
+    return gplaces.getPlaceById("4f89212bf76dde31f092cfc14d7506555d85b5c7")
+        .catch((err) => {
+          expect(err.message).toBe("[GPlaces Service Error] The API did not perform successfully.");
+        });
+  });
+});
 
-describe("gplaces getFormattedAddress", () => {
+describe("gplaces getPlaceByText", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: failSearchResponse});
+    return gplaces.getPlacesByText({query: "DHBW"})
+        .catch((err) => {
+          expect(err.message).toBe("[GPlaces Service Error] The entered parameters are invalid.");
+        });
+  });
+
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: apiFailSearchResponse});
+    return gplaces.getPlacesByText({query: "DHBW"})
+        .catch((err) => {
+          expect(err.message).toBe("[GPlaces Service Error] The API did not perform successfully.");
+        });
+  });
+});
+
+describe("gplaces getPlacesNearby", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: failSearchResponse});
+    return gplaces.getPlacesNearby({query: "DHBW", location: "48.803790, 9.236430"})
+        .catch((err) => {
+          expect(err.message).toBe("[GPlaces Service Error] The entered parameters are invalid.");
+        });
+  });
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: apiFailSearchResponse});
+    return gplaces.getPlacesNearby({query: "DHBW", location: "48.803790, 9.236430"})
+        .catch((err) => {
+          expect(err.message).toBe("[GPlaces Service Error] The API did not perform successfully.");
+        });
+  });
+});
+
+describe("gplaces isPlaceOpen", () => {
   beforeEach(() => {
     gplaces = require("./gplaces")();
   });
