@@ -11,6 +11,9 @@ describe("Springer service", () => {
   test("fetches results from Springer API", () => {
     axios.get.mockResolvedValue({data: searchResponse});
 
-    return springer.getByKeyword("user experience").then((data) => expect(data).toEqual(searchResponse));
+    return springer.getByKeyword("user experience").then((data) => {
+      expect(data).toBeDefined();
+      expect(data).toEqual(searchResponse);
+    });
   });
 });

@@ -40,12 +40,89 @@ describe("busyToFree helper", () => {
   });
 
   // TODO: implement functionality and test
-  // test("Should work with array length 1", () => {  });
+  test("Should work with array length 1 (before 10:00)", () => {
+    const result = busyToFree([{
+      start: "2020-04-07T07:00:00+02:00",
+      end: "2020-04-07T08:00:00+02:00",
+    }]);
 
-  test("Should work with array length 2", () => {
-    const result = busyToFree([{start: "A", end: "B"}, {start: "C", end: "D"}]);
     expect(result).toHaveLength(1);
     expect(result[0]).toHaveProperty("start");
     expect(result[0]).toHaveProperty("end");
+  });
+
+  test("Should work with array length 1 (after 10:00)", () => {
+    const result = busyToFree([{
+      start: "2020-04-07T11:00:00+02:00",
+      end: "2020-04-07T12:00:00+02:00",
+    }]);
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toHaveProperty("start");
+    expect(result[0]).toHaveProperty("end");
+    expect(result[1]).toHaveProperty("start");
+    expect(result[1]).toHaveProperty("end");
+  });
+
+  test("Should work with array length 2", () => {
+    const result = busyToFree([{
+      start: "2020-04-07T07:00:00+02:00",
+      end: "2020-04-07T08:00:00+02:00",
+    }, {
+      start: "2020-04-07T09:00:00+02:00",
+      end: "2020-04-07T10:00:00+02:00",
+    }]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toHaveProperty("start");
+    expect(result[0]).toHaveProperty("end");
+  });
+});
+
+describe("freeAroundEvent", () => {
+  let freeAroundEvent;
+
+  beforeEach(() => freeAroundEvent = require("./calendarHelpers").freeAroundEvent);
+
+  test("works if event is before 10:00", () => {
+    const freeSlots = freeAroundEvent({start: "2020-04-07T07:00:00+02:00", end: "2020-04-07T08:00:00+02:00"});
+
+    expect(freeSlots).toHaveLength(1);
+    expect(freeSlots[0]).toHaveProperty("start");
+    expect(freeSlots[0]).toHaveProperty("end");
+    expect(freeSlots[0].start).toBe("2020-04-07T08:00:00+02:00");
+    expect(freeSlots[0].end).toBe("2020-04-07T17:00:00+02:00");
+  });
+
+  test("works if event is at 10:00", () => {
+    const freeSlots = freeAroundEvent({start: "2020-04-07T10:00:00+02:00", end: "2020-04-07T11:00:00+02:00"});
+
+    expect(freeSlots).toHaveLength(2);
+
+    expect(freeSlots[0]).toHaveProperty("start");
+    expect(freeSlots[0]).toHaveProperty("end");
+    expect(freeSlots[1]).toHaveProperty("start");
+    expect(freeSlots[1]).toHaveProperty("end");
+
+    expect(freeSlots[0].start).toBe("2020-04-07T09:00:00+02:00");
+    expect(freeSlots[0].end).toBe("2020-04-07T10:00:00+02:00");
+    expect(freeSlots[1].start).toBe("2020-04-07T11:00:00+02:00");
+    expect(freeSlots[1].end).toBe("2020-04-07T17:00:00+02:00");
+  });
+
+  test("works if event is after 10:00", () => {
+    const freeSlots = freeAroundEvent({start: "2020-04-07T10:05:00+02:00", end: "2020-04-07T11:00:00+02:00"});
+
+    expect(freeSlots).toHaveLength(2);
+
+    expect(freeSlots[0]).toHaveProperty("start");
+    expect(freeSlots[0]).toHaveProperty("end");
+    expect(freeSlots[1]).toHaveProperty("start");
+    expect(freeSlots[1]).toHaveProperty("end");
+
+    expect(freeSlots[0].start).toBe("2020-04-07T09:00:00+02:00");
+    expect(freeSlots[0].end).toBe("2020-04-07T10:05:00+02:00");
+    expect(freeSlots[1].start).toBe("2020-04-07T11:00:00+02:00");
+    expect(freeSlots[1].end).toBe("2020-04-07T17:00:00+02:00");
   });
 });
