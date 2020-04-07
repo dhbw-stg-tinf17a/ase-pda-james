@@ -8,7 +8,7 @@ module.exports = (db, oAuth2Client) => {
   const cal = require("../services/gcalendar.js")(db, oAuth2Client);
   moment.locale("de");
 
-  // TEMP getting and setting preferences ====================================================
+  // ==== TEMPORARY: getting and setting preferences ===================================================================
   let homeAddr;
   let uniAddr;
   let commutePref;
@@ -31,89 +31,96 @@ module.exports = (db, oAuth2Client) => {
   prefs.get("lectureCal").then((res) => {
     lectureCal = res;
   });
-  // =========================================================================================
+  // ===================================================================================================================
 
   this.onUpdate = async function(ctx, waRes) {
-    if (waRes.generic[0].text === "uniNotifier_welcome") {
-      cal.authenticateUser(ctx);
-      // watsonSpeech.replyWithAudio(ctx, "Ich schaue mal nach, wann du los musst!");
+    // check if WA intent corresponds
+    if (waRes.generic[0].text !== "uniNotifier_welcome") {
+      return new Error("Unknown intent.");
+    }
 
-      const validCommutePrefs = ["driving", "walking", "bicycling", "vvs"];
+    // TEMPORARY: provide Google authentication URL
+    cal.authenticateUser(ctx);
 
-      if (!validCommutePrefs.includes(commutePref)) {
-        return new Error("Invalid preference.");
-      }
+    watsonSpeech.replyWithAudio(ctx, "Ich schaue mal nach, wann du los musst!");
 
-      const nextLectures = await cal.getNextEvents(lectureCal);
-      const nextLecture = nextLectures[0];
+    const validCommutePrefs = ["driving", "walking", "bicycling", "vvs"];
+    if (!validCommutePrefs.includes(commutePref)) {
+      return new Error("Invalid preference.");
+    }
 
-      const timeParams = {
-        currentTime: moment(),
-        lectureStart: moment(nextLecture.start.dateTime),
-        buffer: 10,
+    const nextLectures = await cal.getNextEvents(lectureCal);
+    const nextLecture = nextLectures[0]; // first API response element always returns next or current lecture
+
+    const timeParams = {
+      currentTime: moment(),
+      lectureStart: moment(nextLecture.start.dateTime),
+      buffer: 10,
+    };
+
+    // ==== TRANSIT CASE ===============================================================================================
+    if (commutePref === "vvs") {
+      const origin = await vvs.getStopByKeyword(homeAddr);
+      const destination = await vvs.getStopByKeyword(uniAddr);
+
+      const tripParams = {
+        originId: origin.stopID,
+        destinationId: destination.stopID,
+        date: new Date(timeParams.lectureStart.subtract(timeParams.buffer, "minutes")),
+        isArrTime: true,
       };
 
-      if (commutePref === "vvs") {
-        const origin = await vvs.getStopByKeyword(homeAddr);
-        const destination = await vvs.getStopByKeyword(uniAddr);
+      vvs.getTrip(tripParams).then((res) => {
+        const trip = res[2]; // third API response element always returns closest arrival to desired arrival
+        timeParams.commuteDuration = trip.duration;
 
-        const tripParams = {
-          originId: origin.stopID,
-          destinationId: destination.stopID,
-          date: new Date(timeParams.lectureStart.subtract(timeParams.buffer, "minutes")),
-          isArrTime: true,
-        };
+        if (late(timeParams)) {
+          return console.log("Bruder, du musst dringend los");
+        } else if (early(timeParams)) {
+          return console.log("Frei bis nächste Woche");
+        } else /* if on time */ {
+          const legs = trip.legs;
+          const legAmt = legs.length;
+          const lastLeg = legs[legAmt - 1];
+          const depTime = legs[0].start.date;
+          const arrTime = lastLeg.end.date;
 
-        vvs.getTrip(tripParams).then((res) => {
-          const trip = res[2];
-          timeParams.commuteDuration = trip.duration;
+          let interchanges = legAmt - 1;
+          if (interchanges === 1) interchanges = "ein";
 
-          if (late(timeParams)) {
-            return console.log("Bruder, du musst dringend los");
-          } else if (early(timeParams)) {
-            return console.log("Frei bis nächste Woche");
-          } else /* if on time */ {
-            const legs = trip.legs;
-            const legAmt = legs.length;
-            const lastLeg = legs[legAmt - 1];
-            const depTime = legs[0].start.date;
-            const arrTime = lastLeg.end.date;
+          const speakableTime = getSpeakableTimes(depTime, arrTime);
 
-            let interchanges = legAmt - 1;
-            if (interchanges === 1) interchanges = "ein";
+          return console.log(`Du bist gut in der Zeit. Nimm die Bahn ${speakableTime.dep} von der Haltestelle ${legs[0].start.stopName}. Du kommst ${speakableTime.arr} an der Haltestelle ${lastLeg.end.stopName} an. Die Fahrt dauert ${timeParams.commuteDuration} Minuten. Du musst ${interchanges} mal umsteigen.`);
+        }
+      });
+    // ==== NON-TRANSIT CASE ===========================================================================================
+    } else {
+      const tripParams = {
+        origin: homeAddr,
+        destination: uniAddr,
+        travelMode: commutePref,
+        arrivalTime: timeParams.lectureStart - timeParams.buffer,
+      };
 
-            const speakableTime = getSpeakableTimes(depTime, arrTime);
+      maps.getDirections(tripParams).then((res) => {
+        timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]);
+        const speakableDeparture = getSpeakableDeparture(timeParams);
 
-            return console.log(`Du bist gut in der Zeit. Nimm die Bahn ${speakableTime.dep} von der Haltestelle ${legs[0].start.stopName}. Du kommst ${speakableTime.arr} an der Haltestelle ${lastLeg.end.stopName} an. Die Fahrt dauert ${timeParams.commuteDuration} Minuten. Du musst ${interchanges} mal umsteigen.`);
-          }
-        });
-      } else {
-        const tripParams = {
-          origin: homeAddr,
-          destination: uniAddr,
-          travelMode: commutePref,
-          arrivalTime: timeParams.lectureStart - timeParams.buffer,
-        };
-
-        maps.getDirections(tripParams).then((res) => {
-          timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]);
-          const speakableDeparture = getSpeakableDeparture(timeParams);
-
-          if (late(timeParams)) {
-            console.log("Schwing dich auf's Rad und hau weg!");
-          } else if (early(timeParams)) {
-            console.log("Frei bis nächste Woche");
-          } else {
-            console.log(`Du bist gut in der Zeit. Mach' dich ${speakableDeparture} auf den Weg zur Uni, dann bist Du püunktlich zur Vorlesung da!`);
-            console.log(maps.getGoogleMapsRedirectionURL(uniAddr));
-          }
-        });
-      }
+        if (late(timeParams)) {
+          console.log("Schwing dich auf's Rad und hau weg!");
+        } else if (early(timeParams)) {
+          console.log("Frei bis nächste Woche");
+        } else /* if on time */ {
+          console.log(`Du bist gut in der Zeit. Mach' dich ${speakableDeparture} auf den Weg zur Uni, dann bist Du püunktlich zur Vorlesung da!`);
+          console.log(maps.getGoogleMapsRedirectionURL(uniAddr));
+        }
+      });
     }
   };
   return this;
 };
 
+// checks if lecture start (incl. buffer) has already taken place
 function late(timeParams) {
   return timeParams.lectureStart
       .subtract(timeParams.buffer, "minutes")
@@ -121,6 +128,7 @@ function late(timeParams) {
           .add(timeParams.commuteDuration, "minutes"));
 }
 
+// checks if lecture start occurs later than in six days (next weekday speakable)
 function early(timeParams) {
   return timeParams.lectureStart.
       isAfter(moment(timeParams.currentTime)
@@ -128,6 +136,7 @@ function early(timeParams) {
           .endOf("day"));
 }
 
+// returns speakable departure and arrival times for transit
 function getSpeakableTimes(depTime, arrTime) {
   return {
     dep: moment(depTime).calendar(moment(), {
@@ -141,6 +150,7 @@ function getSpeakableTimes(depTime, arrTime) {
   };
 }
 
+// returns speakable departure time for non-transit
 function getSpeakableDeparture(timeParams) {
   return moment(timeParams.lectureStart)
       .subtract((timeParams.buffer + timeParams.commuteDuration), "minutes")
