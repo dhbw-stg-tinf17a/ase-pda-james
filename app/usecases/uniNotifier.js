@@ -1,6 +1,6 @@
-const moment = require("moment"); // Date manipulation library
-const watsonSpeech = require("../services/watsonSpeech")(); // Speech handling
-
+const moment = require("moment"); // date manipulation library
+const watsonSpeech = require("../services/watsonSpeech")(); // voice I/O handling
+const speak = require("../../app/waResponses.js").uniNotifier(); // constant answers for voice assistant
 module.exports = (db, oAuth2Client) => {
   const prefs = require("../services/preferences.js")(db);
   const vvs = require("../services/vvs/vvs.js")();
@@ -42,7 +42,7 @@ module.exports = (db, oAuth2Client) => {
     // TEMPORARY: provide Google authentication URL
     cal.authenticateUser(ctx);
 
-    watsonSpeech.replyWithAudio(ctx, "Ich schaue mal nach, wann du los musst!");
+    watsonSpeech.replyWithAudio(ctx, speak.firstResponse);
 
     const validCommutePrefs = ["driving", "walking", "bicycling", "vvs"];
     if (!validCommutePrefs.includes(commutePref)) {
@@ -75,9 +75,9 @@ module.exports = (db, oAuth2Client) => {
         timeParams.commuteDuration = trip.duration;
 
         if (late(timeParams)) {
-          return console.log("Bruder, du musst dringend los");
+          watsonSpeech.replyWithAudio(ctx, speak.transitLate);
         } else if (early(timeParams)) {
-          return console.log("Frei bis nächste Woche");
+          watsonSpeech.replyWithAudio(ctx, speak.early);
         } else /* if on time */ {
           const legs = trip.legs;
           const legAmt = legs.length;
@@ -90,7 +90,10 @@ module.exports = (db, oAuth2Client) => {
 
           const speakableTime = getSpeakableTimes(depTime, arrTime);
 
-          return console.log(`Du bist gut in der Zeit. Nimm die Bahn ${speakableTime.dep} von der Haltestelle ${legs[0].start.stopName}. Du kommst ${speakableTime.arr} an der Haltestelle ${lastLeg.end.stopName} an. Die Fahrt dauert ${timeParams.commuteDuration} Minuten. Du musst ${interchanges} mal umsteigen.`);
+          watsonSpeech.replyWithAudio(ctx, speak.transitOnTime(
+              speakableTime.dep, legs[0].start.stopName, speakableTime.arr,
+              lastLeg.end.stopName, timeParams.commuteDuration, interchanges,
+          ));
         }
       });
     // ==== NON-TRANSIT CASE ===========================================================================================
@@ -105,15 +108,19 @@ module.exports = (db, oAuth2Client) => {
       maps.getDirections(tripParams).then((res) => {
         timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]);
         const speakableDeparture = getSpeakableDeparture(timeParams);
+        const routeUrl = maps.getGoogleMapsRedirectionURL(uniAddr);
 
         if (late(timeParams)) {
-          console.log("Schwing dich auf's Rad und hau weg!");
+          watsonSpeech(ctx, speak.nonTransitLate);
         } else if (early(timeParams)) {
-          console.log("Frei bis nächste Woche");
+          watsonSpeech.replyWithAudio(ctx, speak.early);
         } else /* if on time */ {
-          console.log(`Du bist gut in der Zeit. Mach' dich ${speakableDeparture} auf den Weg zur Uni, dann bist Du püunktlich zur Vorlesung da!`);
+          watsonSpeech.replyWithAudio(ctx, speak.nonTransitOnTime(speakableDeparture));
           console.log(maps.getGoogleMapsRedirectionURL(uniAddr));
         }
+
+        watsonSpeech.replyWithAudio(ctx, speak.googleMapsUrl);
+        ctx.reply(routeUrl);
       });
     }
   };
@@ -140,11 +147,11 @@ function early(timeParams) {
 function getSpeakableTimes(depTime, arrTime) {
   return {
     dep: moment(depTime).calendar(moment(), {
-      sameDay: "[um] HH [Uhr] m", 
+      sameDay: "[um] HH [Uhr] m",
       nextWeek: "[am] dddd [um] HH [Uhr] m",
       nextDay: "[morgen um] HH [Uhr] m"}),
     arr: moment(arrTime).calendar(moment(), {
-      sameDay: "[um] HH [Uhr] m", 
+      sameDay: "[um] HH [Uhr] m",
       nextWeek: "[am] dddd [um] HH [Uhr] m",
       nextDay: "[um] HH [Uhr] m"}),
   };
