@@ -12,7 +12,7 @@ beforeEach(() => {
 
 
 describe("gmaps test cases", () => {
-  test("returns promise", () => {
+  test("resolves promise", () => {
     axios.get.mockResolvedValue({data: searchResponse});
     const config = {
       origin: "Stuttgart Hauptbahnhof",
@@ -21,7 +21,7 @@ describe("gmaps test cases", () => {
     return expect(gmaps.getDirections(config)).resolves.toBeDefined();
   });
 
-  test("returns error", () => {
+  test("rejects error", () => {
     axios.get.mockResolvedValue(null);
     const config = {
       origin: "Stuttgart Hauptbahnhof",
