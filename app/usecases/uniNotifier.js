@@ -1,19 +1,24 @@
-const watsonSpeech = require("../services/watsonSpeech")();
+const moment = require("moment"); // Date manipulation library
+const watsonSpeech = require("../services/watsonSpeech")(); // Speech handling
 
-module.exports = function(db, oAuth2Client) {
+module.exports = (db, oAuth2Client) => {
   const prefs = require("../services/preferences.js")(db);
   const vvs = require("../services/vvs/vvs.js")();
+  const maps = require("../services/gmaps.js");
   const cal = require("../services/gcalendar.js")(db, oAuth2Client);
+  moment.locale("de");
 
-  prefs.set("homeAddr", "Ernsthaldenstraße 47, Stuttgart");
-  prefs.set("uniAddr", "Rotebühlplatz 41, Stuttgart");
-  prefs.set("commute", "vvs");
-  prefs.set("lectureCal", "1nc6dpksqqc9pk2jg85f0hd5hkn8ups1@import.calendar.google.com");
-
+  // TEMP getting and setting preferences ====================================================
   let homeAddr;
   let uniAddr;
   let commutePref;
   let lectureCal;
+
+  prefs.set("homeAddr", "Im Wiesengrund 40, Nufringen");
+  prefs.set("uniAddr", "Rotebühlplatz 41, Stuttgart");
+  prefs.set("commute", "vvs");
+  prefs.set("lectureCal", "jamesaseprojekt@gmail.com");
+
   prefs.get("homeAddr").then((res) => {
     homeAddr = res;
   });
@@ -26,68 +31,122 @@ module.exports = function(db, oAuth2Client) {
   prefs.get("lectureCal").then((res) => {
     lectureCal = res;
   });
+  // =========================================================================================
 
   this.onUpdate = async function(ctx, waRes) {
     if (waRes.generic[0].text === "uniNotifier_welcome") {
       cal.authenticateUser(ctx);
+      // watsonSpeech.replyWithAudio(ctx, "Ich schaue mal nach, wann du los musst!");
 
-      watsonSpeech.replyWithAudio(ctx, "Ich schaue mal nach, wann du los musst!");
       const validCommutePrefs = ["driving", "walking", "bicycling", "vvs"];
 
       if (!validCommutePrefs.includes(commutePref)) {
         return new Error("Invalid preference.");
       }
 
-      let nextEvent;
+      const nextLectures = await cal.getNextEvents(lectureCal);
+      const nextLecture = nextLectures[0];
 
-      cal.getNextEvents(lectureCal).then((res) => {
-        nextEvent = res[5];
-      });
+      const timeParams = {
+        currentTime: moment(),
+        lectureStart: moment(nextLecture.start.dateTime),
+        buffer: 10,
+      };
 
       if (commutePref === "vvs") {
         const origin = await vvs.getStopByKeyword(homeAddr);
         const destination = await vvs.getStopByKeyword(uniAddr);
-        const now = new Date();
-        const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        console.log(nowDate);
-        const tomorrowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-        console.log(tomorrowDate);
-        const lectureStart = new Date(nextEvent.start.dateTime);
-        const lectureDate = new Date(lectureStart.getFullYear(), lectureStart.getMonth(), lectureStart.getDate());
 
-        vvs.getTrip({
+        const tripParams = {
           originId: origin.stopID,
           destinationId: destination.stopID,
-          date: lectureStart,
+          date: new Date(timeParams.lectureStart.subtract(timeParams.buffer, "minutes")),
           isArrTime: true,
-        }).then((res) => {
+        };
+
+        vvs.getTrip(tripParams).then((res) => {
           const trip = res[2];
-          const duration = trip.duration;
+          timeParams.commuteDuration = trip.duration;
 
-          if (lectureStart <= new Date(now.getTime() + duration * 60000)) {
-            return watsonSpeech.replyWithAudio(ctx, "Du bist spät dran. Nimm die nächstmögliche Bahn zur Uni!");
+          if (late(timeParams)) {
+            return console.log("Bruder, du musst dringend los");
+          } else if (early(timeParams)) {
+            return console.log("Frei bis nächste Woche");
+          } else /* if on time */ {
+            const legs = trip.legs;
+            const legAmt = legs.length;
+            const lastLeg = legs[legAmt - 1];
+            const depTime = legs[0].start.date;
+            const arrTime = lastLeg.end.date;
+
+            let interchanges = legAmt - 1;
+            if (interchanges === 1) interchanges = "ein";
+
+            const speakableTime = getSpeakableTimes(depTime, arrTime);
+
+            return console.log(`Du bist gut in der Zeit. Nimm die Bahn ${speakableTime.dep} von der Haltestelle ${legs[0].start.stopName}. Du kommst ${speakableTime.arr} an der Haltestelle ${lastLeg.end.stopName} an. Die Fahrt dauert ${timeParams.commuteDuration} Minuten. Du musst ${interchanges} mal umsteigen.`);
           }
+        });
+      } else {
+        const tripParams = {
+          origin: homeAddr,
+          destination: uniAddr,
+          travelMode: commutePref,
+          arrivalTime: timeParams.lectureStart - timeParams.buffer,
+        };
 
-          const legs = trip.legs;
-          const legAmt = legs.length;
-          const lastLeg = legs[legAmt - 1];
-          let interchanges = legAmt - 1;
-          const depTime = legs[0].start.date;
-          const arrTime = lastLeg.end.date;
+        maps.getDirections(tripParams).then((res) => {
+          timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]);
+          const speakableDeparture = getSpeakableDeparture(timeParams);
 
-          if (interchanges === 1) interchanges = "ein";
-
-          if (lectureDate == tomorrowDate) {
-            watsonSpeech.replyWithAudio(ctx, "Die Vorlesung findet morgen oder später statt");
-          } else if (lectureDate > tomorrowDate) {
-            watsonSpeech.replyWithAudio(ctx, "Du hast heute und morgen erstmal keine Vorlesungen. Genieß die Freiheit.");
+          if (late(timeParams)) {
+            console.log("Schwing dich auf's Rad und hau weg!");
+          } else if (early(timeParams)) {
+            console.log("Frei bis nächste Woche");
+          } else {
+            console.log(`Du bist gut in der Zeit. Mach' dich ${speakableDeparture} auf den Weg zur Uni, dann bist Du püunktlich zur Vorlesung da!`);
+            console.log(maps.getGoogleMapsRedirectionURL(uniAddr));
           }
-
-          watsonSpeech.replyWithAudio(ctx,
-              `Du bist gut in der Zeit. Nimm die Bahn um ${depTime} von der Haltestelle ${legs[0].start.stopName}. Du kommst ${arrTime} an der Haltestelle ${lastLeg.end.stopName} an. Die Fahrt dauert ${duration} Minuten. Du musst ${interchanges} mal umsteigen.`);
         });
       }
     }
   };
   return this;
 };
+
+function late(timeParams) {
+  return timeParams.lectureStart
+      .subtract(timeParams.buffer, "minutes")
+      .isSameOrBefore(moment(timeParams.currentTime)
+          .add(timeParams.commuteDuration, "minutes"));
+}
+
+function early(timeParams) {
+  return timeParams.lectureStart.
+      isAfter(moment(timeParams.currentTime)
+          .add(6, "days")
+          .endOf("day"));
+}
+
+function getSpeakableTimes(depTime, arrTime) {
+  return {
+    dep: moment(depTime).calendar(moment(), {
+      sameDay: "[um] HH [Uhr] m", 
+      nextWeek: "[am] dddd [um] HH [Uhr] m",
+      nextDay: "[morgen um] HH [Uhr] m"}),
+    arr: moment(arrTime).calendar(moment(), {
+      sameDay: "[um] HH [Uhr] m", 
+      nextWeek: "[am] dddd [um] HH [Uhr] m",
+      nextDay: "[um] HH [Uhr] m"}),
+  };
+}
+
+function getSpeakableDeparture(timeParams) {
+  return moment(timeParams.lectureStart)
+      .subtract((timeParams.buffer + timeParams.commuteDuration), "minutes")
+      .calendar(timeParams.currentTime, {
+        sameDay: "[um] HH [Uhr] m",
+        nextWeek: "[am] dddd [um] HH [Uhr] m",
+        nextDay: "[um] HH [Uhr] m"},
+      );
+}

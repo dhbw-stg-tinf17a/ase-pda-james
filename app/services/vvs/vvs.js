@@ -95,7 +95,6 @@ module.exports = () => {
 
       axios.get(apiUrl, apiParams).then((res) => {
         const tripsRes = res.data.trips;
-        console.log(tripsRes);
         const trips = [];
 
         // --- ERROR HANDLING ------------------------------------------------------------------------------------------
@@ -146,7 +145,6 @@ module.exports = () => {
             legs: legs,
           });
         });
-        console.log(trips);
         resolve(trips);
       });
     });
