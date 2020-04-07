@@ -32,7 +32,7 @@ module.exports = () => {
         }
 
         // Query keyword not resolvable
-        if (typeof pointRes === "undefined") {
+        if (typeof pointRes === "undefined" || pointRes === null) {
           e.VvsUnresolvableKeywordError.prototype = Object.create(Error.prototype);
           const err = new e.VvsUnresolvableKeywordError("The query is not valid. " +
             "Please provide a valid query or try again.", key);
@@ -95,7 +95,6 @@ module.exports = () => {
 
       axios.get(apiUrl, apiParams).then((res) => {
         const tripsRes = res.data.trips;
-        console.log(tripsRes);
         const trips = [];
 
         // --- ERROR HANDLING ------------------------------------------------------------------------------------------
