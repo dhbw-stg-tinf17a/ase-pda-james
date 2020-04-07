@@ -1,19 +1,41 @@
 const watsonSpeech = require("../services/watsonSpeech")();
-const moment = require("moment");
+const Markup = require("telegraf/markup");
+const library = require("../services/springer");
+const mail = require("../services/mailer")();
+const {createFreeSlotButtons, createEmailText, createEmailOptions} = require("../utils/bookHelpers");
 
 module.exports = (db, oAuth2Client) => {
-  const Markup = require("telegraf/markup");
-  const library = require("../services/springer");
-  const calendar = require("../services/gcalendar")(db, oAuth2Client);
+  const gCalendar = require("../services/gcalendar")(db, oAuth2Client);
   const preferences = require("../services/preferences")(db);
+  const gPlaces = require("../services/gplaces")();
+
+  let date = "";
+  let keyword = "";
+  let timeslot = {};
+  let libraryAddress = "";
 
   this.onUpdate = (ctx, waRes) => {
-    if (waRes.generic[0].text === "book_welcome") {
-      console.log(waRes);
-      calendar.authenticateUser(ctx);
-    } else if (waRes.generic[0].text === "book_keyword") {
-      console.log(waRes);
-      calendar.authenticateUser(ctx);
+    switch (waRes.generic[0].text) {
+      case "book_welcome":
+        gCalendar.authenticateUser(ctx);
+        watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?");
+        break;
+      case "book_which-day":
+        keyword = waRes.context.keyword;
+        watsonSpeech.replyWithAudio(ctx, "Wann möchtest du lernen?");
+        break;
+      case "book_slots":
+        date = waRes.context.bookDate;
+        watsonSpeech.replyWithAudio(ctx, "Alles klar! Wähle einen freien Termin, der für dich passt.");
+
+        gCalendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
+          const buttons = createFreeSlotButtons(freeSlots);
+
+          ctx.reply("Wähle einen freien Termin:", Markup.inlineKeyboard(buttons).extra());
+        });
+        break;
+      default:
+        return;
     }
     /**
      * Here for reference
@@ -115,7 +137,38 @@ module.exports = (db, oAuth2Client) => {
   };
 
   this.onCallbackQuery = (ctx) => {
+    const data = ctx.callbackQuery.data.substr("book_".length);
+    const actionType = data.split("_")[0];
+    const actionDetail = data.split("_")[1];
 
+    switch (actionType) {
+      case "slot":
+        gCalendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
+          timeslot = freeSlots[actionDetail];
+        }).then(() => {
+          return gPlaces.getPlaces({
+            query: "Bibliothek",
+            location: "48.805960, 9.234850", // TODO: Replace with Preference of home address
+            rankby: "distance",
+          });
+        }).then((places) => {
+          libraryAddress = places.results[0].vicinity;
+
+          // TODO: Get opening hours and check whether open for studying, else set home address
+        }).then(() => {
+          return library.getByKeyword(keyword);
+        }).then((data) => {
+          const emailMessage = createEmailText(keyword, data.records);
+          const emailOptions = createEmailOptions(keyword, emailMessage);
+
+          return mail.sendMail(emailOptions);
+        }).then(() => {
+          ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${keyword} geschickt.`);
+        });
+        break;
+      default:
+        return;
+    }
   };
 
   return this;
