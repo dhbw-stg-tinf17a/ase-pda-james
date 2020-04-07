@@ -75,7 +75,7 @@ module.exports = class Manager {
     // cron.schedule("0,10,20,30,40,50 * * * * 1-5", () => {
 
     // run Monday-Friday at 11.30
-    cron.schedule("* 30 11 * 1-5", () => {
+    cron.schedule("30 11 * * 1-5", () => {
       console.log("running every minute to 1 from 5");
       this.usecases.meals.onUpdate(ctx, waRes);
     });
