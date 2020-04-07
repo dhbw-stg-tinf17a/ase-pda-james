@@ -10,14 +10,25 @@ beforeEach(() => {
 describe("gsearch test cases", () => {
   test("gmaps.getSearchResults returns something", () => {
     axios.get.mockResolvedValue({data: searchResponse});
-    gsearch.getSearchResults("Apotheke Stuttgart Stadtmitte").then((data) => {
+    return gsearch.getSearchResults("Apotheke Stuttgart Stadtmitte").then((data) => {
       expect(data).toBeDefined();
     });
   });
-  test("gmaps.getSearchResults has lenght", () => {
+
+  test("gmaps.getSearchResults has length", () => {
     axios.get.mockResolvedValue({data: searchResponse});
-    gsearch.getSearchResults("Apotheke Stuttgart Stadtmitte").then((data) => {
+    return gsearch.getSearchResults("Apotheke Stuttgart Stadtmitte").then((data) => {
       expect(data.length).toBeGreaterThan(10);
     });
+  });
+
+  test("gmaps.getSearchResults returns error", () => {
+    axios.get.mockResolvedValue(null);
+    return expect(gsearch.getSearchResults("Apotheke Stuttgart Stadtmitte")).rejects.toBeDefined();
+  });
+
+  test("gmaps.getSearchResults returns error", () => {
+    axios.get.mockResolvedValue({data: searchResponse});
+    return expect(gsearch.getSearchResults("Apotheke Stuttgart Stadtmitte")).resolves.toBeDefined();
   });
 });
