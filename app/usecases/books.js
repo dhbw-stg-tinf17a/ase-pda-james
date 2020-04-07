@@ -31,7 +31,7 @@ module.exports = (db, oAuth2Client) => {
         gCalendar.getFreeSlots(process.env.CALENDAR_ID).then((freeSlots) => {
           const buttons = createFreeSlotButtons(freeSlots);
 
-          ctx.reply("Freie Termine:", Markup.inlineKeyboard(buttons).extra());
+          ctx.reply("Wähle einen freien Termin:", Markup.inlineKeyboard(buttons).extra());
         });
         break;
       default:

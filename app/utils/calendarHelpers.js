@@ -52,4 +52,22 @@ const busyToFree = (busySlots) => {
   return freeSlots;
 };
 
-module.exports = {busyToFree, pairwise, freeAroundEvent};
+const calculatTimeUntilEvent = (event, fallbackEvent, now = moment()) => {
+  const start = event.start.date ?
+      moment(event.start.date) :
+      moment(event.start.dateTime);
+
+  const difference = start.diff(now, "minutes");
+
+  if (difference > 0) {
+    return difference;
+  } else {
+    const fallbackStart = fallbackEvent.start.date ?
+        moment(fallbackEvent.start.date) :
+        moment(fallbackEvent.start.dateTime);
+
+    return fallbackStart.diff(now, "minutes");
+  }
+};
+
+module.exports = {busyToFree, pairwise, freeAroundEvent, calculatTimeUntilEvent};

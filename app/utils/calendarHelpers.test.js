@@ -126,3 +126,117 @@ describe("freeAroundEvent", () => {
     expect(freeSlots[1].end).toBe("2020-04-07T17:00:00+02:00");
   });
 });
+
+describe("calculatTimeUntilEvent", () => {
+  let calculatTimeUntilEvent;
+  let moment;
+
+  beforeEach(() => {
+    calculatTimeUntilEvent = require("./calendarHelpers").calculatTimeUntilEvent;
+    moment = require("moment");
+  });
+
+  test("works with date", () => {
+    const event = {
+      start: {
+        date: "2020-04-08",
+      },
+      end: {
+        date: "2020-04-08",
+      },
+    };
+
+    const fallbackEvent = {
+      start: {
+        date: "2020-04-09",
+      },
+      end: {
+        date: "2020-04-09",
+      },
+    };
+
+    const now = moment("2020-04-07", "YYYY-MM-DD");
+
+    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+
+    expect(timeUntil).toBe(1440); // = 24 hours
+  });
+
+  test("works with date and fallback", () => {
+    const event = {
+      start: {
+        date: "2020-04-07",
+      },
+      end: {
+        date: "2020-04-07",
+      },
+    };
+
+    const fallbackEvent = {
+      start: {
+        date: "2020-04-08",
+      },
+      end: {
+        date: "2020-04-08",
+      },
+    };
+
+    const now = moment("2020-04-07", "YYYY-MM-DD");
+
+    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+
+    expect(timeUntil).toBe(1440); // = 24 hours
+  });
+
+  test("works with dateTime", () => {
+    const event = {
+      start: {
+        dateTime: "2020-04-07T10:00:00+02:00",
+      },
+      end: {
+        dateTime: "2020-04-07T10:30:00+02:00",
+      },
+    };
+
+    const fallbackEvent = {
+      start: {
+        date: "2020-04-07T11:00:00+02:00",
+      },
+      end: {
+        date: "2020-04-07T11:30:00+02:00",
+      },
+    };
+
+    const now = moment("2020-04-07T08:00:00+02:00");
+
+    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+
+    expect(timeUntil).toBe(120); // = 2 hours
+  });
+
+  test("works with dateTime and fallback", () => {
+    const event = {
+      start: {
+        dateTime: "2020-04-07T10:00:00+02:00",
+      },
+      end: {
+        dateTime: "2020-04-07T10:30:00+02:00",
+      },
+    };
+
+    const fallbackEvent = {
+      start: {
+        date: "2020-04-07T11:00:00+02:00",
+      },
+      end: {
+        date: "2020-04-07T11:30:00+02:00",
+      },
+    };
+
+    const now = moment("2020-04-07T10:00:00+02:00");
+
+    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+
+    expect(timeUntil).toBe(60); // = 1 hour
+  });
+});

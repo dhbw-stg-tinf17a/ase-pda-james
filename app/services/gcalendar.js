@@ -1,5 +1,5 @@
 const {google} = require("googleapis");
-const {busyToFree} = require("../utils/calendarHelpers");
+const {busyToFree, calculatTimeUntilEvent} = require("../utils/calendarHelpers");
 const moment = require("moment");
 
 module.exports = function(db, oAuth2Client) {
@@ -31,17 +31,15 @@ module.exports = function(db, oAuth2Client) {
         return calendar.events.list({
           calendarId,
           timeMin: moment().toISOString(),
-          maxResults: 1,
+          maxResults: 2,
           singleEvents: true,
           orderBy: "startTime",
         });
       }).then((res) => {
         const event = res.data.items[0];
-        const start = event.start.date ?
-            new Date(event.start.date) :
-            new Date(event.start.dateTime);
+        const fallbackEvent = res.data.items[1];
 
-        const timeUntil = Math.ceil((start.getTime() - (new Date()).getTime()) / 60000);
+        const timeUntil = calculatTimeUntilEvent(event, fallbackEvent);
         resolve(timeUntil);
       }).catch((error) => {
         reject(error);
