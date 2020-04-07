@@ -1,9 +1,10 @@
 const searchResponse = require("../../__fixtures__/watsonAssistant/watsonAssistantResponse");
 const messageResponse = require("../../__fixtures__/watsonAssistant/watsonContextResponse");
-beforeEach(() => {
-  jest.resetModules();
-});
+
 describe("watsonAssistant createSession ", () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
   test("if data gets fetched if only query specified", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
       return function() {
@@ -37,6 +38,9 @@ describe("watsonAssistant createSession ", () => {
 });
 
 describe("watsonAssistant message ", () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
   test("if data gets fetched if only query specified", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
       return function() {
@@ -69,6 +73,9 @@ describe("watsonAssistant message ", () => {
 });
 
 describe("watsonAssistant deleteSession ", () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
   test("if data gets fetched if only query specified", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
       return function() {

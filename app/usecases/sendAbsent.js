@@ -55,12 +55,15 @@ module.exports = (db, oAuth2Client) => {
     }
   };
 
+  // fetches entities from WatsonAssistant result and saves them as variables
   this.convertEntityDates = (waRes) => {
     waRes.entities.forEach((entity) => {
+      // checks if startAbsentDay already set if yes it will set it as endAbsentDay
       if (entity.entity === "sys-date" && this.startAbsentDay === null ) {
         this.startAbsentDay = entity.value;
       } else if (entity.entity === "sys-date") {
         this.endAbsentDay = entity.value;
+      // checks if startAbsentTime already set if yes it will set it as endAbsentTime
       } else if (entity.entity === "sys-time" && this.startAbsentTime === null) {
         this.startAbsentTime = entity.value;
       } else if (entity.entity === "sys-time") {
@@ -76,7 +79,7 @@ module.exports = (db, oAuth2Client) => {
       }
     });
   };
-
+  // sets Absent Times depending on what was already specified in the Watson Assistant response
   this.setAbsentTimes =() =>{
     if (!this.startAbsentDay) {
       const today = new Date();
