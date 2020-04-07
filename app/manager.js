@@ -14,7 +14,7 @@ module.exports = class Manager {
     this.usecases.uniNotifier = require("./usecases/uniNotifier.js")();
     this.usecases.tasks = require("./usecases/tasks.js")(db);
     this.usecases.book = require("./usecases/books.js")(db, oAuth2Client);
-    this.usecases.meals = require("./usecases/meals.js")();
+    this.usecases.meals = require("./usecases/meals.js")(db, oAuth2Client);
     // TODO add misc usecase
 
     this.bot.startPolling();

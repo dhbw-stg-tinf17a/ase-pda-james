@@ -37,13 +37,18 @@ module.exports.getDirections = (config) => {
   });
 };
 
-module.exports.getGoogleMapsRedirectionURL = (destination) => {
-  // build URL
+module.exports.getGoogleMapsRedirectionURL = (destination, placeId = null) => {
   const url = new URL("https://www.google.com/maps/search/?");
-  const params = new URLSearchParams({
+
+  const paramsObject = {
     api: 1,
     query: destination,
-  });
+  };
+  if (placeId) {
+    paramsObject.query_place_id=placeId;
+  }
+
+  const params = new URLSearchParams(paramsObject);
 
   // console.log("buildURL", url + params);
   return url + params;
