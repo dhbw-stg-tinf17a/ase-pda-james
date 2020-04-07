@@ -1,6 +1,8 @@
 const moment = require("moment"); // date manipulation library
 const watsonSpeech = require("../services/watsonSpeech")(); // voice I/O handling
 const speak = require("../../app/waResponses.js").uniNotifier(); // constant answers for voice assistant
+
+
 module.exports = (db, oAuth2Client) => {
   const prefs = require("../services/preferences.js")(db);
   const vvs = require("../services/vvs/vvs.js")();
