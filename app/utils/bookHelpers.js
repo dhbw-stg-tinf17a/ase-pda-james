@@ -51,6 +51,13 @@ const createEmailOptions = (keyword, emailText) => {
   };
 };
 
+const createLibraryButtons = () => {
+  return [
+    [Markup.callbackButton("Zu Hause", "book_place_home")],
+    [Markup.callbackButton("Nächste Bilbiothek", "book_place_library")],
+  ];
+};
+
 module.exports = {
   createFreeSlotButtons,
   formatSlotButtonText,
@@ -60,4 +67,5 @@ module.exports = {
   createEmailOptions,
   transformResearchResult,
   createResearchLinks,
+  createLibraryButtons,
 };
