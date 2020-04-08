@@ -68,7 +68,7 @@ module.exports = (db, oAuth2Client) => {
       const tripParams = {
         originId: origin.stopID,
         destinationId: destination.stopID,
-        date: new Date(timeParams.lectureStart.subtract(timeParams.buffer, "minutes")),
+        date: moment(timeParams.lectureStart.subtract(timeParams.buffer, "minutes")),
         isArrTime: true,
       };
 
@@ -124,7 +124,6 @@ module.exports = (db, oAuth2Client) => {
             ctx.reply("Beim VVS-Service ist etwas schiefgelaufen. Versuche es nochmal.");
             break;
         }
-
       });
     // ==== NON-TRANSIT CASE ===========================================================================================
     } else {
