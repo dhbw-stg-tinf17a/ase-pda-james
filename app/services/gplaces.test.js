@@ -1,14 +1,16 @@
 const axios = require("axios");
 const searchResponse = require("../../__fixtures__/gplacesResponse");
+const searchIdResponse = require("../../__fixtures__/gplacesIdResponse");
 
 jest.mock("axios");
 
 let gplaces;
 
-beforeEach(() => {
-  gplaces = require("./gplaces")();
-});
+
 describe("gplaces getPlaces", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
   test("if data gets fetched if only query specified", () => {
     axios.get.mockResolvedValue({data: searchResponse});
     return gplaces.getPlaces({query: "DHBW"})
@@ -36,6 +38,9 @@ describe("gplaces getPlaces", () => {
 });
 
 describe("gplaces getFormattedAddress", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
   test("if addresses get formatted", () => {
     axios.get.mockResolvedValue({data: searchResponse});
     return gplaces.getFormattedAddress({query: "DHBW"})
@@ -53,6 +58,59 @@ describe("gplaces getFormattedAddress", () => {
         ]))
         .catch(() => {
           throw new Error("Fehlgeschlagen");
+        });
+  });
+});
+
+
+describe("gplaces getFormattedAddress", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
+
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: searchIdResponse});
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", {maxTime: "2020-04-07T17:30:00+02:00", minTime: "2020-04-07T15:30:00+02:00"})
+        .then((data) => {
+          expect(gplaces.minTimeDay).toEqual(2);
+          expect(gplaces.minTimeHour).toEqual(1530);
+          expect(data).toBe(true);
+        })
+        .catch((err) => {
+          throw new Error(err);
+        });
+  });
+
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: searchIdResponse});
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", {maxTime: "2020-04-07T17:35:00+02:00", minTime: "2020-04-07T15:30:00+02:00"})
+        .then(() => {
+          throw new Error("Should be closed");
+        })
+        .catch((err) => {
+          expect(err).toBe(false);
+        });
+  });
+
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: searchIdResponse});
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", {maxTime: "2020-04-05T17:30:00+02:00", minTime: "2020-04-05T15:30:00+02:00"})
+        .then(() => {
+          throw new Error("Should be closed");
+        })
+        .catch((err) => {
+          expect(err).toBe(false);
+        });
+  });
+
+  test("if addresses get formatted", () => {
+    axios.get.mockResolvedValue({data: searchIdResponse});
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", {maxTime: "2020-04-08T17:30:00+02:00", minTime: "2020-04-07T15:30:00+02:00"})
+        .then(() => {
+          throw new Error("Should be closed");
+        })
+        .catch((err) => {
+          expect(err).toBe(false);
         });
   });
 });
