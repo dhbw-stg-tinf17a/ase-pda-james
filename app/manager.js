@@ -12,7 +12,7 @@ module.exports = class Manager {
     this.usecases = {};
     this.usecases.absent = require("./usecases/sendAbsent.js")(db, oAuth2Client);
     this.usecases.uniNotifier = require("./usecases/uniNotifier.js")();
-    this.usecases.tasks = require("./usecases/tasks.js")(db);
+    this.usecases.tasks = require("./usecases/tasks.js")(db, oAuth2Client);
     this.usecases.book = require("./usecases/books.js")(db, oAuth2Client);
     this.usecases.meals = require("./usecases/meals.js")();
     // TODO add misc usecase
