@@ -18,7 +18,7 @@ module.exports = (db, oAuth2Client) => {
   let date;
   let keyword;
   let timeslot;
-  let libraryAddress;
+  let libraryAddress = "";
   let studyAtLibrary;
 
   this.onUpdate = (ctx, waRes) => {
@@ -81,35 +81,43 @@ module.exports = (db, oAuth2Client) => {
             rankby: "distance",
           }).then((places) => {
             libraryAddress = places.results[0].vicinity;
-            console.log(places.results[0]);
 
-            return gPlaces.isPlaceOpen(places.results[0].id, {
+            return gPlaces.isPlaceOpen(places.results[0].place_id, {
               minTime: timeslot.start,
               maxTime: timeslot.end,
-            }).then((isOpen) => {
-              if (isOpen) {
-                studyAtLibrary = true;
+            }).then((open) => {
+              console.log("Here!");
+              studyAtLibrary = true;
+            }).catch((closed) => {
+              console.log("Hereeeee!");
+              studyAtLibrary = false;
+            }).finally(() => {
+              if (!studyAtLibrary) {
+                ctx.reply("Die nächste Bibliothek ist in dem Zeitraum geschlossen. Lerne lieber zu Hause!");
+                libraryAddress = "";
               }
-            }).catch((isOpen) => {
-              if (!isOpen) {
-                studyAtLibrary = false;
-              }
-            });
-          }).then(() => {
-            if (studyAtLibrary) {
-              // do stuff
-            } else {
-              ctx.reply("Die nächste Bibliothek ist in dem Zeitraum geschlossen. Lerne lieber zu Hause!");
-            }
-          }).then(() => {
-            return library.getByKeyword(keyword);
-          }).then((data) => {
-            const emailMessage = createEmailText(keyword, data.records);
-            const emailOptions = createEmailOptions(keyword, emailMessage);
+            }).then(() => {
+              return library.getByKeyword(keyword);
+            }).then((data) => {
+              const emailMessage = createEmailText(keyword, data.records);
+              const emailOptions = createEmailOptions(keyword, emailMessage);
 
-            return mail.sendMail(emailOptions);
-          }).then(() => {
-            ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${ keyword } geschickt.`);
+              return mail.sendMail(emailOptions);
+            }).then(() => {
+              ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${ keyword } geschickt.`);
+            }).then(() => {
+              const newEvent = createEvent(keyword, timeslot, libraryAddress);
+              gCalendar.createEvent(newEvent).then((createdEvent) => {
+                if (createdEvent !== {}) {
+                  ctx.reply("Ich habe einen Kalendereintrag zum Lernen angelegt. Viel Erfolg!");
+                } else {
+                  ctx.reply("Ich konnte keinen Kalendereintrag anlegen.");
+                }
+              }).catch((err) => {
+                console.error(err);
+                ctx.reply("Ich konnte leider keinen Kalendereintrag anlegen.");
+              });
+            });
           });
         } else {
           library.getByKeyword(keyword).then((data) => {
@@ -119,21 +127,20 @@ module.exports = (db, oAuth2Client) => {
             return mail.sendMail(emailOptions);
           }).then(() => {
             ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${ keyword } geschickt.`);
+          }).then(() => {
+            const newEvent = createEvent(keyword, timeslot, libraryAddress);
+            gCalendar.createEvent(newEvent).then((createdEvent) => {
+              if (createdEvent !== {}) {
+                ctx.reply("Ich habe einen Kalendereintrag zum Lernen angelegt. Viel Erfolg!");
+              } else {
+                ctx.reply("Ich konnte keinen Kalendereintrag anlegen.");
+              }
+            }).catch((err) => {
+              console.error(err);
+              ctx.reply("Ich konnte leider keinen Kalendereintrag anlegen.");
+            });
           });
         }
-
-        const newEvent = createEvent(keyword, timeslot, libraryAddress);
-        gCalendar.createEvent(newEvent).then((createdEvent) => {
-          if (createdEvent !== {}) {
-            ctx.reply("Ich habe einen Kalendereintrag zum Lernen angelegt. Viel Erfolg!");
-          } else {
-            ctx.reply("Ich konnte keinen Kalendereintrag anlegen.");
-          }
-        }).catch((err) => {
-          console.error(err);
-          ctx.reply("Ich konnte leider keinen Kalendereintrag anlegen.");
-        });
-
         break;
 
       default:
