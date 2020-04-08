@@ -1,6 +1,8 @@
 const axios = require("axios");
-const conv = require("./vvsDateConverters");
-const e = require("./vvsErrors");
+const moment = require("moment");
+
+const util = require("./vvs.util");
+const error = require("./vvs.error");
 
 
 module.exports = () => {
@@ -25,16 +27,16 @@ module.exports = () => {
 
         // API response error
         if (res.status != 200) {
-          e.VvsApiError.prototype = Object.create(Error.prototype);
-          const err = new e.VvsApiError("The API did not perform successfully.", res.status);
+          error.VvsApiError.prototype = Object.create(Error.prototype);
+          const err = new error.VvsApiError("The API did not perform successfully.", res.status);
 
           reject(err);
         }
 
         // Query keyword not resolvable
-        if (typeof pointRes === "undefined") {
-          e.VvsUnresolvableKeywordError.prototype = Object.create(Error.prototype);
-          const err = new e.VvsUnresolvableKeywordError("The query is not valid. " +
+        if (typeof pointRes === "undefined" || pointRes === null) {
+          error.VvsUnresolvableKeywordError.prototype = Object.create(Error.prototype);
+          const err = new error.VvsUnresolvableKeywordError("The query is not valid. " +
             "Please provide a valid query or try again.", key);
 
           reject(err);
@@ -47,8 +49,8 @@ module.exports = () => {
             points.push(point.name);
           });
 
-          e.VvsMultiplePointsError.prototype = Object.create(Error.prototype);
-          const err = new e.VvsMultiplePointsError("The query returns multiple addresses. " +
+          error.VvsMultiplePointsError.prototype = Object.create(Error.prototype);
+          const err = new error.VvsMultiplePointsError("The query returns multiple addresses. " +
             "Please specify your city in your query.\n", points);
 
           reject(err);
@@ -80,6 +82,9 @@ module.exports = () => {
       let timeType = "dep";
       if (tripParams.isArrTime) timeType = "arr";
 
+      console.log(moment(tripParams.date).format("YYYYMMDD"));
+      console.log(moment(tripParams.date).format("HHMM"));
+
       const apiParams = {
         params: {
           outputFormat: "JSON",
@@ -87,31 +92,30 @@ module.exports = () => {
           type_origin: "stopID",
           name_destination: tripParams.destinationId,
           type_destination: "stopID",
-          itdDate: conv.apiDateConverter(tripParams.date, "date"),
-          itdTime: conv.apiDateConverter(tripParams.date, "time"),
+          itdDate: moment(tripParams.date).format("YYYYMMDD"),
+          itdTime: moment(tripParams.date).format("HHMM"),
           itdTripDateTimeDepArr: timeType,
         },
       };
 
       axios.get(apiUrl, apiParams).then((res) => {
         const tripsRes = res.data.trips;
-        console.log(tripsRes);
         const trips = [];
 
         // --- ERROR HANDLING ------------------------------------------------------------------------------------------
 
         // API response error
         if (res.status != 200) {
-          e.VvsApiError.prototype = Object.create(Error.prototype);
-          const err = new e.VvsApiError("The API did not perform successfully.", res.status);
+          error.VvsApiError.prototype = Object.create(Error.prototype);
+          const err = new error.VvsApiError("The API did not perform successfully.", res.status);
 
           reject(err);
         }
 
         // Parameter Error
         if (typeof tripsRes == "undefined") {
-          e.VvsInvalidParametersError.prototype = Object.create(Error.prototype);
-          const err = new e.VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
+          error.VvsInvalidParametersError.prototype = Object.create(Error.prototype);
+          const err = new error.VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
 
           reject(err);
         }
@@ -123,12 +127,12 @@ module.exports = () => {
               start: {
                 stopName: leg.points[0].name,
                 platform: leg.points[0].platformName,
-                date: conv.resDateConverter(leg.points[0].dateTime.date, leg.points[0].dateTime.time),
+                date: util.resDateConverter(leg.points[0].dateTime.date, leg.points[0].dateTime.time),
               },
               end: {
                 stopName: leg.points[1].name,
                 platform: leg.points[1].platformName,
-                date: conv.resDateConverter(leg.points[1].dateTime.date, leg.points[1].dateTime.time),
+                date: util.resDateConverter(leg.points[1].dateTime.date, leg.points[1].dateTime.time),
               },
               mode: {
                 type: leg.mode.product,
@@ -153,3 +157,5 @@ module.exports = () => {
 
   return this;
 };
+
+

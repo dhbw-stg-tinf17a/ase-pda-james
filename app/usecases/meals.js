@@ -72,6 +72,18 @@ module.exports = (db, oAuth2Client) => {
         });
         break;
 
+        // "CRON JOB"
+      case "meals_cron":
+        cal.getTimeUntilNextEvent().then((start) => {
+          ctx.reply(`Du hast ${start} Minuten zum nächsten Temin. `+
+          "Sag mir was du essen willst und ich suche etwas passendes! (z.B. Pizza, Indisch...)");
+        }).catch((error) => {
+          // dont message user in case of an error
+          // user does not expect a scheduled message stating an error
+          console.log("Error in cron job", error);
+        });
+        break;
+
       default:
         ctx.reply("Ups, da ist etwas schiefgelaufen...");
         break;
