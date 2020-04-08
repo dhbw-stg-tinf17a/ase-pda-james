@@ -47,7 +47,7 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  this.getNextEvents = (calendarId = "primary") => {
+  this.getNextEvents = (calendarId) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
         oAuth2Client.credentials = JSON.parse(credentials);
@@ -189,7 +189,6 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  // not finished, use at own risk
   this.getFreeSlots = (lectureCalendarId, date) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
