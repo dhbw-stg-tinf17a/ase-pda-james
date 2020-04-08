@@ -58,6 +58,19 @@ const createLibraryButtons = () => {
   ];
 };
 
+const createEvent = (keyword, timeslot, libraryAddress) => {
+  return {
+    summary: `Lernen zum Thema "${keyword}"`,
+    start: {
+      dateTime: timeslot.start,
+    },
+    end: {
+      dateTime: timeslot.end,
+    },
+    location: libraryAddress ? libraryAddress : "Zu Hause",
+  };
+};
+
 module.exports = {
   createFreeSlotButtons,
   formatSlotButtonText,
@@ -68,4 +81,5 @@ module.exports = {
   transformResearchResult,
   createResearchLinks,
   createLibraryButtons,
+  createEvent,
 };

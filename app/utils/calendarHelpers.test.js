@@ -133,12 +133,12 @@ describe("freeAroundEvent", () => {
   });
 });
 
-describe("calculatTimeUntilEvent", () => {
-  let calculatTimeUntilEvent;
+describe("calculateTimeUntilEvent", () => {
+  let calculateTimeUntilEvent;
   let moment;
 
   beforeEach(() => {
-    calculatTimeUntilEvent = require("./calendarHelpers").calculatTimeUntilEvent;
+    calculateTimeUntilEvent = require("./calendarHelpers").calculateTimeUntilEvent;
     moment = require("moment");
   });
 
@@ -163,7 +163,7 @@ describe("calculatTimeUntilEvent", () => {
 
     const now = moment("2020-04-07", "YYYY-MM-DD");
 
-    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+    const timeUntil = calculateTimeUntilEvent(event, fallbackEvent, now);
 
     expect(timeUntil).toBe(1440); // = 24 hours
   });
@@ -189,7 +189,7 @@ describe("calculatTimeUntilEvent", () => {
 
     const now = moment("2020-04-07", "YYYY-MM-DD");
 
-    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+    const timeUntil = calculateTimeUntilEvent(event, fallbackEvent, now);
 
     expect(timeUntil).toBe(1440); // = 24 hours
   });
@@ -215,7 +215,7 @@ describe("calculatTimeUntilEvent", () => {
 
     const now = moment("2020-04-07T08:00:00+02:00");
 
-    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+    const timeUntil = calculateTimeUntilEvent(event, fallbackEvent, now);
 
     expect(timeUntil).toBe(120); // = 2 hours
   });
@@ -241,7 +241,7 @@ describe("calculatTimeUntilEvent", () => {
 
     const now = moment("2020-04-07T10:00:00+02:00");
 
-    const timeUntil = calculatTimeUntilEvent(event, fallbackEvent, now);
+    const timeUntil = calculateTimeUntilEvent(event, fallbackEvent, now);
 
     expect(timeUntil).toBe(60); // = 1 hour
   });
