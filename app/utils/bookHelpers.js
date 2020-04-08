@@ -45,7 +45,7 @@ const createEmailText = (keyword, records) => {
 
 const createEmailOptions = (keyword, emailText) => {
   return {
-    recipient: "erik.littwin@gmail.com",
+    recipient: process.env.MY_EMAIL,
     subject: `Rechercheergebnisse zum Thema ${ keyword }`,
     htmlText: emailText,
   };
