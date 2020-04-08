@@ -100,9 +100,6 @@ module.exports = (db, oAuth2Client) => {
         }
       }).catch((err) => {
         switch (err.name) {
-          case "VvsApiError":
-            ctx.reply("Die VVS-API hat nicht funktioniert. Versuche es nochmal.");
-            break;
           case "VvsMultiplePointsError":
             ctx.reply(
                 "Eine oder mehrere Adresse(n) innerhalb Deiner Präferenzen sorgen für mehrdeutige Ergebnisse." +

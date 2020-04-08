@@ -1,10 +1,10 @@
 const errorPrefix = "[VVS Service Error] ";
 
-function VvsApiError(message, httpCode) {
-  const error = new Error(errorPrefix + message);
-  error.httpCode = httpCode;
-  return error;
-}
+// function VvsApiError(message, httpCode) {
+//   const error = new Error(errorPrefix + message);
+//   error.httpCode = httpCode;
+//   return error;
+// }
 
 function VvsMultiplePointsError(message, points) {
   const error = new Error(errorPrefix + message);
@@ -24,4 +24,4 @@ function VvsInvalidParametersError(message, params) {
   return error;
 }
 
-module.exports = {VvsApiError, VvsInvalidParametersError, VvsMultiplePointsError, VvsUnresolvableKeywordError};
+module.exports = {/*VvsApiError, */VvsInvalidParametersError, VvsMultiplePointsError, VvsUnresolvableKeywordError};

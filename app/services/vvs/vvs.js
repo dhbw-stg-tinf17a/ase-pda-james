@@ -22,16 +22,7 @@ module.exports = () => {
       axios.get(apiUrl, apiParams).then((res) => {
         const pointRes = res.data.stopFinder.points;
         const stopRes = res.data.stopFinder.itdOdvAssignedStops;
-
         // --- ERROR HANDLING ------------------------------------------------------------------------------------------
-
-        // API response error
-        if (res.status != 200) {
-          error.VvsApiError.prototype = Object.create(Error.prototype);
-          const err = new error.VvsApiError("The API did not perform successfully.", res.status);
-
-          reject(err);
-        }
 
         // Query keyword not resolvable
         if (typeof pointRes === "undefined" || pointRes === null) {
@@ -82,9 +73,6 @@ module.exports = () => {
       let timeType = "dep";
       if (tripParams.isArrTime) timeType = "arr";
 
-      console.log(moment(tripParams.date).format("YYYYMMDD"));
-      console.log(moment(tripParams.date).format("HHMM"));
-
       const apiParams = {
         params: {
           outputFormat: "JSON",
@@ -104,16 +92,8 @@ module.exports = () => {
 
         // --- ERROR HANDLING ------------------------------------------------------------------------------------------
 
-        // API response error
-        if (res.status != 200) {
-          error.VvsApiError.prototype = Object.create(Error.prototype);
-          const err = new error.VvsApiError("The API did not perform successfully.", res.status);
-
-          reject(err);
-        }
-
         // Parameter Error
-        if (typeof tripsRes == "undefined") {
+        if (tripsRes == null) {
           error.VvsInvalidParametersError.prototype = Object.create(Error.prototype);
           const err = new error.VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
 
