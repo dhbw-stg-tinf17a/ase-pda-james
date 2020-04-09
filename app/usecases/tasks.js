@@ -10,15 +10,6 @@ module.exports = function(db, oAuth2Client) {
       msTodo.authorizeUser(ctx);
     } else if (waRes.generic[0].text === "tasks_show") {
       msTodo.getTodos().then((todos)=>{
-        let today = new Date();
-        today.setHours(9);
-        today.setMinutes(0);
-        today.setSeconds(0);
-        if (today.getTime() <= new Date().getTime()) {
-          today = new Date();
-        }
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
         // show tasks to user
         let inlineKeyboardMarkup = {inline_keyboard: [[]]};
         let toSend = "Du hast folgende Aufgaben offen:\n";
