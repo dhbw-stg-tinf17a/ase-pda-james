@@ -22,6 +22,7 @@
     "ibm-watson": "^5.4.0",
     "moment": "^2.24.0",
     "mongodb": "^3.2.7",
+    "node-cron": "^2.0.3",
     "nodemailer": "^6.4.4",
     "open": "^7.0.2",
     "server-destroy": "^1.0.1",

@@ -1,9 +1,9 @@
 let mailer;
 
-beforeEach(() => {
-  mailer = require("./mailer")();
-});
 describe("mailer sendMail", () => {
+  beforeEach(() => {
+    mailer = require("./mailer")();
+  });
   test("if function fails with an error when no recipient is defined", () => {
     return mailer.sendMail({})
         .catch((err) => {

@@ -2,7 +2,7 @@ const axios = require("axios");
 
 const springerEndpoint = "http://api.springernature.com/metadata/json";
 
-const getByTitle = (title = "user experience") => {
+const getByKeyword = (title = "user experience") => {
   return new Promise((resolve, reject) => {
     // implement API calls
     axios.get(springerEndpoint, {
@@ -11,7 +11,7 @@ const getByTitle = (title = "user experience") => {
         api_key: process.env.SPRINGER_TOKEN,
       },
     }).then((res) => {
-      resolve(res);
+      resolve(res.data);
     }, (err) => {
       reject(err);
     }).catch((err) => {
@@ -20,4 +20,4 @@ const getByTitle = (title = "user experience") => {
   });
 };
 
-module.exports = {getByTitle};
+module.exports = {getByKeyword};
