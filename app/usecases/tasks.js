@@ -27,21 +27,10 @@ module.exports = function(db, oAuth2Client) {
             toSend += `- ${todo.Subject}\n`;
           });
 
-          cal.getBusySlotsByCalendarId(today.toISOString(), tomorrow.toISOString(), "primary").then((calRes)=>{
-            let last = {end: today.toISOString()};
-            const space = {};
-
-            for (busyThing in calRes) {
-              const lastDate = new Date(last.end);
-              const thisDate = new Date(calRes[busyThing].start);
-              if (lastDate.getTime() + 45*1000*60 <= thisDate.getTime()) {
-                console.log(last.end + ";" + calRes[busyThing].start);
-                space.start = new Date(last.end);
-                space.end = new Date(calRes[busyThing].start);
-                break;
-              }
-              last = calRes[busyThing];
-            };
+          cal.getFreeSlots("primary").then((calRes)=>{
+            const space = calRes[0][0];
+            space.start = new Date(space.start);
+            space.end = new Date(space.end);
 
             toSend += "\n" +
             `Ich empfehle dir, dass du mit ${todos[0].Subject} beginnst, es ist am frühsten fällig :)\n`;
