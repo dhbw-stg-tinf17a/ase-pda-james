@@ -66,7 +66,7 @@ module.exports = () => {
     return new Promise((resolve, reject) => {
       const apiUrl = "http://efastatic.vvs.de/vvs/XML_TRIP_REQUEST2";
 
-      if (typeof tripParams.date == "undefined") {
+      if (tripParams.date == null) {
         tripParams.date = new Date();
       }
 
