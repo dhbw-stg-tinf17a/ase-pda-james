@@ -1,29 +1,7 @@
 const axios = require("axios");
 const htmlToText = require("html-to-text");
 require("dotenv").config({path: __dirname + "./../../.env"});
-
-const buildURL = (config) => {
-  // build URL
-  const url = new URL("https://maps.googleapis.com/maps/api/directions/json?");
-
-  let params = {
-    origin: config.origin || "",
-    destination: config.destination || "",
-    mode: config.travelMode || "walking",
-    language: "de-DE",
-    key: process.env.GOOGLE_API_KEY,
-  };
-
-  if (config.arrivalTime) {
-    params.arrival_time = config.arrivalTime;
-  }
-
-  params = new URLSearchParams(params);
-
-  console.log("buildURL", url + params);
-  return url + params;
-};
-
+const {buildURL} = require("../utils/gmapsHelpers");
 
 /*
  * config: {
@@ -59,15 +37,20 @@ module.exports.getDirections = (config) => {
   });
 };
 
-module.exports.getGoogleMapsRedirectionURL = (destination) => {
-  // build URL
+module.exports.getGoogleMapsRedirectionURL = (destination, placeId = null) => {
   const url = new URL("https://www.google.com/maps/search/?");
-  const params = new URLSearchParams({
+
+  const paramsObject = {
     api: 1,
     query: destination,
-  });
+  };
+  if (placeId) {
+    paramsObject.query_place_id=placeId;
+  }
 
-  console.log("buildURL", url + params);
+  const params = new URLSearchParams(paramsObject);
+
+  // console.log("buildURL", url + params);
   return url + params;
 };
 
