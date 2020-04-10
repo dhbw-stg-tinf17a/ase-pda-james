@@ -47,7 +47,7 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  this.getNextEvents = (calendarId = "primary") => {
+  this.getNextEvents = (calendarId) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
         oAuth2Client.credentials = JSON.parse(credentials);
@@ -189,8 +189,7 @@ module.exports = function(db, oAuth2Client) {
     });
   };
 
-  // not finished, use at own risk
-  this.getFreeSlots = (lectureCalendarId) => {
+  this.getFreeSlots = (lectureCalendarId, date) => {
     return new Promise((resolve, reject) => {
       preferences.get("google_auth_tokens").then((credentials) => {
         oAuth2Client.credentials = JSON.parse(credentials);
@@ -201,8 +200,8 @@ module.exports = function(db, oAuth2Client) {
 
         return calendar.freebusy.query({
           requestBody: {
-            timeMin: moment().toISOString(),
-            timeMax: moment().endOf("day").toISOString(),
+            timeMin: moment(date).format(),
+            timeMax: moment(date).endOf("day").format(),
             items: [
               {id: lectureCalendarId},
             ],
@@ -210,7 +209,7 @@ module.exports = function(db, oAuth2Client) {
         });
       }).then((res) => {
         const calendars = Object.keys(res.data.calendars);
-        const freeSlotsByCalendar = calendars.map((calendar) => busyToFree(res.data.calendars[calendar].busy));
+        const freeSlotsByCalendar = calendars.map((calendar) => busyToFree(res.data.calendars[calendar].busy))[0];
         resolve(freeSlotsByCalendar);
       }).catch((err) => {
         console.error(err);

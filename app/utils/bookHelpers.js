@@ -45,9 +45,29 @@ const createEmailText = (keyword, records) => {
 
 const createEmailOptions = (keyword, emailText) => {
   return {
-    recipient: "erik.littwin@gmail.com",
+    recipient: process.env.MY_EMAIL,
     subject: `Rechercheergebnisse zum Thema ${ keyword }`,
     htmlText: emailText,
+  };
+};
+
+const createLibraryButtons = () => {
+  return [
+    [Markup.callbackButton("Zu Hause", "book_place_home")],
+    [Markup.callbackButton("Nächste Bilbiothek", "book_place_library")],
+  ];
+};
+
+const createEvent = (keyword, timeslot, libraryAddress) => {
+  return {
+    summary: `Lernen zum Thema "${keyword}"`,
+    start: {
+      dateTime: timeslot.start,
+    },
+    end: {
+      dateTime: timeslot.end,
+    },
+    location: libraryAddress ? libraryAddress : "Zu Hause",
   };
 };
 
@@ -60,4 +80,6 @@ module.exports = {
   createEmailOptions,
   transformResearchResult,
   createResearchLinks,
+  createLibraryButtons,
+  createEvent,
 };
