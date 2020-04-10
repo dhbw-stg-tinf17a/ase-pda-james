@@ -15,6 +15,7 @@ describe("getCalendars", () => {
   test("resolves", () => {
     return getCalendars().then((calendars) => {
       expect(calendars).toBeDefined();
+      expect(calendars).toHaveLength(2);
     });
   });
 });

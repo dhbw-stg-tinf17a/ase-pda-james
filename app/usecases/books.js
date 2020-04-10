@@ -24,7 +24,6 @@ module.exports = (db, oAuth2Client) => {
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       case "book_welcome":
-        // gPlaces.getPlaceById("a9f0125ba221f76ac07b01434446c77f4d9e5f08").then((places) => console.log(place));
         ctx.reply("Öffne den Link, um dich zu authentifizieren.");
         gCalendar.authenticateUser(ctx);
         // watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?");
@@ -37,8 +36,6 @@ module.exports = (db, oAuth2Client) => {
       case "book_slots":
         date = waRes.context.bookDate;
         keyword = waRes.context.keyword;
-        console.log("date", date);
-        console.log("keyword", keyword);
         // watsonSpeech.replyWithAudio(ctx, "Alles klar! Wähle einen freien Termin, der für dich passt.");
         ctx.reply("Alles klar! Wähle einen freien Termin, der für dich passt.");
 
