@@ -1,43 +1,3 @@
-describe("createEventTitle", () => {
-  let createEventTitle;
-
-  beforeEach(() => createEventTitle = require("./bookHelpers").createEventTitle);
-
-  test("works if no keyword is provided", () => {
-    const title = createEventTitle();
-
-    expect(title).toEqual("Lernen");
-  });
-
-  test("works if keyword is provided", () => {
-    const title = createEventTitle("Unit Testing");
-
-    expect(title).toEqual("Lernen: Unit Testing");
-  });
-});
-
-describe("formatSlotButtonData", () => {
-  let formatSlotButtonData;
-
-  beforeEach(() => formatSlotButtonData = require("./bookHelpers").formatSlotButtonData);
-
-  test("throws if no index is provided", () => {
-    expect(() => formatSlotButtonData()).toThrow("No index provided");
-  });
-
-  test("works if index 0 is provided", () => {
-    const data = formatSlotButtonData(0);
-
-    expect(data).toEqual("book_slot_0");
-  });
-
-  test("works if index 2020 is provided", () => {
-    const data = formatSlotButtonData(2020);
-
-    expect(data).toEqual("book_slot_2020");
-  });
-});
-
 describe("transformResearchResult", () => {
   const searchResult = require("../../__fixtures__/springerResponse");
   let transformResearchResult;
@@ -59,8 +19,26 @@ describe("createResearchLinks", () => {
   beforeEach(() => createResearchLinks = require("./bookHelpers").createResearchLinks);
 
   test("works if transformed records are provided", () => {
-    const transformedResults = [{title: "Test", url: "test.com"}];
+    const transformedResults = [{title: "Test", url: "test"}];
 
-    expect(createResearchLinks(transformedResults)).toBe("<p><a href=\"test.com\">Test</a></p>");
+    expect(createResearchLinks(transformedResults)).toBe("<p><a href=\"test\">Test</a></p>");
+  });
+});
+
+describe("createOpeningHoursLines", () => {
+  let createOpeningHoursLines;
+
+  beforeEach(() => createOpeningHoursLines = require("./bookHelpers").createOpeningHoursLines);
+
+  test("works with no opening hours", () => {
+    const text = createOpeningHoursLines([]);
+
+    expect(text).toBe("<p>keine Angaben</p>");
+  });
+
+  test("works with opening hours", () => {
+    const text = createOpeningHoursLines(["Monday: test", "Tuesday: test"]);
+
+    expect(text).toBe("<p>Monday: test</p></br><p>Tuesday: test</p>");
   });
 });

@@ -6,12 +6,16 @@ const createResearchLinks = (results) => {
   return results.map((result) => `<p><a href="${ result.url }">${ result.title }</a></p>`).join("\n");
 };
 
+const createOpeningHoursLines = (openingHours) => {
+  return openingHours.length > 0 ?
+      openingHours.map((entry) => `<p>${ entry }</p>`).join("</br>") :
+      "<p>keine Angaben</p>";
+};
+
 const createEmailText = (keyword, records, {name, address, openingHours}) => {
   const transformedRecords = transformResearchResult(records);
   const researchLinks = createResearchLinks(transformedRecords);
-  const openingHoursLines = openingHours.length > 0 ?
-      openingHours.map((entry) => `<p>${ entry }</p>`).join("</br>") :
-      "<p>keine Angaben</p>";
+  const openingHoursLines = createOpeningHoursLines(openingHours);
 
   return `
     <p>Hallo, hier ist James!</p></br>
@@ -38,4 +42,5 @@ module.exports = {
   createEmailOptions,
   transformResearchResult,
   createResearchLinks,
+  createOpeningHoursLines,
 };
