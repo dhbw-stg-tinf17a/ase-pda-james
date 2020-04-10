@@ -1,31 +1,47 @@
 const watsonSpeech = require("../services/watsonSpeech")();
-const Markup = require("telegraf/markup");
-const library = require("../services/springer");
-const mail = require("../services/mailer")();
+const springer = require("../services/springer");
+const mailer = require("../services/mailer")();
+const gPlaces = require("../services/gplaces")();
 const {
-  createFreeSlotButtons,
   createEmailText,
   createEmailOptions,
-  createLibraryButtons,
-  createEvent,
 } = require("../utils/bookHelpers");
 
-module.exports = (db, oAuth2Client) => {
-  const gCalendar = require("../services/gcalendar")(db, oAuth2Client);
+module.exports = (db) => {
   const preferences = require("../services/preferences")(db);
-  const gPlaces = require("../services/gplaces")();
 
   let date;
   let keyword;
-  let timeslot;
-  let libraryAddress = "";
-  let studyAtLibrary;
+  const library = {
+    name: "",
+    address: "",
+    openingHours: [],
+  };
+
+  this.formatLibraryInfo = ({name, address}) => {
+    if (!name && !address) {
+      throw new Error("Falsche Parameter");
+    }
+    return `
+      Die nächste Bibliothek von dir zu Hause ist die "<b>${ name }</b>".\nDie Adresse lautet: ${ address }.
+    `;
+  };
+
+  this.formatArticleResults = (articles) => {
+    if (articles.length <= 0) {
+      throw new Error("Falsche Parameter");
+    }
+
+    const paragraphs = articles.map((article) => {
+      return `<a href="${ article.url[0].value }">${ article.title }</a>`;
+    });
+
+    return paragraphs.join("\n\n");
+  };
 
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       case "book_welcome":
-        ctx.reply("Öffne den Link, um dich zu authentifizieren.");
-        gCalendar.authenticateUser(ctx);
         // watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?");
         ctx.reply("Zu welchem Thema möchtest du recherchieren?");
         break;
@@ -34,112 +50,45 @@ module.exports = (db, oAuth2Client) => {
         ctx.reply("Wann möchtest du lernen?");
         break;
       case "book_slots":
-        date = waRes.context.bookDate;
+        ctx.reply("Alles klar! Gib mir einen Moment...");
+
         keyword = waRes.context.keyword;
-        // watsonSpeech.replyWithAudio(ctx, "Alles klar! Wähle einen freien Termin, der für dich passt.");
-        ctx.reply("Alles klar! Wähle einen freien Termin, der für dich passt.");
+        date = waRes.context.bookDate;
 
-        gCalendar.getFreeSlots(process.env.CALENDAR_ID, date).then((freeSlots) => {
-          const buttons = createFreeSlotButtons(freeSlots);
+        gPlaces.getPlaces({
+          query: "Bibliothek",
+          location: "48.7280875, 9.1209683", // TODO: Replace with Preference of home address
+          rankby: "distance",
+        }).then((places) => {
+          library.name = places.results[0].name;
+          library.address = places.results[0].vicinity;
 
-          ctx.reply("Wähle einen freien Termin:", Markup.inlineKeyboard(buttons).extra());
-        });
-        break;
-      default:
-        return;
-    }
-  };
+          ctx.replyWithHTML(this.formatLibraryInfo(library));
 
-  this.onCallbackQuery = (ctx) => {
-    const data = ctx.callbackQuery.data.substr("book_".length);
-    const actionType = data.split("_")[0];
-    const actionDetail = data.split("_")[1];
+          return gPlaces.getPlaceById(places.results[0].place_id);
+        }).then((place) => {
+          if (place.result.opening_hours && place.result.opening_hours.weekday_text) {
+            library.openingHours = place.result.opening_hours.weekday_text;
+          }
 
-    switch (actionType) {
-      case "slot":
-        gCalendar.getFreeSlots(process.env.CALENDAR_ID, date).then((freeSlots) => {
-          timeslot = freeSlots[actionDetail];
+          return springer.getByKeyword(keyword);
+        }).then((data) => {
+          ctx.reply(`Hier sind die ersten fünf Artikel, die ich zu "${ keyword }" gefunden habe.`);
+          ctx.replyWithHTML(this.formatArticleResults(data.records.slice(0, 5)));
+
+          ctx.reply("Ich schicke dir eine Email mit den Artikeln und den Öffnungszeiten der Bibliothek.");
+
+          const emailMessage = createEmailText(keyword, data.records, library);
+          const emailOptions = createEmailOptions(keyword, emailMessage);
+
+          return mailer.sendMail(emailOptions);
         }).then(() => {
-          watsonSpeech.replyWithAudio(ctx, "Möchtest du zu Hause oder in der nächsten Bibliothek lernen?");
-
-          const buttons = createLibraryButtons();
-          ctx.reply("Wähle einen freien Termin:", Markup.inlineKeyboard(buttons).extra());
+          ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${ keyword } geschickt.`);
         }).catch((error) => {
-          ctx.reply("Da ist uns ein Fehler unterlaufen.");
+          console.error(error);
+          ctx.reply("Da ist mir ein Fehler unterlaufen. Versuche es noch mal!");
         });
-
         break;
-
-      case "place":
-        if (actionDetail === "library") {
-          gPlaces.getPlaces({
-            query: "Bibliothek",
-            location: "48.805960, 9.234850", // TODO: Replace with Preference of home address
-            rankby: "distance",
-          }).then((places) => {
-            libraryAddress = places.results[0].vicinity;
-
-            return gPlaces.isPlaceOpen(places.results[0].place_id, {
-              minTime: timeslot.start,
-              maxTime: timeslot.end,
-            }).then((open) => {
-              console.log("Here!");
-              studyAtLibrary = true;
-            }).catch((closed) => {
-              console.log("Hereeeee!");
-              studyAtLibrary = false;
-            }).finally(() => {
-              if (!studyAtLibrary) {
-                ctx.reply("Die nächste Bibliothek ist in dem Zeitraum geschlossen. Lerne lieber zu Hause!");
-                libraryAddress = "";
-              }
-            }).then(() => {
-              return library.getByKeyword(keyword);
-            }).then((data) => {
-              const emailMessage = createEmailText(keyword, data.records);
-              const emailOptions = createEmailOptions(keyword, emailMessage);
-
-              return mail.sendMail(emailOptions);
-            }).then(() => {
-              ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${ keyword } geschickt.`);
-            }).then(() => {
-              const newEvent = createEvent(keyword, timeslot, libraryAddress);
-              gCalendar.createEvent(newEvent).then((createdEvent) => {
-                if (createdEvent !== {}) {
-                  ctx.reply("Ich habe einen Kalendereintrag zum Lernen angelegt. Viel Erfolg!");
-                } else {
-                  ctx.reply("Ich konnte keinen Kalendereintrag anlegen.");
-                }
-              }).catch((err) => {
-                console.error(err);
-                ctx.reply("Ich konnte leider keinen Kalendereintrag anlegen.");
-              });
-            });
-          });
-        } else {
-          library.getByKeyword(keyword).then((data) => {
-            const emailMessage = createEmailText(keyword, data.records);
-            const emailOptions = createEmailOptions(keyword, emailMessage);
-
-            return mail.sendMail(emailOptions);
-          }).then(() => {
-            ctx.reply(`Ich habe dir eine Liste von Artikeln zum Thema ${ keyword } geschickt.`);
-          }).then(() => {
-            const newEvent = createEvent(keyword, timeslot, libraryAddress);
-            gCalendar.createEvent(newEvent).then((createdEvent) => {
-              if (createdEvent !== {}) {
-                ctx.reply("Ich habe einen Kalendereintrag zum Lernen angelegt. Viel Erfolg!");
-              } else {
-                ctx.reply("Ich konnte keinen Kalendereintrag anlegen.");
-              }
-            }).catch((err) => {
-              console.error(err);
-              ctx.reply("Ich konnte leider keinen Kalendereintrag anlegen.");
-            });
-          });
-        }
-        break;
-
       default:
         return;
     }
