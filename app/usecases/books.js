@@ -2,10 +2,7 @@ const watsonSpeech = require("../services/watsonSpeech")();
 const springer = require("../services/springer");
 const mailer = require("../services/mailer")();
 const gPlaces = require("../services/gplaces")();
-const {
-  createEmailText,
-  createEmailOptions,
-} = require("../utils/bookHelpers");
+const {createEmailText, createEmailOptions} = require("../utils/bookHelpers");
 
 module.exports = (db) => {
   const preferences = require("../services/preferences")(db);
