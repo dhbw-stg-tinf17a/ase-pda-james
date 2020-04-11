@@ -114,10 +114,29 @@ module.exports = (db, oAuth2Client) => {
       case "sid": // HOME STOP ID
         preferences.set("home_stop_id", data);
         ctx.reply("An welcher Uni/Hochschule bist du?");
-
         break;
+
+      case "usid": // UNI STOP ID
+        preferences.set("uni_stop_id", data);
+        // ctx.reply("An welcher Uni/Hochschule bist du?");
+        break;
+
       case "uid": // UNI ADDRESS
-         preferences.set("uni_address", uniAddresses[data]);
+        const uniAddress = uniAddresses[data].address;
+        preferences.set("uni_address", uniAddress);
+        if (commutePreference==="vvs") {
+          vvs.getStopByKeyword(uniAddress).then((data) => {
+            if (Array.isArray(data)) {
+              const stopButtons = data.map((stop) => [Markup.callbackButton(stop.name, "start_usid_" + stop.stopID)]);
+              ctx.reply("Wähle deine Uni-Haltestelle aus:", Markup.inlineKeyboard(stopButtons).extra());
+            } else {
+              preferences.set("uni_stop_id", data.stopID);
+              ctx.reply(`Ich habe deine Uni-Haltestelle: "${data.name}" gespeichert`);
+            }
+          });
+        } else {
+
+        }
         // ctx.reply("An welcher Uni/Hochschule bist du?");
 
         break;
