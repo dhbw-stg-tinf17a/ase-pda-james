@@ -5,6 +5,7 @@ const gplaces = require("../services/gplaces")();
 module.exports = (db, oAuth2Client) => {
   let commutePreference;
   let homeAddress;
+  let uniAddresses;
   const cal = require("../services/gcalendar")(db, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
     console.log("use case", waRes.generic[0].text);
@@ -33,7 +34,7 @@ module.exports = (db, oAuth2Client) => {
 
       case "start_address":
         preferences.set("home_address", waRes.context.address);
-        homeAddress=waRes.context.address;
+        homeAddress = waRes.context.address;
 
         const travelMethods = [
           {displayName: "Laufen", value: "walking"},
@@ -46,7 +47,6 @@ module.exports = (db, oAuth2Client) => {
         });
         ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
 
-
         gplaces.getPlaces({query: waRes.context.address}).then((data) => {
           const location = data.results[0].geometry.location;
           const coordinates = location.lat + ", " + location.lng;
@@ -57,6 +57,26 @@ module.exports = (db, oAuth2Client) => {
         break;
 
       case "start_uni":
+        gplaces.getPlaces({query: waRes.context.uni}).then((data) => {
+          const location = data.results;
+
+          uniAddresses = [];
+
+          const uniButtons = location.map((uni) => {
+            // drop ", Germany"
+
+            const address = uni.formatted_address.split(", ").slice(0, -1).join(", ");
+            uniAddresses[uni.place_id] = {address: address};
+            console.log("full uni address", uni.formatted_address);
+            console.log("uni address", address);
+            return [Markup.callbackButton(address, "start_uid_" + uni.place_id)];
+          });
+          console.log("uni location", location);
+          ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra());
+          // preferences.set("home_address_coordinates", coordinates);
+        }).catch((err) => {
+          console.log(err);
+        });
         // preferences.set("home_address", waRes.context.address);
         ctx.reply(waRes.context.uni + "\n Sag mir deine Uni Email");
         break;
@@ -84,7 +104,7 @@ module.exports = (db, oAuth2Client) => {
     // remove "start_" prefix
     const buttonData = ctx.callbackQuery.data.split("_").slice(1).join("_");
     const indicator = buttonData.split("_")[0];
-    const data = buttonData.split("_")[1];
+    const data = buttonData.split("_").slice(1).join("_");
 
     switch (indicator) {
       case "cid": // CALENDAR
@@ -93,14 +113,19 @@ module.exports = (db, oAuth2Client) => {
         break;
       case "sid": // HOME STOP ID
         preferences.set("home_stop_id", data);
-        ctx.reply("Sag mir deine Uni");
+        ctx.reply("An welcher Uni/Hochschule bist du?");
+
+        break;
+      case "uid": // UNI ADDRESS
+         preferences.set("uni_address", uniAddresses[data]);
+        // ctx.reply("An welcher Uni/Hochschule bist du?");
 
         break;
       case "tid": // TRAVEL MODE
         preferences.set("commute", data);
-        commutePreference=data;
+        commutePreference = data;
 
-        if (commutePreference==="vvs") {
+        if (commutePreference === "vvs") {
           vvs.getStopByKeyword(homeAddress).then((data) => {
             if (Array.isArray(data)) {
               const stopButtons = data.map((stop) => [Markup.callbackButton(stop.name, "start_sid_" + stop.stopID)]);
@@ -111,7 +136,7 @@ module.exports = (db, oAuth2Client) => {
             }
           });
         } else {
-          ctx.reply("Wie ist deine Uni Adresse?");
+          ctx.reply("An welcher Uni/Hochschule bist du?");
         }
         break;
     }
