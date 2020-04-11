@@ -8,28 +8,30 @@ module.exports = (db, oAuth2Client) => {
   let uniAddresses;
   const cal = require("../services/gcalendar")(db, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
-    console.log("use case", waRes.generic[0].text);
+    // console.log("use case", waRes.generic[0].text);
 
-    ctx.reply(waRes.generic[0].text);
+    // debug: reply with identifier
+    // ctx.reply(waRes.generic[0].text);
 
     // const response = waRes.context.name;
     // console.log("Antwort", response);
 
     switch (waRes.generic[0].text) {
       case "start":
-        ctx.reply("Hallo ich bin James!");
-        ctx.reply("Erzähl mir doch ein bisschen was über dich.");
-        ctx.reply("Wie heißt du?");
+        ctx.reply("Hallo ich bin James!\n" +
+            "Erzähl mir doch ein bisschen was über dich.\n" +
+            "Wie heißt du?");
         break;
 
       case "start_name":
         preferences.set("name", waRes.context.name);
-        ctx.reply("Hallo " + waRes.context.name + "\n Sag mir deine Email");
+        ctx.reply("Hallo " + waRes.context.name + "\n" +
+            "Sag mir deine Email");
         break;
 
       case "start_email":
         preferences.set("email", waRes.context.email);
-        ctx.reply(waRes.context.email + "\n Sag mir deine Adresse");
+        ctx.reply("Sag mir deine Adresse");
         break;
 
       case "start_address":
@@ -64,7 +66,6 @@ module.exports = (db, oAuth2Client) => {
 
           const uniButtons = location.map((uni) => {
             // drop ", Germany"
-
             const address = uni.formatted_address.split(", ").slice(0, -1).join(", ");
             uniAddresses[uni.place_id] = {address: address};
             console.log("full uni address", uni.formatted_address);
@@ -73,25 +74,19 @@ module.exports = (db, oAuth2Client) => {
           });
           console.log("uni location", location);
           ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra());
-          // preferences.set("home_address_coordinates", coordinates);
         }).catch((err) => {
           console.log(err);
         });
-        // preferences.set("home_address", waRes.context.address);
-        ctx.reply(waRes.context.uni + "\n Sag mir deine Uni Email");
         break;
 
       case "start_uni_email":
-        ctx.reply(waRes.context.uni_email);
         preferences.set("uni_email", waRes.context.uni_email);
 
-        ctx.reply("So... jetzt richten wir deinen Kalender ein");
+        ctx.reply("Jetzt richten wir deinen Kalender ein. Bitte authentifiziere dich mit diesem Link:");
         cal.authenticateUser(ctx);
         break;
 
       case "start_is_authenticated":
-        ctx.reply("Authentifiziert");
-
         cal.getCalendars().then((cals) => {
           const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_cid_" + resCal.id)]);
           ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
@@ -136,11 +131,10 @@ module.exports = (db, oAuth2Client) => {
             }
           });
         } else {
-
+          ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
         }
-        // ctx.reply("An welcher Uni/Hochschule bist du?");
-
         break;
+
       case "tid": // TRAVEL MODE
         preferences.set("commute", data);
         commutePreference = data;

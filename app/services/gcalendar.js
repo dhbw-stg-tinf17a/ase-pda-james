@@ -12,7 +12,8 @@ module.exports = function(db, oAuth2Client) {
         scope: "https://www.googleapis.com/auth/calendar",
       });
 
-      ctx.reply(url);
+      // ctx.reply(url);
+      ctx.replyWithHTML(`<a href='${url}'>Google Authentifizierung</a>`);
     }).catch((err) => {
       console.error(err);
       ctx.reply("Tut mir leid, da ist mir ein Fehler unterlaufen.");

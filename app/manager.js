@@ -22,8 +22,7 @@ module.exports = class Manager {
     this.bot.startPolling();
 
     this.bot.start((ctx) => {
-      const waRes={generic: [{text: "start"}]};
-      this.usecases.start.onUpdate(ctx, waRes);
+      this.handleTextWithWatsonAssistant(ctx, "start");
     });
 
     this.bot.on("voice", (ctx) => {
