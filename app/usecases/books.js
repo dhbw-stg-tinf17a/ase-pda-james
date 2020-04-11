@@ -75,7 +75,7 @@ module.exports = (db) => {
 
           ctx.reply("Ich schicke dir eine Email mit den Artikeln und den Öffnungszeiten der Bibliothek.");
 
-          const emailMessage = createEmailText(keyword, data.records, library);
+          const emailMessage = createEmailText(keyword, data.records, library, date);
           const emailOptions = createEmailOptions(keyword, emailMessage);
 
           return mailer.sendMail(emailOptions);

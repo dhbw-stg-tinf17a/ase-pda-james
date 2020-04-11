@@ -31,14 +31,18 @@ describe("createOpeningHoursLines", () => {
   beforeEach(() => createOpeningHoursLines = require("./bookHelpers").createOpeningHoursLines);
 
   test("works with no opening hours", () => {
-    const text = createOpeningHoursLines([]);
+    const text = createOpeningHoursLines([], "2020-04-07");
 
-    expect(text).toBe("<p>keine Angaben</p>");
+    expect(text).toBe("<p><b>07.04.2020: keine Angaben</b></p>");
   });
 
   test("works with opening hours", () => {
-    const text = createOpeningHoursLines(["Monday: test", "Tuesday: test"]);
+    const text = createOpeningHoursLines(["Monday: test", "Tuesday: test"], "2020-04-07");
 
-    expect(text).toBe("<p>Monday: test</p></br><p>Tuesday: test</p>");
+    expect(text).toBe("<p>Monday: test</p></br><p><b>Tuesday: test</b></p>");
+  });
+
+  test("throws if no date is provided", () => {
+    expect(() => createOpeningHoursLines([])).toThrowError("Parameter \"date\" fehlt");
   });
 });

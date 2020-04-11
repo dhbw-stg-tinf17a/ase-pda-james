@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 const transformResearchResult = (results) => {
   return results.slice(0, 10).map((result) => ({title: result.title, url: result.url[0].value}));
 };
@@ -6,16 +8,34 @@ const createResearchLinks = (results) => {
   return results.map((result) => `<p><a href="${ result.url }">${ result.title }</a></p>`).join("\n");
 };
 
-const createOpeningHoursLines = (openingHours) => {
-  return openingHours.length > 0 ?
-      openingHours.map((entry) => `<p>${ entry }</p>`).join("</br>") :
-      "<p>keine Angaben</p>";
+const createOpeningHoursLines = (openingHours, date) => {
+  if (!date) {
+    throw new Error("Parameter \"date\" fehlt");
+  }
+
+  const dayToHighlight = moment(date);
+
+  let result = "";
+
+  if (openingHours.length > 0) {
+    result = openingHours.map((entry, index) => {
+      if (index === dayToHighlight.isoWeekday() - 1) {
+        return `<p><b>${ entry }</b></p>`;
+      } else {
+        return `<p>${ entry }</p>`;
+      }
+    }).join("</br>");
+  } else {
+    result = `<p><b>${ dayToHighlight.format("DD.MM.YYYY") }: keine Angaben</b></p>`;
+  }
+
+  return result;
 };
 
-const createEmailText = (keyword, records, {name, address, openingHours}) => {
+const createEmailText = (keyword, records, {name, address, openingHours}, date) => {
   const transformedRecords = transformResearchResult(records);
   const researchLinks = createResearchLinks(transformedRecords);
-  const openingHoursLines = createOpeningHoursLines(openingHours);
+  const openingHoursLines = createOpeningHoursLines(openingHours, date);
 
   return `
     <p>Hallo, hier ist James!</p></br>
