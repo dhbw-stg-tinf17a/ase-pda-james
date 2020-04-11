@@ -30,11 +30,12 @@ module.exports = class Manager {
       });
     });
 
+
+
     this.bot.on("text", (ctx) => {
       this.handleTextWithWatsonAssistant(ctx, ctx.update.message.text);
       this.updateCronJob(ctx);
     });
-
     this.bot.on("callback_query", (ctx) => {
       ctx.answerCbQuery();
       const usecaseName = ctx.callbackQuery.data.split("_")[0];
@@ -85,6 +86,7 @@ module.exports = class Manager {
   handleTextWithWatsonAssistant(ctx, transcription) {
     watsonAssisstant.sendInput(transcription).then((waRes) => {
       const usecaseName = waRes.generic[0].text.split("_")[0];
+      console.log("manager use case",waRes.generic[0].text);
       if (this.usecases[usecaseName]) {
         this.usecases[usecaseName].onUpdate(ctx, waRes);
       }
