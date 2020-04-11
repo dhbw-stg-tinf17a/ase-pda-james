@@ -2,8 +2,9 @@ const Markup = require("telegraf/markup");
 const preferences = require("../services/preferences")();
 const vvs = require("../services/vvs/vvs.js")();
 const gplaces = require("../services/gplaces")();
-
 module.exports = (db, oAuth2Client) => {
+  let commutePreference;
+  let homeAddress;
   const cal = require("../services/gcalendar")(db, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
     console.log("use case", waRes.generic[0].text);
@@ -32,25 +33,27 @@ module.exports = (db, oAuth2Client) => {
 
       case "start_address":
         preferences.set("home_address", waRes.context.address);
-        vvs.getStopByKeyword(waRes.context.address).then((data) => {
-          if (Array.isArray(data)) {
-            const buttons = data.map((stop) => [Markup.callbackButton(stop.name, "start_sid_" + stop.stopID)]);
-            ctx.reply("Wähle deine Haltstelle zuhause aus:", Markup.inlineKeyboard(buttons).extra());
-          } else {
-            preferences.set("home_stop", data.stopID);
-            ctx.reply(`Ich habe deine Haltestelle: "${data.name}" gespeichert`);
-          }
+        homeAddress=waRes.context.address;
+
+        const travelMethods = [
+          {displayName: "Laufen", value: "walking"},
+          {displayName: "Auto", value: "driving"},
+          {displayName: "Fahrrad", value: "bicycling"},
+          {displayName: "ÖPNV", value: "vvs"},
+        ];
+        const travelMethodButtons = travelMethods.map((method) => {
+          return [Markup.callbackButton(method.displayName, "start_tid_" + method.value)];
         });
+        ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
+
 
         gplaces.getPlaces({query: waRes.context.address}).then((data) => {
           const location = data.results[0].geometry.location;
-          const coordinates = location.lat+", "+location.lng;
+          const coordinates = location.lat + ", " + location.lng;
           preferences.set("home_address_coordinates", coordinates);
         }).catch((err) => {
           console.log(err);
         });
-
-        ctx.reply(waRes.context.address + "\n Sag mir deine Uni");
         break;
 
       case "start_uni":
@@ -62,10 +65,6 @@ module.exports = (db, oAuth2Client) => {
         ctx.reply(waRes.context.uni_email);
         ctx.reply("So... jetzt richten wir deinen Kalender ein");
 
-        cal.authenticateUser(ctx);
-        break;
-
-      case "start_oauth":
         cal.authenticateUser(ctx);
         break;
 
@@ -88,13 +87,32 @@ module.exports = (db, oAuth2Client) => {
     const data = buttonData.split("_")[1];
 
     switch (indicator) {
-      case "cid":
+      case "cid": // CALENDAR
         preferences.set("lecture_cal_id", data);
         ctx.reply("Danke! Das war's.");
         break;
-      case "sid":
+      case "sid": // HOME STOP ID
         preferences.set("home_stop_id", data);
-        ctx.reply("Wie ist deine Uni Adresse?");
+        ctx.reply("Sag mir deine Uni");
+
+        break;
+      case "tid": // TRAVEL MODE
+        preferences.set("commute", data);
+        commutePreference=data;
+
+        if (commutePreference==="vvs") {
+          vvs.getStopByKeyword(homeAddress).then((data) => {
+            if (Array.isArray(data)) {
+              const stopButtons = data.map((stop) => [Markup.callbackButton(stop.name, "start_sid_" + stop.stopID)]);
+              ctx.reply("Wähle deine Haltstelle zuhause aus:", Markup.inlineKeyboard(stopButtons).extra());
+            } else {
+              preferences.set("home_stop", data.stopID);
+              ctx.reply(`Ich habe deine Haltestelle: "${data.name}" gespeichert`);
+            }
+          });
+        } else {
+          ctx.reply("Wie ist deine Uni Adresse?");
+        }
         break;
     }
   };
