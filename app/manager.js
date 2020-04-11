@@ -12,12 +12,12 @@ module.exports = class Manager {
   start(oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
+    this.usecases.start = require("./usecases/start.js")(db, oAuth2Client);
     this.usecases.absent = require("./usecases/sendAbsent.js")(db, oAuth2Client);
     this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(db, oAuth2Client);
     this.usecases.tasks = require("./usecases/tasks.js")(db);
     this.usecases.book = require("./usecases/books.js")(db, oAuth2Client);
     this.usecases.meals = require("./usecases/meals.js")(db, oAuth2Client);
-    // TODO add misc usecase
 
     this.bot.startPolling();
 
