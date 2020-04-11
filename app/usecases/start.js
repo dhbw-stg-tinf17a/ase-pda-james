@@ -83,8 +83,9 @@ module.exports = (db, oAuth2Client) => {
 
       case "start_uni_email":
         ctx.reply(waRes.context.uni_email);
-        ctx.reply("So... jetzt richten wir deinen Kalender ein");
+        preferences.set("uni_email", waRes.context.uni_email);
 
+        ctx.reply("So... jetzt richten wir deinen Kalender ein");
         cal.authenticateUser(ctx);
         break;
 
@@ -118,7 +119,7 @@ module.exports = (db, oAuth2Client) => {
 
       case "usid": // UNI STOP ID
         preferences.set("uni_stop_id", data);
-        // ctx.reply("An welcher Uni/Hochschule bist du?");
+        ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
         break;
 
       case "uid": // UNI ADDRESS

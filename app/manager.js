@@ -21,6 +21,11 @@ module.exports = class Manager {
 
     this.bot.startPolling();
 
+    this.bot.start((ctx) => {
+      const waRes={generic: [{text: "start"}]};
+      this.usecases.start.onUpdate(ctx, waRes);
+    });
+
     this.bot.on("voice", (ctx) => {
       watsonSpeech.s2t(ctx).then((transcription) => {
         this.handleTextWithWatsonAssistant(ctx, transcription);
@@ -31,13 +36,12 @@ module.exports = class Manager {
     });
 
 
-
     this.bot.on("text", (ctx) => {
       this.handleTextWithWatsonAssistant(ctx, ctx.update.message.text);
       this.updateCronJob(ctx);
     });
     this.bot.on("callback_query", (ctx) => {
-      console.log("callback query",ctx.callbackQuery.data);
+      console.log("callback query", ctx.callbackQuery.data);
       ctx.answerCbQuery();
       const usecaseName = ctx.callbackQuery.data.split("_")[0];
       if (this.usecases[usecaseName]) {
