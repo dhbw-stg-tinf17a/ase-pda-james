@@ -191,6 +191,7 @@ module.exports = {
     "/node_modules/",
     "/coverage/",
     "/jest.config.js",
+    "__fixtures__",
   ],
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],

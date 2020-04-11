@@ -23,7 +23,6 @@ module.exports = function() {
         const audioStream = response.result;
         resolve(audioStream);
       }).catch((err)=>{
-        console.error(err);
         reject(err);
       });
     });
@@ -31,13 +30,10 @@ module.exports = function() {
 
   // answers to a given context with spoken language
   this.replyWithAudio = (ctx, text) => {
-    this.t2s(text).then((audioStream)=>{
-      ctx.replyWithVoice({source: audioStream}).catch((err)=>{
-        console.error(err);
-      });
-    }).catch((err)=>{
-      console.error(err);
-      ctx.reply("there has been an error with text to speech");
+    return new Promise((resolve, reject)=>{
+      this.t2s(text).then((audioStream)=>{
+        ctx.replyWithVoice({source: audioStream}).then(resolve).catch(reject);
+      }).catch(reject);
     });
   };
 

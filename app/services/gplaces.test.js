@@ -1,14 +1,18 @@
 const axios = require("axios");
 const searchResponse = require("../../__fixtures__/gplacesResponse");
+const searchIdResponse = require("../../__fixtures__/gplacesIdResponse");
+const failSearchResponse = require("../../__fixtures__/gplacesFailResponse");
+const apiFailSearchResponse = require("../../__fixtures__/gplacesApiFailResponse");
 
 jest.mock("axios");
 
 let gplaces;
 
-beforeEach(() => {
-  gplaces = require("./gplaces")();
-});
+
 describe("gplaces getPlaces", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
   test("if data gets fetched if only query specified", () => {
     axios.get.mockResolvedValue({data: searchResponse});
     return gplaces.getPlaces({query: "DHBW"})
@@ -36,6 +40,9 @@ describe("gplaces getPlaces", () => {
 });
 
 describe("gplaces getFormattedAddress", () => {
+  beforeEach(() => {
+    gplaces = require("./gplaces")();
+  });
   test("if addresses get formatted", () => {
     axios.get.mockResolvedValue({data: searchResponse});
     return gplaces.getFormattedAddress({query: "DHBW"})
