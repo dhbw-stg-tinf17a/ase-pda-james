@@ -4,35 +4,35 @@ const speak = require("../../app/waResponses.js").uniNotifier(); // constant ans
 
 
 module.exports = (db, oAuth2Client) => {
-  const prefs = require("../services/preferences.js")(db);
+  // const prefs = require("../services/preferences.js")(db);
   const vvs = require("../services/vvs/vvs.js")();
   const maps = require("../services/gmaps.js");
   const cal = require("../services/gcalendar.js")(db, oAuth2Client);
   moment.locale("de");
 
   // ==== TEMPORARY: getting and setting preferences ===================================================================
-  let homeAddr;
-  let uniAddr;
-  let commutePref;
-  let lectureCal;
-
-  prefs.set("homeAddr", "Ernsthaldenstraße 47, Stuttgart");
-  prefs.set("uniAddr", "Rotebühlplatz 41, Stuttgart");
-  prefs.set("commute", "vvs");
-  prefs.set("lectureCal", "jamesaseprojekt@gmail.com");
-
-  prefs.get("homeAddr").then((res) => {
-    homeAddr = res;
-  });
-  prefs.get("uniAddr").then((res) => {
-    uniAddr = res;
-  });
-  prefs.get("commute").then((res) => {
-    commutePref = res;
-  });
-  prefs.get("lectureCal").then((res) => {
-    lectureCal = res;
-  });
+  // let homeAddr;
+  // let uniAddr;
+  // let commutePref;
+  // let lectureCal;
+  //
+  // prefs.set("homeAddr", "Ernsthaldenstraße 47, Stuttgart");
+  // prefs.set("uniAddr", "Rotebühlplatz 41, Stuttgart");
+  // prefs.set("commute", "vvs");
+  // prefs.set("lectureCal", "jamesaseprojekt@gmail.com");
+  //
+  // prefs.get("homeAddr").then((res) => {
+  //   homeAddr = res;
+  // });
+  // prefs.get("uniAddr").then((res) => {
+  //   uniAddr = res;
+  // });
+  // prefs.get("commute").then((res) => {
+  //   commutePref = res;
+  // });
+  // prefs.get("lectureCal").then((res) => {
+  //   lectureCal = res;
+  // });
   // ===================================================================================================================
 
   this.onUpdate = async function(ctx, waRes) {

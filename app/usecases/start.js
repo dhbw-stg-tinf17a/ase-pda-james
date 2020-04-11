@@ -39,21 +39,13 @@ module.exports = (db, oAuth2Client) => {
         ctx.reply("So... jetzt richten wir deinen Kalender ein");
 
         cal.authenticateUser(ctx);
-        cal.getTimeUntilNextEvent().then((start) => {
-          ctx.reply(`${start} Minuten zum nächsten Termin`);
-        }).catch((error) => {
-          console.log(error);
-          ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
-        });
-
-
         break;
 
       case "start_oauth":
         cal.authenticateUser(ctx);
         break;
 
-      case "start_is_authenticated":
+      case "start_is_authenticated": 
         ctx.reply("Authentifiziert");
 
         cal.getCalendars().then((cals) => {
