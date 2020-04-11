@@ -1,4 +1,5 @@
 const Markup = require("telegraf/markup");
+const preferences = require("../services/preferences")();
 
 module.exports = (db, oAuth2Client) => {
   const cal = require("../services/gcalendar")(db, oAuth2Client);
@@ -56,25 +57,24 @@ module.exports = (db, oAuth2Client) => {
         ctx.reply("Authentifiziert");
 
         cal.getCalendars().then((cals) => {
-          console.log(cals);
-          const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_"+resCal.id)]);
+          const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_cid_"+resCal.id)]);
           ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
         }).catch((err) => {
-          ctx.reply("Sorry, an error occurred!");
+          ctx.reply("Sorry, es gab einen Fehler!");
         });
         break;
     }
   };
   this.onCallbackQuery = (ctx) => {
-    console.log("\n***onCallbackQuery***");
-    console.log("full data:", ctx.callbackQuery.data);
+    // remove "start_" prefix
+    const buttonData = ctx.callbackQuery.data.split("_").slice(1).join("_");
+    const indicator = buttonData.split("_")[0];
+    const data = buttonData.split("_")[1];
 
-    // remove start_ prefix
-    const buttonData = ctx.callbackQuery.data.split("_").slice(1).join("");
-    console.log("data:", buttonData);
-    if (buttonData.includes("calendar")) {
-      console.log("oncallback calendar:", buttonData);
-      const calendarId = buttonData;
+    switch (indicator) {
+      case "cid":
+        preferences.set("lecture_cal_id", data);
+        break;
     }
   };
   return this;

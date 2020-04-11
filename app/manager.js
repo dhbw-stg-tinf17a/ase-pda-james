@@ -87,7 +87,6 @@ module.exports = class Manager {
   handleTextWithWatsonAssistant(ctx, transcription) {
     watsonAssisstant.sendInput(transcription).then((waRes) => {
       const usecaseName = waRes.generic[0].text.split("_")[0];
-      console.log("manager use case",waRes.generic[0].text);
       if (this.usecases[usecaseName]) {
         this.usecases[usecaseName].onUpdate(ctx, waRes);
       }
