@@ -47,7 +47,7 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
 
 
     // Manager
-    const manager = new Manager();
+    const manager = new Manager(db);
     manager.start(oAuth2Client);
 
     require("./app/rest.js")(app, db, manager.getTelegramBot(), oAuth2Client);

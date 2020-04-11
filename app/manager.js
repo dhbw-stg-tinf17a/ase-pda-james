@@ -4,19 +4,20 @@ const Telegraf = require("telegraf");
 const cron = require("node-cron");
 
 module.exports = class Manager {
-  constructor() {
+  constructor(db) {
     this.cronHasBeenStarted=false;
+    this.db = db;
   }
 
 
   start(oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
-    this.usecases.absent = require("./usecases/sendAbsent.js")(db, oAuth2Client);
-    this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(db, oAuth2Client);
-    this.usecases.tasks = require("./usecases/tasks.js")(db, oAuth2Client);
-    this.usecases.book = require("./usecases/books.js")(db, oAuth2Client);
-    this.usecases.meals = require("./usecases/meals.js")(db, oAuth2Client);
+    this.usecases.absent = require("./usecases/sendAbsent.js")(this.db, oAuth2Client);
+    this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(this.db, oAuth2Client);
+    this.usecases.tasks = require("./usecases/tasks.js")(this.db, oAuth2Client);
+    this.usecases.book = require("./usecases/books.js")(this.db, oAuth2Client);
+    this.usecases.meals = require("./usecases/meals.js")(this.db, oAuth2Client);
     // TODO add misc usecase
 
     this.bot.startPolling();
