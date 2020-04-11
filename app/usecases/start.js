@@ -1,3 +1,5 @@
+const Markup = require("telegraf/markup");
+
 module.exports = (db, oAuth2Client) => {
   const cal = require("../services/gcalendar")(db, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
@@ -48,14 +50,31 @@ module.exports = (db, oAuth2Client) => {
 
       case "start_oauth":
         cal.authenticateUser(ctx);
-        cal.getTimeUntilNextEvent().then((start) => {
-          ctx.reply(`${start} Minuten zum nächsten Termin`);
-          ctx.reply("Was möchtest du essen? \n Indisch, Pizza, Italienisch...");
-        }).catch((error) => {
-          console.log(error);
-          ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
+        break;
+
+      case "start_is_authenticated":
+        ctx.reply("Authentifiziert");
+
+        cal.getCalendars().then((cals) => {
+          console.log(cals);
+          const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_"+resCal.id)]);
+          ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
+        }).catch((err) => {
+          ctx.reply("Sorry, an error occurred!");
         });
         break;
+    }
+  };
+  this.onCallbackQuery = (ctx) => {
+    console.log("\n***onCallbackQuery***");
+    console.log("full data:", ctx.callbackQuery.data);
+
+    // remove start_ prefix
+    const buttonData = ctx.callbackQuery.data.split("_").slice(1).join("");
+    console.log("data:", buttonData);
+    if (buttonData.includes("calendar")) {
+      console.log("oncallback calendar:", buttonData);
+      const calendarId = buttonData;
     }
   };
   return this;
