@@ -88,7 +88,6 @@ module.exports = class Manager {
       if (this.usecases[usecaseName]) {
         this.usecases[usecaseName].onUpdate(ctx, waRes);
       }
-      console.log(`usecase ${usecaseName} has been triggered (${waRes.generic[0].text})`);
     });
   };
 
