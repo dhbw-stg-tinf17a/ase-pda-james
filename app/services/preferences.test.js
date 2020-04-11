@@ -11,13 +11,13 @@ const count = jest.fn((searchParams)=> new Promise((resolve, reject)=>{
   resolve(1);
 }));
 
-const updateOne = jest.fn().mockImplementation((searchParams, update) =>
+const updateOne = jest.fn((searchParams, update) =>
   new Promise((resolve, reject)=>{
     resolve();
   }));
 
 const db = {
-  collection: jest.fn().mockImplementation((colName) => {
+  collection: jest.fn((colName) => {
     return {
       findOne,
       count,
