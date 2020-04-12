@@ -89,7 +89,7 @@ module.exports = (db, oAuth2Client) => {
       this.endAbsentDay = today;
     }
     if (!this.endAbsentDay) {
-      this.endAbsentDay = today;
+      this.endAbsentDay = this.startAbsentDay;
     }
     if (this.startAbsentTime !== null && this.endAbsentTime !== null) {
       this.startAbsent = this.startAbsentDay + "T" + this.startAbsentTime + "+02:00";
