@@ -40,7 +40,6 @@ module.exports = class Manager {
       this.updateCronJob(ctx);
     });
     this.bot.on("callback_query", (ctx) => {
-      console.log("callback query", ctx.callbackQuery.data);
       ctx.answerCbQuery();
       const usecaseName = ctx.callbackQuery.data.split("_")[0];
       if (this.usecases[usecaseName]) {

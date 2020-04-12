@@ -44,7 +44,6 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     }).then(() => {
       return preferences.get("chat_id_google_auth");
     }).then((chatId) => {
-      console.log(chatId);
       res.send("Danke, bitte kehre zu Telegram zurück.");
       ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.");
 
