@@ -12,7 +12,8 @@ module.exports = class Manager {
   start(oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
-    this.usecases.start = require("./usecases/start.js")(db, oAuth2Client);
+    const preferences = require("./services/preferences")(db);
+    this.usecases.start = require("./usecases/start.js")(preferences, db, oAuth2Client);
     this.usecases.absent = require("./usecases/sendAbsent.js")(db, oAuth2Client);
     this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(db, oAuth2Client);
     this.usecases.tasks = require("./usecases/tasks.js")(db);

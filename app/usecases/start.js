@@ -1,8 +1,7 @@
 const Markup = require("telegraf/markup");
-const preferences = require("../services/preferences")();
 const vvs = require("../services/vvs/vvs.js")();
 const gplaces = require("../services/gplaces")();
-module.exports = (db, oAuth2Client) => {
+module.exports = (preferences, db, oAuth2Client) => {
   let commutePreference;
   let homeAddress;
   let uniAddresses;
@@ -129,6 +128,8 @@ module.exports = (db, oAuth2Client) => {
               preferences.set("uni_stop_id", data.stopID);
               ctx.reply(`Ich habe deine Uni-Haltestelle: "${data.name}" gespeichert`);
             }
+          }).catch((error) => {
+            ctx.reply("Sorry, jetzt gab es ein Problem");
           });
         } else {
           ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
@@ -148,6 +149,8 @@ module.exports = (db, oAuth2Client) => {
               preferences.set("home_stop", data.stopID);
               ctx.reply(`Ich habe deine Haltestelle: "${data.name}" gespeichert`);
             }
+          }).catch((error) => {
+            ctx.reply("Sorry, jetzt gab es ein Problem");
           });
         } else {
           ctx.reply("An welcher Uni/Hochschule bist du?");
