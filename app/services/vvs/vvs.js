@@ -55,7 +55,7 @@ module.exports = () => {
             return a.distance - b.distance;
           });
 
-          resolve(stopRes[0]);
+          // resolve(stopRes[0]);
         }
         resolve(stopRes);
       });

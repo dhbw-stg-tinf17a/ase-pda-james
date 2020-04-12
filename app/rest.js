@@ -44,9 +44,14 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     }).then(() => {
       return preferences.get("chat_id_google_auth");
     }).then((chatId) => {
-      console.log(chatId);
       res.send("Danke, bitte kehre zu Telegram zurück.");
       ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.");
+
+      // mock ctx to trigger use case
+      const start = require("./usecases/start.js")(db, oAuth2Client);
+      const waRes = {generic: [{text: "start_is_authenticated"}]};
+      const mockCtx = {reply: (msg, param)=>ctx.telegram.sendMessage(chatId, msg, param)};
+      start.onUpdate(mockCtx, waRes);
     }).catch((err) => {
       if (err) {
         console.error(err);

@@ -12,14 +12,18 @@ module.exports = class Manager {
   start(oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
+    this.usecases.start = require("./usecases/start.js")(db, oAuth2Client);
     this.usecases.absent = require("./usecases/sendAbsent.js")(db, oAuth2Client);
     this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(db, oAuth2Client);
     this.usecases.tasks = require("./usecases/tasks.js")(db, oAuth2Client);
     this.usecases.book = require("./usecases/books.js")(db, oAuth2Client);
     this.usecases.meals = require("./usecases/meals.js")(db, oAuth2Client);
-    // TODO add misc usecase
 
     this.bot.startPolling();
+
+    this.bot.start((ctx) => {
+      this.handleTextWithWatsonAssistant(ctx, "start");
+    });
 
     this.bot.on("voice", (ctx) => {
       watsonSpeech.s2t(ctx).then((transcription) => {
@@ -30,11 +34,11 @@ module.exports = class Manager {
       });
     });
 
+
     this.bot.on("text", (ctx) => {
       this.handleTextWithWatsonAssistant(ctx, ctx.update.message.text);
       this.updateCronJob(ctx);
     });
-
     this.bot.on("callback_query", (ctx) => {
       ctx.answerCbQuery();
       const usecaseName = ctx.callbackQuery.data.split("_")[0];

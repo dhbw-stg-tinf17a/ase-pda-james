@@ -13,7 +13,7 @@ let connection = undefined;
 const mongoUrl = "mongodb://localhost:27017";
 
 
-mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
+mongoClient.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true}, function(err, con) {
   if (err) {
     console.log(err);
   } else {
