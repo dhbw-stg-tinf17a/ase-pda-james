@@ -1,45 +1,43 @@
 let start;
 let mockReply;
 let mockSet;
+
 describe("onCallback", () => {
   beforeEach(() => {
-    mockSet = jest.fn((key, data) => {
-
-    });
-
-    mockReply = jest.fn((msg, param) => {
-
-    });
+    mockSet = jest.fn((key, data) => {});
+    mockReply = jest.fn((msg, param) => {});
 
     const preferences = {set: mockSet};
     start = require("../usecases/start")(preferences, null, null);
   });
 
-  test("cid", () => {
-    // const waRes = {generic: [{text: undefined}]};
+  test("onCallbackQuery(...) sets previously obtained calendar ID", () => {
     const data = "start_cid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
-    expect(mockSet.mock.calls.length).toEqual(1);
+
     expect(mockSet).toHaveBeenCalledWith("lecture_cal_id", "test");
+    expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("sid", () => {
+  test("onCallbackQuery(...) sets previously obtained home stop ID", () => {
     const data = "start_sid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
-    expect(mockSet.mock.calls.length).toEqual(1);
+
     expect(mockSet).toHaveBeenCalledWith("home_stop_id", "test");
+    expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("usid", () => {
+  test("onCallBackQuery(...) sets previously obtained uni stop ID", () => {
     const data = "start_usid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
-    expect(mockSet.mock.calls.length).toEqual(1);
+
     expect(mockSet).toHaveBeenCalledWith("uni_stop_id", "test");
+    expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
@@ -235,6 +233,15 @@ describe("onUpdate", () => {
       });
     }));
     await start._setHomeAddress(promise, ctx);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("_setUniStop(...) resolves with single stop element", async () => {
+    const ctx = {reply: mockReply};
+    const promise = new Promise((resolve, reject) => {
+      resolve({stopID: 4711, name: "Sample Stop"});
+    });
+    await start._setUniStop(promise, ctx);
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 });
