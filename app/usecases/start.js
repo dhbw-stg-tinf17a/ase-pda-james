@@ -5,7 +5,22 @@ const gplaces = require("../services/gplaces")();
 module.exports = (db, oAuth2Client) => {
   let commutePreference;
   let homeAddress;
+  let homeAddresses;
   let uniAddresses;
+  this._chooseTravelMethod=(ctx)=>{
+    // set travel method
+    const travelMethods = [
+      {displayName: "Laufen", value: "walking"},
+      {displayName: "Auto", value: "driving"},
+      {displayName: "Fahrrad", value: "bicycling"},
+      {displayName: "ÖPNV", value: "vvs"},
+    ];
+
+    const travelMethodButtons = travelMethods.map((method) => {
+      return [Markup.callbackButton(method.displayName, "start_tid_" + method.value)];
+    });
+    ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
+  };
   const cal = require("../services/gcalendar")(db, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
     // console.log("use case", waRes.generic[0].text);
@@ -35,27 +50,40 @@ module.exports = (db, oAuth2Client) => {
         break;
 
       case "start_address":
-        preferences.set("home_address", waRes.context.address);
-        homeAddress = waRes.context.address;
+        // preferences.set("home_address", waRes.context.address);
+        // homeAddress = waRes.context.address;
 
-        const travelMethods = [
-          {displayName: "Laufen", value: "walking"},
-          {displayName: "Auto", value: "driving"},
-          {displayName: "Fahrrad", value: "bicycling"},
-          {displayName: "ÖPNV", value: "vvs"},
-        ];
-        const travelMethodButtons = travelMethods.map((method) => {
-          return [Markup.callbackButton(method.displayName, "start_tid_" + method.value)];
-        });
-        ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
-
+        homeAddresses=[];
         gplaces.getPlaces({query: waRes.context.address}).then((data) => {
+          if (data.results.length>1) {
+            const addressButtons = data.results.map((result)=>{
+            // drop ", Germany"
+              const address = result.formatted_address.split(", ").slice(0, -1).join(", ");
+              const location = result.geometry.location;
+              const coordinates = location.lat + ", " + location.lng;
+              homeAddresses[result.place_id] = {address: address, location: coordinates};
+              return [Markup.callbackButton(address, "start_addr_" + result.place_id)];
+            });
+
+            ctx.reply("Wähle deine Adresse aus:", Markup.inlineKeyboard(addressButtons).extra());
+          } else {
+            const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
+            homeAddress=address;
+            preferences.set("home_address", address);
+            const location = data.results[0].geometry.location;
+            const coordinates = location.lat + ", " + location.lng;
+            preferences.set("home_address_coordinates", coordinates);
+            this._chooseTravelMethod(ctx);
+          }
+          /*   // save location
+          console.log(data.results);
           const location = data.results[0].geometry.location;
-          const coordinates = location.lat + ", " + location.lng;
-          preferences.set("home_address_coordinates", coordinates);
+          const coordinates = location.lat + ", " + location.lng;*/
         }).catch((err) => {
+          ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
           console.log(err);
         });
+
         break;
 
       case "start_uni":
@@ -135,18 +163,27 @@ module.exports = (db, oAuth2Client) => {
         }
         break;
 
+      case "addr": // UNI ADDRESS
+
+        homeAddress = homeAddresses[data].address;
+        preferences.set("home_address", homeAddress);
+        preferences.set("home_address_coordinates", homeAddresses[data].location);
+
+        this._chooseTravelMethod(ctx);
+        break;
+
       case "tid": // TRAVEL MODE
         preferences.set("commute", data);
         commutePreference = data;
 
         if (commutePreference === "vvs") {
-          vvs.getStopByKeyword(homeAddress).then((data) => {
-            if (Array.isArray(data)) {
-              const stopButtons = data.map((stop) => [Markup.callbackButton(stop.name, "start_sid_" + stop.stopID)]);
+          vvs.getStopByKeyword(homeAddress).then((stops) => {
+            if (Array.isArray(stops)) {
+              const stopButtons = stops.map((stop) => [Markup.callbackButton(stop.name, "start_sid_" + stop.stopID)]);
               ctx.reply("Wähle deine Haltstelle zuhause aus:", Markup.inlineKeyboard(stopButtons).extra());
             } else {
-              preferences.set("home_stop", data.stopID);
-              ctx.reply(`Ich habe deine Haltestelle: "${data.name}" gespeichert`);
+              preferences.set("home_stop", stops.stopID);
+              ctx.reply(`Ich habe deine Haltestelle: "${stops.name}" gespeichert\n An welcher Uni/Hochschule bist du?`);
             }
           });
         } else {
