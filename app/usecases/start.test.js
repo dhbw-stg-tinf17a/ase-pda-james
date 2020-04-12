@@ -1,8 +1,8 @@
 let start;
 let mockReply;
 let mockSet;
-describe("onCallback", ()=>{
-  beforeEach(()=>{
+describe("onCallback", () => {
+  beforeEach(() => {
     mockSet = jest.fn((key, data) => {
 
     });
@@ -12,10 +12,10 @@ describe("onCallback", ()=>{
     });
 
     const preferences = {set: mockSet};
-    start=require("../usecases/start")(preferences, null, null);
+    start = require("../usecases/start")(preferences, null, null);
   });
 
-  test("cid", ()=>{
+  test("cid", () => {
     // const waRes = {generic: [{text: undefined}]};
     const data = "start_cid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
@@ -25,7 +25,7 @@ describe("onCallback", ()=>{
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("sid", ()=>{
+  test("sid", () => {
     const data = "start_sid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
@@ -34,7 +34,7 @@ describe("onCallback", ()=>{
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("usid", ()=>{
+  test("usid", () => {
     const data = "start_usid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
@@ -44,17 +44,17 @@ describe("onCallback", ()=>{
   });
 
   /*  test("uid", ()=>{
-    const data = "start_uid_test";
-    const ctx = {reply: mockReply, callbackQuery: {data: data}};
-    start.onCallbackQuery(ctx);
-    // expect(mockSet.mock.calls.length).toEqual(1);
-    // const spy = jest.spyOn(start, "uniAddresses");
-    // spy.mockReturnValue({test: "Hauptstraße 1"});
-    // expect(mockSet).toHaveBeenCalled();
-    // expect(mockReply.mock.calls.length).toEqual(1);
-  });*/
+     const data = "start_uid_test";
+     const ctx = {reply: mockReply, callbackQuery: {data: data}};
+     start.onCallbackQuery(ctx);
+     // expect(mockSet.mock.calls.length).toEqual(1);
+     // const spy = jest.spyOn(start, "uniAddresses");
+     // spy.mockReturnValue({test: "Hauptstraße 1"});
+     // expect(mockSet).toHaveBeenCalled();
+     // expect(mockReply.mock.calls.length).toEqual(1);
+     });*/
 
-  test("uid - catch", ()=>{
+  test("uid - catch", () => {
     const data = "start_uid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     try {
@@ -64,7 +64,7 @@ describe("onCallback", ()=>{
     }
   });
 
-  test("tid", ()=>{
+  test("tid", () => {
     const data = "start_tid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
@@ -73,7 +73,17 @@ describe("onCallback", ()=>{
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("tid - catch", ()=>{
+  test("addr", () => {
+    const data = "start_addr_test";
+    const ctx = {reply: mockReply, callbackQuery: {data: data}};
+    try {
+      start.onCallbackQuery(ctx);
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+  });
+
+  test("tid - catch", () => {
     const data = "start_tid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     try {
@@ -84,7 +94,7 @@ describe("onCallback", ()=>{
     }
   });
 
-  test("tid - parameter vss", ()=>{
+  test("tid - parameter vss", () => {
     const data = "start_tid_vvs";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
@@ -92,8 +102,8 @@ describe("onCallback", ()=>{
     expect(mockSet).toHaveBeenCalledWith("commute", "vvs");
   });
 });
-describe("onUpdate", ()=>{
-  beforeEach(()=>{
+describe("onUpdate", () => {
+  beforeEach(() => {
     mockSet = jest.fn((key, data) => {
 
     });
@@ -103,10 +113,10 @@ describe("onUpdate", ()=>{
     });
 
     const preferences = {set: mockSet};
-    start=require("../usecases/start")(preferences, null, null);
+    start = require("../usecases/start")(preferences, null, null);
   });
 
-  test("start", ()=>{
+  test("start", () => {
     const waRes = {generic: [{text: "start"}]};
     const ctx = {reply: mockReply};
     start.onUpdate(ctx, waRes);
@@ -115,7 +125,7 @@ describe("onUpdate", ()=>{
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("start_name", ()=>{
+  test("start_name", () => {
     const waRes = {generic: [{text: "start_name"}], context: {name: "John"}};
     const ctx = {reply: mockReply};
     start.onUpdate(ctx, waRes);
@@ -125,7 +135,7 @@ describe("onUpdate", ()=>{
     expect(mockReply.mock.calls[0][0]).toContain("John");
   });
 
-  test("start_email", ()=>{
+  test("start_email", () => {
     const waRes = {generic: [{text: "start_email"}], context: {email: "john@test.com"}};
     const ctx = {reply: mockReply};
     start.onUpdate(ctx, waRes);
@@ -134,16 +144,7 @@ describe("onUpdate", ()=>{
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("start_address", ()=>{
-    const waRes = {generic: [{text: "start_address"}], context: {address: "Samplestreet 17 SampleCity"}};
-    const ctx = {reply: mockReply};
-    start.onUpdate(ctx, waRes);
-    expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockSet).toHaveBeenCalledWith("home_address", "Samplestreet 17 SampleCity");
-    expect(mockReply.mock.calls.length).toEqual(1);
-  });
-
-  test("start_address catch", ()=>{
+  test("start_address catch", () => {
     const waRes = {generic: [{text: "start_address"}], context: {address: "Samplestreet 17 SampleCity"}};
     const ctx = {reply: mockReply};
     try {
@@ -153,7 +154,17 @@ describe("onUpdate", ()=>{
     }
   });
 
-  test("start_uni", ()=>{
+  test("start_address catch reply", () => {
+    const waRes = {generic: [{text: "start_address"}], context: {address: "Samplestreet 17 SampleCity"}};
+    const ctx = {reply: mockReply};
+    try {
+      start.onUpdate(ctx, waRes);
+    } catch (e) {
+      expect(mockReply.calls.length).toEqual(1);
+    }
+  });
+
+  test("start_uni", () => {
     const waRes = {generic: [{text: "start_uni"}], context: {uni: undefined}};
     const ctx = {reply: mockReply};
 
@@ -164,7 +175,7 @@ describe("onUpdate", ()=>{
     }
   });
 
-  test("start_uni_email", ()=>{
+  test("start_uni_email", () => {
     const waRes = {generic: [{text: "start_uni_email"}], context: {uni_email: "sek@test.com"}};
     const ctx = {reply: mockReply};
 
@@ -178,8 +189,8 @@ describe("onUpdate", ()=>{
     }
   });
 
-  test("start_is_authenticated", ()=>{
-    const waRes = {generic: [{text: "start_uni_email"}], context: {uni_email: "sek@test.com"}};
+  test("start_is_authenticated", () => {
+    const waRes = {generic: [{text: "start_is_authenticated"}]};
     const ctx = {reply: mockReply};
 
 
@@ -189,5 +200,41 @@ describe("onUpdate", ()=>{
       expect(e).toBeDefined();
       expect(mockReply.mock.calls.length).toEqual(1);
     }
+  });
+
+  test("_chooseTravelMethod", () => {
+    const ctx = {reply: mockReply};
+    start._chooseTravelMethod(ctx);
+
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("_setHomeAddress resolve", async () => {
+    const ctx = {reply: mockReply};
+    start._homeAddresses=[];
+    const promise = new Promise(((resolve, reject) => {
+      resolve({
+        results: [
+          {place_id: "a", formatted_address: "test", geometry: {location: {lng: "49.0", lat: "8.0"}}},
+          {place_id: "b", formatted_address: "test", geometry: {location: {lng: "49.0", lat: "8.0"}}},
+        ],
+      });
+    }));
+    await start._setHomeAddress(promise, ctx);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("_setHomeAddress resolve one address only", async () => {
+    const ctx = {reply: mockReply};
+    start._homeAddresses=[];
+    const promise = new Promise(((resolve, reject) => {
+      resolve({
+        results: [
+          {place_id: "a", formatted_address: "test", geometry: {location: {lng: "49.0", lat: "8.0"}}},
+        ],
+      });
+    }));
+    await start._setHomeAddress(promise, ctx);
+    expect(mockReply.mock.calls.length).toEqual(1);
   });
 });

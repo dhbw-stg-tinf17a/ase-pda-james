@@ -4,8 +4,36 @@ const gplaces = require("../services/gplaces")();
 module.exports = (preferences, db, oAuth2Client) => {
   let commutePreference;
   let homeAddress;
-  let homeAddresses;
+  this._homeAddresses;
   let uniAddresses;
+  this._setHomeAddress=(promise, ctx)=>{
+    promise.then((data) => {
+      if (data.results.length > 1) {
+        const addressButtons = data.results.map((result) => {
+          // drop ", Germany"
+          const address = result.formatted_address.split(", ").slice(0, -1).join(", ");
+          const location = result.geometry.location;
+          const coordinates = location.lat + ", " + location.lng;
+          this._homeAddresses[result.place_id] = {address: address, location: coordinates};
+          return [Markup.callbackButton(address, "start_addr_" + result.place_id)];
+        });
+
+        ctx.reply("Wähle deine Adresse aus:", Markup.inlineKeyboard(addressButtons).extra());
+      } else {
+        const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
+        homeAddress = address;
+        preferences.set("home_address", address);
+        const location = data.results[0].geometry.location;
+        const coordinates = location.lat + ", " + location.lng;
+        preferences.set("home_address_coordinates", coordinates);
+        this._chooseTravelMethod(ctx);
+      }
+    },
+    ).catch((err) => {
+      ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
+      console.log(err);
+    });
+  };
   this._chooseTravelMethod=(ctx)=>{
     // set travel method
     const travelMethods = [
@@ -52,15 +80,16 @@ module.exports = (preferences, db, oAuth2Client) => {
         // preferences.set("home_address", waRes.context.address);
         // homeAddress = waRes.context.address;
 
-        homeAddresses=[];
-        gplaces.getPlaces({query: waRes.context.address}).then((data) => {
+        this._homeAddresses=[];
+        this._setHomeAddress(gplaces.getPlaces({query: waRes.context.address}), ctx);
+        /* gplaces.getPlaces({query: waRes.context.address}).then((data) => {
           if (data.results.length>1) {
             const addressButtons = data.results.map((result)=>{
             // drop ", Germany"
               const address = result.formatted_address.split(", ").slice(0, -1).join(", ");
               const location = result.geometry.location;
               const coordinates = location.lat + ", " + location.lng;
-              homeAddresses[result.place_id] = {address: address, location: coordinates};
+              this._homeAddresses[result.place_id] = {address: address, location: coordinates};
               return [Markup.callbackButton(address, "start_addr_" + result.place_id)];
             });
 
@@ -73,15 +102,15 @@ module.exports = (preferences, db, oAuth2Client) => {
             const coordinates = location.lat + ", " + location.lng;
             preferences.set("home_address_coordinates", coordinates);
             this._chooseTravelMethod(ctx);
-          }
-          /*   // save location
+          }*/
+        /*   // save location
           console.log(data.results);
           const location = data.results[0].geometry.location;
           const coordinates = location.lat + ", " + location.lng;*/
-        }).catch((err) => {
-          ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
-          console.log(err);
-        });
+        // }).catch((err) => {
+        //   ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
+        //   console.log(err);
+        // });
 
         break;
 
@@ -166,9 +195,9 @@ module.exports = (preferences, db, oAuth2Client) => {
 
       case "addr": // UNI ADDRESS
 
-        homeAddress = homeAddresses[data].address;
+        homeAddress = this._homeAddresses[data].address;
         preferences.set("home_address", homeAddress);
-        preferences.set("home_address_coordinates", homeAddresses[data].location);
+        preferences.set("home_address_coordinates", this._homeAddresses[data].location);
 
         this._chooseTravelMethod(ctx);
         break;
