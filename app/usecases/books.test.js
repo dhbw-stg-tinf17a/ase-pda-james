@@ -1,3 +1,5 @@
+jest.mock("../services/mailer");
+
 describe("onUpdate", () => {
   let onUpdate;
   let ctx;
