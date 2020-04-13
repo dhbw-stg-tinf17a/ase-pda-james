@@ -18,7 +18,7 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
     console.log(err);
   } else {
     // MongoDB
-    db = con.db("student_pda");
+    const db = con.db("student_pda");
     connection = con;
     console.log("Connected with MongoDB!");
 
