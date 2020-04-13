@@ -10,7 +10,7 @@ module.exports = function(db) {
   this.set = (key, value)=>{
     return new Promise((resolve, reject)=>{
       db.collection("preferences").count({}).then((count)=>{
-        if (count == 0) {
+        if (count === 0) {
           db.collection("preferences").insertOne({[key]: value}).then(()=>{
             resolve();
           }).catch(reject);
