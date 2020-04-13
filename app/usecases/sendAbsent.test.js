@@ -2,13 +2,16 @@ describe("onUpdate", () => {
   let onUpdate;
   let ctx;
   let spy;
-  const watsonSpeech = require("../services/watsonSpeech")(); ;
+  const watsonSpeech = require("../services/watsonSpeech")();
+  const replyFunc = jest.fn((message) => message);
 
   beforeEach(() => {
     jest.resetAllMocks();
     spy = jest.spyOn(watsonSpeech, "replyWithAudio");
     onUpdate = require("./sendAbsent")().onUpdate;
-    ctx = {};
+    ctx = {
+      reply: replyFunc,
+    };
   });
   test("switches to welcome", () => {
     const waRes = {
@@ -19,7 +22,20 @@ describe("onUpdate", () => {
     };
 
     onUpdate(ctx, waRes);
-    //   expect(spy).toBeCalledWith({}, "Warum gehst du nicht in die Uni?");
+  });
+  test("switches to welcome", () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+    };
+
+    onUpdate(ctx, waRes);
+
+    expect(spy).toBeCalledWith({
+      reply: replyFunc,
+    }, "Warum gehst du nicht in die Uni?");
   });
 
   test("switches to reason_else", () => {
@@ -30,7 +46,9 @@ describe("onUpdate", () => {
       entities: [],
     };
     onUpdate(ctx, waRes);
-    expect(spy).toBeCalledWith({}, "Wie lange wirst du nicht in die Uni kommen?");
+    expect(spy).toBeCalledWith({
+      reply: replyFunc,
+    }, "Wie lange wirst du nicht in die Uni kommen?");
   });
 
   test("switches to default", () => {
@@ -41,7 +59,22 @@ describe("onUpdate", () => {
       entities: [],
     };
     onUpdate(ctx, waRes);
-    expect(spy).toBeCalledWith({}, "Das tut mir leid. Gute Besserung");
+    expect(spy).toBeCalledWith({
+      reply: replyFunc,
+    },
+    "Das tut mir leid. Gute Besserung");
+  });
+
+  test("switches to time", () => {
+    const waRes = {
+      generic: [
+        {text: "absent_time"},
+      ],
+      entities: [],
+      context: {absentReason: "Krankheit"},
+    };
+    onUpdate(ctx, waRes);
+    expect(ctx.reply).toBeCalledWith("Ok");
   });
 });
 
@@ -107,44 +140,23 @@ describe("hasUni", () => {
 });
 
 
-describe("onUpdate ctx reply", () => {
-  let onUpdate;
-  let ctx;
-
-  beforeEach(() => {
-    onUpdate = require("./sendAbsent")().onUpdate;
-    ctx = {
-      reply: jest.fn((message) => message),
-    };
-  });
-  test("switches to time", () => {
-    const waRes = {
-      generic: [
-        {text: "absent_time"},
-      ],
-      entities: [],
-      context: {absentReason: "Krankheit"},
-    };
-    onUpdate(ctx, waRes);
-    expect(ctx.reply).toBeCalledWith("Ok");
-  });
-});
-
 describe("sendMail", () => {
-  let sendMail;
-  let spy;
-  let spySpeech;
   let ctx;
-  const mailer = require("../services/mailer")();
+  let spy;
+  let sendMail;
   const watsonSpeech = require("../services/watsonSpeech")();
-
+  const mailer = require("../services/mailer")();
+  const replyFunc = jest.fn(() => Promise.resolve());
 
   beforeEach(() => {
     jest.resetAllMocks();
-    spySpeech = jest.spyOn(watsonSpeech, "replyWithAudio");
+    spy = jest.spyOn(watsonSpeech, "replyWithAudio");
     sendMail = require("./sendAbsent")().sendMail;
-    ctx = {};
+    ctx = {
+      replyWithVoice: replyFunc,
+    };
   });
+
   test("if sendMail works if absent reason is sick", () => {
     const waRes = {
       generic: [
@@ -153,11 +165,9 @@ describe("sendMail", () => {
       entities: [],
       context: {absentReason: "Krankheit"},
     };
-    spy = jest.spyOn(mailer, "sendMail").mockImplementation(() => Promise.resolve());
-    // sendMail = require("./sendAbsent")().sendMail;
-
+    mailer.sendMail = jest.fn(() => Promise.resolve());
     sendMail(ctx, waRes);
-    expect(spySpeech).toBeCalledWith({},
+    expect(spy).toHaveBeenCalledWith({replyWithVoice: replyFunc},
         "Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser");
   });
 
@@ -169,12 +179,10 @@ describe("sendMail", () => {
       entities: [],
       context: {absentReason: "Interviews"},
     };
-
-    spy = jest.spyOn(mailer, "sendMail").mockImplementation(() => Promise.resolve());
-    // sendMail = require("./sendAbsent")().sendMail;
+    mailer.sendMail = jest.fn(() => Promise.resolve());
 
     sendMail(ctx, waRes);
-    expect(spySpeech).toBeCalledWith({},
+    expect(spy).toHaveBeenCalledWith({replyWithVoice: replyFunc},
         "Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg");
   });
   test("if sendMail send right answer if mail can't be send", () => {
@@ -185,12 +193,10 @@ describe("sendMail", () => {
       entities: [],
       context: {absentReason: "Interviews"},
     };
-
-    spy = jest.spyOn(mailer, "sendMail").mockImplementation(() => Promise.reject());
-
+    mailer.sendMail = jest.fn(() => Promise.reject());
 
     sendMail(ctx, waRes);
-    expect(spySpeech).toBeCalledWith({},
+    expect(spy).toHaveBeenCalledWith({replyWithVoice: replyFunc},
         "Ich konnte dem Sekretariat leider keine Mail schicken. Versuche es bitte erneut");
   });
 });
@@ -222,6 +228,6 @@ describe("findPharmacy", () => {
     gplacesIdSpy = jest.spyOn(gplaces, "getPlaces").mockImplementation(() => Promise.resolve("URL"));
     findPharmacy = require("./sendAbsent")().findPharmacy;
     findPharmacy(ctx);
-    expect(spy).toBeCalledWith({}, "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:" );
+    expect(spy).toHaveBeenCalledWith({}, "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:" );
   });
 });
