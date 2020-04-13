@@ -21,8 +21,8 @@ const sendPlaces = (ctx, query) => {
   });
 };
 
-module.exports = (db, oAuth2Client) => {
-  const cal = require("../services/gcalendar")(db, oAuth2Client);
+module.exports = (preferences, oAuth2Client) => {
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
     const replyPlaces = () => {
       const typeOfFood = waRes.entities[0].value;

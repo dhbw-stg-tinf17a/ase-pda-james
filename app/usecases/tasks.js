@@ -1,7 +1,7 @@
 const msTodo = require("../services/todo")();
 
-module.exports = function() {
-  const preferences = require("../services/preferences")(db);
+module.exports = function(preferences) {
+  // const preferences = require("../services/preferences")(db);
 
   this.onUpdate = (ctx, waRes)=>{
     if (waRes.generic[0].text === "tasks_todo_auth") {

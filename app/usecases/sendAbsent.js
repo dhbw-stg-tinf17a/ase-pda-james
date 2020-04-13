@@ -4,7 +4,7 @@ const watsonSpeech = require("../services/watsonSpeech")();
 const lectureCalId="1nc6dpksqqc9pk2jg85f0hd5hkn8ups1@import.calendar.google.com"; // TO-DO Replace with Preference of lecture calendar
 
 
-module.exports = (db, oAuth2Client) => {
+module.exports = (preferences, oAuth2Client) => {
   this.absentReason = null;
   this.startAbsent = null;
   this.endAbsent = null;
@@ -12,8 +12,8 @@ module.exports = (db, oAuth2Client) => {
   this.endAbsentDay = null;
   this.startAbsentTime = null;
   this.endAbsentTime = null;
-  const gcalendar = require("../services/gcalendar")(db, oAuth2Client);
-  const preferences = require("../services/preferences")(db);
+  const gcalendar = require("../services/gcalendar")(preferences, oAuth2Client);
+  // const preferences = require("../services/preferences")(db);
   const mail ={
     recipient: "jamesaseprojekt@gmail.com", // TO-DO Replace with Preference of secretary mail address
     subject: "Abwesenheit",

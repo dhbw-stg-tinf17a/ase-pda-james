@@ -3,11 +3,11 @@ const watsonSpeech = require("../services/watsonSpeech")(); // voice I/O handlin
 const speak = require("../../app/waResponses.js").uniNotifier(); // constant answers for voice assistant
 
 
-module.exports = (db, oAuth2Client) => {
+module.exports = (preferences, oAuth2Client) => {
   // const prefs = require("../services/preferences.js")(db);
   const vvs = require("../services/vvs/vvs.js")();
   const maps = require("../services/gmaps.js");
-  const cal = require("../services/gcalendar.js")(db, oAuth2Client);
+  const cal = require("../services/gcalendar.js")(preferences, oAuth2Client);
   moment.locale("de");
 
   // ==== TEMPORARY: getting and setting preferences ===================================================================

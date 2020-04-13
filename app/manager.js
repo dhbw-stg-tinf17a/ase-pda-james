@@ -9,16 +9,16 @@ module.exports = class Manager {
   }
 
 
-  start(oAuth2Client) {
+  start(preferences, oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
-    const preferences = require("./services/preferences")(db);
-    this.usecases.start = require("./usecases/start.js")(preferences, db, oAuth2Client);
-    this.usecases.absent = require("./usecases/sendAbsent.js")(db, oAuth2Client);
-    this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(db, oAuth2Client);
-    this.usecases.tasks = require("./usecases/tasks.js")(db);
-    this.usecases.book = require("./usecases/books.js")(db, oAuth2Client);
-    this.usecases.meals = require("./usecases/meals.js")(db, oAuth2Client);
+    // const preferences = require("./services/preferences")(db);
+    this.usecases.start = require("./usecases/start.js")(preferences, oAuth2Client);
+    this.usecases.absent = require("./usecases/sendAbsent.js")(preferences, oAuth2Client);
+    this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(preferences, oAuth2Client);
+    this.usecases.tasks = require("./usecases/tasks.js")(preferences);
+    this.usecases.book = require("./usecases/books.js")(preferences, oAuth2Client);
+    this.usecases.meals = require("./usecases/meals.js")(preferences, oAuth2Client);
 
     this.bot.startPolling();
 

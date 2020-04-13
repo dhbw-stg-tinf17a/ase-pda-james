@@ -1,11 +1,14 @@
 const Markup = require("telegraf/markup");
 const vvs = require("../services/vvs/vvs.js")();
 const gplaces = require("../services/gplaces")();
-module.exports = (preferences, db, oAuth2Client) => {
+
+module.exports = (preferences, oAuth2Client) => {
   this._commutePreference;
   this._homeAddress;
   this._homeAddresses;
   this._uniAddresses;
+
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
 
   this._setUniStop = (promise, ctx) => {
     promise.then((data) => {
@@ -32,6 +35,7 @@ module.exports = (preferences, db, oAuth2Client) => {
       }
     }).catch((error) => {
       ctx.reply("Sorry, jetzt gab es ein Problem");
+      console.log(error);
     });
   };
 
@@ -73,11 +77,8 @@ module.exports = (preferences, db, oAuth2Client) => {
         // drop ", Germany"
         const address = uni.formatted_address.split(", ").slice(0, -1).join(", ");
         this._uniAddresses[uni.place_id] = {address: address};
-        console.log("full uni address", uni.formatted_address);
-        console.log("uni address", address);
         return [Markup.callbackButton(address, "start_uid_" + uni.place_id)];
       });
-      console.log("uni location", location);
       ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra());
     }).catch((err) => {
       console.log(err);
@@ -89,7 +90,8 @@ module.exports = (preferences, db, oAuth2Client) => {
       const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_cid_" + resCal.id)]);
       ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra());
     }).catch((err) => {
-      ctx.reply("Sorry, es gab einen Fehler!");
+      ctx.reply("Sorry, es gab einen Fehler!")
+      console.log(err);
     });
   };
 
@@ -111,7 +113,6 @@ module.exports = (preferences, db, oAuth2Client) => {
     });
     ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
   };
-  const cal = require("../services/gcalendar")(db, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
     // console.log("use case", waRes.generic[0].text);
 

@@ -4,9 +4,9 @@ const library = require("../services/springer");
 const mail = require("../services/mailer")();
 const {createFreeSlotButtons, createEmailText, createEmailOptions} = require("../utils/bookHelpers");
 
-module.exports = (db, oAuth2Client) => {
-  const gCalendar = require("../services/gcalendar")(db, oAuth2Client);
-  const preferences = require("../services/preferences")(db);
+module.exports = (preferences, oAuth2Client) => {
+  const gCalendar = require("../services/gcalendar")(preferences, oAuth2Client);
+  // const preferences = require("../services/preferences")(db);
   const gPlaces = require("../services/gplaces")();
 
   let date = "";
