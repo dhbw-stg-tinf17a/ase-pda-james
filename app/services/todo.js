@@ -1,8 +1,6 @@
 const axios = require("axios");
 
-module.exports = function(db) {
-  const preferences = require("../services/preferences")(db);
-
+module.exports = function(preferences) {
   this.getTodos = () => {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
@@ -25,7 +23,7 @@ module.exports = function(db) {
                 });
                 resolve(todos);
               }).catch((err)=>{
-                if (err.response.status == 401) {
+                if (err.response && err.response.status == 401) {
                   this.requestRefresh().then(()=>{
                     this.getTodos().then(resolve).catch(reject);
                   }).catch(reject);

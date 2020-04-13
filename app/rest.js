@@ -1,9 +1,9 @@
 const axios = require("axios");
 const gplaces = require("./services/gplaces")();
-const todo = require("./services/todo")(db);
 
 module.exports = function(app, db, ctx, oAuth2Client) {
   const preferences = require("./services/preferences")(db);
+  const todo = require("./services/todo")(preferences);
   app.get("/mstodo", (req, res) => {
     const code = req.query.code;
     const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +

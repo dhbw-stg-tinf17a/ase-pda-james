@@ -1,7 +1,7 @@
 
 module.exports = function(db, oAuth2Client) {
-  const msTodo = require("../services/todo")(db);
   const preferences = require("../services/preferences")(db);
+  const msTodo = require("../services/todo")(preferences);
   const cal = require("../services/gcalendar")(db, oAuth2Client);
   const gsearch = require("../services/gsearch");
 
