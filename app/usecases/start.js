@@ -10,21 +10,21 @@ module.exports = (preferences, oAuth2Client) => {
 
   const cal = require("../services/gcalendar")(preferences, oAuth2Client);
 
-  this._setUniStop = (promise, ctx) => {
+  this._setStop = (promise, ctx, indicator, stopType) => {
     promise.then((data) => {
       if (Array.isArray(data)) {
-        const stopButtons = data.map((stop) => [Markup.callbackButton(stop.name, "start_usid_" + stop.stopID)]);
-        ctx.reply("Wähle deine Uni-Haltestelle aus:", Markup.inlineKeyboard(stopButtons).extra());
+        const stopButtons = data.map((stop) => [Markup.callbackButton(stop.name, `start_${indicator}_` + stop.stopID)]);
+        ctx.reply(`Wähle deine ${stopType} aus:`, Markup.inlineKeyboard(stopButtons).extra());
       } else {
         preferences.set("uni_stop_id", data.stopID);
-        ctx.reply(`Ich habe deine Uni-Haltestelle: "${data.name}" gespeichert`);
+        ctx.reply(`Ich habe deine ${stopType}: "${data.name}" gespeichert`);
       }
     }).catch((error) => {
       ctx.reply("Sorry, jetzt gab es ein Problem");
     });
   };
 
-  this._setHomeStop = (promise, ctx) => {
+  /* this._setHomeStop = (promise, ctx) => {
     promise.then((data) => {
       if (Array.isArray(data)) {
         const stopButtons = data.map((stop) => [Markup.callbackButton(stop.name, "start_sid_" + stop.stopID)]);
@@ -37,7 +37,7 @@ module.exports = (preferences, oAuth2Client) => {
       ctx.reply("Sorry, jetzt gab es ein Problem");
       console.log(error);
     });
-  };
+  }; */
 
   this._setHomeAddress=(promise, ctx)=>{
     promise.then((data) => {
@@ -205,14 +205,14 @@ module.exports = (preferences, oAuth2Client) => {
         preferences.set("commute", data);
         this._commutePreference = data;
         if (this._commutePreference === "vvs") {
-          this._setHomeStop(vvs.getStopByKeyword(this._homeAddress), ctx);
+          this._setStop(vvs.getStopByKeyword(this._homeAddress), ctx, "sid", "Haltestelle zuhause");
         } else {
           ctx.reply("An welcher Uni/Hochschule bist du?");
         }
         break;
       case "addr": // UNI ADDRESS
         this._homeAddress = this._homeAddresses[data].address;
-        preferences.set("home_address", homeAddress);
+        preferences.set("home_address", this._homeAddress);
         preferences.set("home_address_coordinates", this._homeAddresses[data].location);
         this._chooseTravelMethod(ctx);
         break;
@@ -224,7 +224,7 @@ module.exports = (preferences, oAuth2Client) => {
         const uniAddress = this._uniAddresses[data].address;
         preferences.set("uni_address", uniAddress);
         if (this._commutePreference==="vvs") {
-          this._setUniStop(vvs.getStopByKeyword(uniAddress), ctx);
+          this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid", "Uni-Haltestelle");
         } else {
           ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
         }

@@ -7,7 +7,7 @@ describe("onCallback", () => {
     mockSet = jest.fn((key, data) => {});
     mockReply = jest.fn((msg, param) => {});
 
-    const preferences = {set: mockSet};
+    const preferences = {set: mockSet, get: () => {}};
     start = require("../usecases/start")(preferences, null, null);
   });
 
@@ -41,6 +41,19 @@ describe("onCallback", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
+  test("onCallBackQuery(...) sets previously obtained home address", () => {
+    const data = "start_addr_test";
+    const ctx = {reply: mockReply, callbackQuery: {data: data}};
+    start._homeAddresses = {test: {
+      address: "Sample Street",
+      location: "49.0, 8.0",
+    }};
+    start.onCallbackQuery(ctx);
+
+    expect(mockSet.mock.calls.length).toEqual(2);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
   /*  test("uid", ()=>{
      const data = "start_uid_test";
      const ctx = {reply: mockReply, callbackQuery: {data: data}};
@@ -68,6 +81,19 @@ describe("onCallback", () => {
     start.onCallbackQuery(ctx);
     expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockSet).toHaveBeenCalledWith("commute", "test");
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("uid", () => {
+    const data = "start_uid_test";
+    const ctx = {reply: mockReply, callbackQuery: {data: data}};
+    start._uniAddresses = {test: {
+        address: "Sample Street",
+      }};
+    start.onCallbackQuery(ctx);
+
+    expect(mockSet.mock.calls.length).toEqual(1);
+    expect(mockSet).toHaveBeenCalledWith("uni_address", "Sample Street");
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
@@ -222,6 +248,33 @@ describe("onUpdate", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
+  test("_setUniAddress resolves with array", async () => {
+    const ctx = {reply: mockReply};
+    start._uniAddresses = [];
+    const promise = new Promise(((resolve, reject) => {
+      resolve({
+        results: [
+          {place_id: "a", formatted_address: "test"},
+          {place_id: "b", formatted_address: "test"},
+        ],
+      });
+    }));
+    await start._setUniAddress(promise, ctx);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("_setCalendar resolves with array", async () => {
+    const ctx = {reply: mockReply};
+    const promise = new Promise(((resolve, reject) => {
+      resolve([
+        {id: "a", summary: "test"},
+        {id: "b", summary: "test"},
+      ]);
+    }));
+    await start._setCalendar(promise, ctx);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
   test("_setHomeAddress resolve one address only", async () => {
     const ctx = {reply: mockReply};
     start._homeAddresses=[];
@@ -236,12 +289,24 @@ describe("onUpdate", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("_setUniStop(...) resolves with single stop element", async () => {
+  test("_setStop(...) resolves with single stop element", async () => {
     const ctx = {reply: mockReply};
     const promise = new Promise((resolve, reject) => {
       resolve({stopID: 4711, name: "Sample Stop"});
     });
-    await start._setUniStop(promise, ctx);
+    await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("_setStop(...) resolves with array", async () => {
+    const ctx = {reply: mockReply};
+    const promise = new Promise((resolve, reject) => {
+      resolve([
+        {stopID: 4711, name: "Sample Stop"},
+        {stopID: 1337, name: "Yeet Stop"},
+      ]);
+    });
+    await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 });
