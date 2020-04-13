@@ -88,8 +88,8 @@ describe("onCallback", () => {
     const data = "start_uid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start._uniAddresses = {test: {
-        address: "Sample Street",
-      }};
+      address: "Sample Street",
+    }};
     start.onCallbackQuery(ctx);
 
     expect(mockSet.mock.calls.length).toEqual(1);
