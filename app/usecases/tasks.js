@@ -104,7 +104,6 @@ module.exports = function(db, oAuth2Client) {
             }).catch((err)=>{
               console.error(err);
               ctx.reply("Tut mir Leid, es gab einen Fehler mit den der MS ToDo API.");
-              console.log(taskId);
             });
           }).catch((err)=>{
             console.error(err);

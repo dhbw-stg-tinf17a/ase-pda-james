@@ -6,12 +6,14 @@ const path = require("path");
 const {google} = require("googleapis");
 const fs = require("fs");
 
-const Manager = require("./app/Manager");
+const Manager = require("./app/manager");
 
 let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
-const mongoUrl = "mongodb://localhost:27017";
-
+let mongoUrl = "mongodb://localhost:27017";
+if (process.env.PROD) {
+  mongoUrl = "mongodb://mongo:27017";
+}
 
 mongoClient.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true}, function(err, con) {
   if (err) {

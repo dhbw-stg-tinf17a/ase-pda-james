@@ -5,7 +5,17 @@ module.exports = function(db) {
         if (err) {
           reject(err);
         } else {
-          resolve(prefs[key]);
+          if (!prefs) {
+            db.collection("preferences").insertOne({}, function(err, res) {
+              if (err) {
+                reject(err);
+              } else {
+                this.get(key).then(resolve).catch(reject);
+              }
+            });
+          } else {
+            resolve(prefs[key]);
+          }
         }
       });
     });
