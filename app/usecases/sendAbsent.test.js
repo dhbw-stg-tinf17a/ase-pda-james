@@ -8,6 +8,7 @@ let sendAbsent;
 describe("sendAbsent convertEntityDates", () => {
   beforeEach(() => {
     sendAbsent= require("./sendAbsent")();
+    jest.mock("moment", () => () => ({format: () => "2020-04-01"}));
   });
   test("if the entity dates get converted correctly if only one sys-time is in the response", () => {
     sendAbsent.convertEntityDates(messageResponse);
@@ -16,20 +17,10 @@ describe("sendAbsent convertEntityDates", () => {
     expect(sendAbsent.startAbsentDay).toBeNull();
     expect(sendAbsent.endAbsentDay).toBeNull();
 
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
-    };
+
     sendAbsent.setAbsentTimes();
     expect(sendAbsent.startAbsent).toBe("2020-04-01T13:00:00+02:00");
     expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
   });
 
   test("if the entity dates get converted correctly if all times are in the response", () => {
@@ -50,20 +41,10 @@ describe("sendAbsent convertEntityDates", () => {
     expect(sendAbsent.startAbsentDay).toBeNull();
     expect(sendAbsent.endAbsentDay).toBeNull();
 
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
-    };
+
     sendAbsent.setAbsentTimes();
     expect(sendAbsent.startAbsent).toBe("2020-04-01T06:00:00+02:00");
     expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
   });
 });
 
@@ -89,20 +70,10 @@ describe("sendAbsent setAbsentTimes", () => {
     expect(sendAbsent.startAbsentDay).toBeNull();
     expect(sendAbsent.endAbsentDay).toBeNull();
 
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
-    };
+
     sendAbsent.setAbsentTimes();
     expect(sendAbsent.startAbsent).toBe("2020-04-01T13:00:00+02:00");
     expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
   });
 
   test("if startAbsent/endAbsent get specified correctly everything specified", () => {
@@ -125,19 +96,11 @@ describe("sendAbsent setAbsentTimes", () => {
     expect(sendAbsent.startAbsentDay).toBeNull();
     expect(sendAbsent.endAbsentDay).toBeNull();
 
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
-    };
+
     sendAbsent.setAbsentTimes();
     expect(sendAbsent.startAbsent).toBe("2020-04-01T06:00:00+02:00");
     expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
   });
 });
+
+
