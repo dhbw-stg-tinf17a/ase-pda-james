@@ -1,12 +1,15 @@
 const moment = require("moment");
 const preferences = require("../services/preferences")();
+const watsonAssisstant = require("../services/watsonAssistant")();
 
 const createEmailText = (absentTime, absentReason) => {
   let name;
-  preferences.get("name").then((res) => {
-    name = res;
-  });
-  if (this.absentReason === "Krankheit") {
+  preferences.get("name")
+      .then((res) => {
+        name = res;
+      })
+      .catch(()=> name = "James");
+  if (absentReason === "Krankheit") {
     return `
         <p>Guten Tag,</p></br> 
         <p>Ich kann am ${absentTime.startAbsentDay} von ${absentTime.startAbsentTime} bis 
@@ -27,9 +30,12 @@ const createEmailText = (absentTime, absentReason) => {
 
 const createEmailOptions = (emailText) => {
   let recipient;
-  preferences.get("uni_email").then((res) => {
-    recipient = res;
-  });
+  recipient = "melanie@stach24.de";
+  // preferences.get("uni_email")
+  //     .then((res) => {
+  //       recipient = res;
+  //     });
+
   return {
     recipient: recipient,
     subject: "Abwesenheit",
@@ -38,10 +44,10 @@ const createEmailOptions = (emailText) => {
 };
 
 const setAbsentTimes = (waRes) => {
-  const startAbsentDay = waRes.context.startAbsentDay;
-  const endAbsentDay = waRes.context.endAbsentDay;
-  const startAbsentTime = waRes.context.startAbsentTime;
-  const endAbsentTime = waRes.context.endAbsentTime;
+  let startAbsentDay = waRes.context.startAbsentDay;
+  let endAbsentDay = waRes.context.endAbsentDay;
+  let startAbsentTime = waRes.context.startAbsentTime;
+  let endAbsentTime = waRes.context.endAbsentTime;
   const today = moment().format("YYYY-MM-DD");
   if (!startAbsentDay) {
     startAbsentDay = today;
@@ -50,17 +56,21 @@ const setAbsentTimes = (waRes) => {
   if (!endAbsentDay) {
     endAbsentDay = startAbsentDay;
   }
-  if (startAbsentTime !== null && endAbsentTime !== null) {
-    startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
-    endAbsent = endAbsentDay + "T" + endAbsentTime + "+02:00";
-  } else if (startAbsentTime !== null && endAbsentTime === null) {
-    startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
-    endAbsent = endAbsentDay + "T" + "22:30:00" + "+02:00";
-  } else {
-    startAbsent = startAbsentDay + "T" + "06:00:00" + "+02:00";
-    endAbsent = endAbsentDay + "T" + "22:30:00" + "+02:00";
+  if (startAbsentTime == null && endAbsentTime == null) {
+    startAbsentTime = "06:00:00";
+    endAbsentTime = "22:30:00";
+  } else if (startAbsentTime !== null && endAbsentTime == null) {
+    endAbsentTime="22:30:00";
   }
-  return {startAbsent, endAbsent};
+  startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
+  endAbsent = endAbsentDay + "T" + endAbsentTime + "+02:00";
+  watsonAssisstant.setContext({
+    startAbsentDay: null,
+    endAbsentDay: null,
+    startAbsentTime: null,
+    endAbsentTime: null,
+  });
+  return {startAbsent, endAbsent, startAbsentDay, endAbsentDay, startAbsentTime, endAbsentTime};
 };
 
 module.exports = {
