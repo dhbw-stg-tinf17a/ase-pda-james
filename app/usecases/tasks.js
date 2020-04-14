@@ -1,7 +1,9 @@
-const msTodo = require("../services/todo")();
 
-module.exports = function(preferences) {
+module.exports = function(preferences, oAuth2Client) {
   // const preferences = require("../services/preferences")(db);
+  const msTodo = require("../services/todo")(preferences);
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
+  const gsearch = require("../services/gsearch");
 
   this.onUpdate = (ctx, waRes)=>{
     if (waRes.generic[0].text === "tasks_todo_auth") {
@@ -15,27 +17,50 @@ module.exports = function(preferences) {
           todos.forEach((todo, i)=>{
             toSend += `- ${todo.Subject}\n`;
           });
-          toSend += "\n" + `Ich empfehle dir, dass du mit ${todos[0].Subject} beginnst, es ist am frühsten fällig :)\n`;
-          toSend += "Gib mir Bescheid, wenn du die Aufgabe erledigt hast oder abbrichst:";
 
-          inlineKeyboardMarkup = {inline_keyboard: [[{
-            text: "Erledigt",
-            callback_data: "tasks_exercise_done",
-          }], [{
-            text: "Braucht noch Zeit",
-            callback_data: "tasks_exercise_notdone",
-          }]]};
+          cal.getFreeSlots("primary").then((calRes)=>{
+            const space = calRes[0][0];
+            space.start = new Date(space.start);
+            space.end = new Date(space.end);
 
-          preferences.set("ms_task_id", todos[0].Id).catch((err)=>{
+            toSend += "\n" +
+            `Ich empfehle dir, dass du mit ${todos[0].Subject} beginnst, es ist am frühsten fällig :)\n`;
+            toSend += `Du hast von ${space.start.toLocaleString([], {hour: "2-digit", minute: "2-digit"})} bis`+
+            ` ${space.end.toLocaleString([], {hour: "2-digit", minute: "2-digit"})} Zeit dafür.\n`;
+            toSend += "Gib mir Bescheid, wenn du die Aufgabe erledigt hast oder abbrichst:";
+
+            inlineKeyboardMarkup = {inline_keyboard: [[{
+              text: "Erledigt",
+              callback_data: "tasks_exercise_done",
+            }], [{
+              text: "Braucht noch Zeit",
+              callback_data: "tasks_exercise_notdone",
+            }]]};
+
+            preferences.set("ms_task_id", todos[0].Id).catch((err)=>{
+              console.error(err);
+              ctx.reply("Tut mir Leid, es gab einen Fehler mit den Preferences.");
+            });
+            gsearch.getSearchResults(todos[0].Subject).then((searchRes)=>{
+              toSend += "\n\nHier sind einige Links die dir bei deiner Aufgabe helfen könnten:\n\n";
+              ctx.reply(toSend, {reply_markup: inlineKeyboardMarkup});
+
+              setTimeout(()=>{
+                searchRes.split("\n\n").forEach((singleSearchRes)=>{
+                  ctx.reply(singleSearchRes);
+                });
+              }, 1000);
+            }).catch((err)=>{
+              console.error(err);
+              ctx.reply("Tut mir Leid, es gab einen Fehler mit Google Search.");
+            });
+          }).catch((err)=>{
             console.error(err);
-            ctx.reply("Tut mir Leid, es gab einen Fehler mit den Preferences.");
           });
         } else {
           toSend = "Du hast im Moment keine Aufgaben in deiner ToDo Liste 🔥";
+          ctx.reply(toSend, {reply_markup: inlineKeyboardMarkup});
         }
-
-
-        ctx.reply(toSend, {reply_markup: inlineKeyboardMarkup});
       }).catch((err)=>{
         if (err.message=="ms_todo_token is not saved") {
           msTodo.authorizeUser(ctx);
@@ -79,7 +104,6 @@ module.exports = function(preferences) {
             }).catch((err)=>{
               console.error(err);
               ctx.reply("Tut mir Leid, es gab einen Fehler mit den der MS ToDo API.");
-              console.log(taskId);
             });
           }).catch((err)=>{
             console.error(err);

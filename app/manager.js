@@ -16,7 +16,7 @@ module.exports = class Manager {
     this.usecases.start = require("./usecases/start.js")(preferences, oAuth2Client);
     this.usecases.absent = require("./usecases/sendAbsent.js")(preferences, oAuth2Client);
     this.usecases.uniNotifier = require("./usecases/uniNotifier.js")(preferences, oAuth2Client);
-    this.usecases.tasks = require("./usecases/tasks.js")(preferences);
+    this.usecases.tasks = require("./usecases/tasks.js")(preferences, oAuth2Client);
     this.usecases.book = require("./usecases/books.js")(preferences, oAuth2Client);
     this.usecases.meals = require("./usecases/meals.js")(preferences, oAuth2Client);
 
