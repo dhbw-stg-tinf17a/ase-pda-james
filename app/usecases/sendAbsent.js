@@ -13,10 +13,18 @@ module.exports = () => {
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       case "absent_welcome":
-        watsonSpeech.replyWithAudio(ctx, "Warum gehst du nicht in die Uni?");
+        watsonSpeech.replyWithAudio(ctx, "Warum gehst du nicht in die Uni?")
+            .catch((err) => {
+              ctx.reply("Warum gehst du nicht in die Uni?");
+              console.error(err);
+            });
         break;
       case "absent_reason_else":
-        watsonSpeech.replyWithAudio(ctx, "Wie lange wirst du nicht in die Uni kommen?");
+        watsonSpeech.replyWithAudio(ctx, "Wie lange wirst du nicht in die Uni kommen?")
+            .catch((err) => {
+              ctx.reply("Wie lange wirst du nicht in die Uni kommen?");
+              console.error(err);
+            });
         break;
       case "absent_time":
         ctx.reply("Ok");
@@ -25,14 +33,26 @@ module.exports = () => {
             .catch(() => {
               if (waRes.context.absentReason === "Krankheit") {
                 watsonSpeech.replyWithAudio(ctx,
-                    "Du hast zu dieser Zeit keine Uni. Aber ich hoffe es geht dir bald besser");
+                    "Du hast zu dieser Zeit keine Uni. Aber ich hoffe es geht dir bald besser")
+                    .catch((err) => {
+                      ctx.reply("Du hast zu dieser Zeit keine Uni. Aber ich hoffe es geht dir bald besser");
+                      console.error(err);
+                    });
               } else {
-                watsonSpeech.replyWithAudio(ctx, "Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg");
+                watsonSpeech.replyWithAudio(ctx, "Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg")
+                    .catch((err) => {
+                      ctx.reply("Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg");
+                      console.error(err);
+                    });
               }
             });
         break;
       case "absent_reason_sick":
-        watsonSpeech.replyWithAudio(ctx, "Das tut mir leid. Gute Besserung");
+        watsonSpeech.replyWithAudio(ctx, "Das tut mir leid. Gute Besserung")
+            .catch((err) => {
+              ctx.reply("Das tut mir leid. Gute Besserung");
+              console.error(err);
+            });
         this.hasUni(waRes)
             .then(() => this.sendMail(ctx, waRes))
             .catch(() => {
@@ -59,6 +79,7 @@ module.exports = () => {
           .then((res) => {
             console.log(res);
             if (res.length === 0) {
+              // eslint-disable-next-line prefer-promise-reject-errors
               reject(false);
             } else {
               resolve(true);
@@ -77,19 +98,31 @@ module.exports = () => {
         absentTimes,
         waRes.context.absentReason);
     const emailOptions = createEmailOptions(emailMessage);
-    mailer.sendMail(emailOptions)
+    return mailer.sendMail(emailOptions)
         .then(() => {
           if (waRes.context.absentReason === "Krankheit") {
             watsonSpeech.replyWithAudio(ctx,
-                "Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser");
+                "Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser")
+                .catch((err) => {
+                  ctx.reply("Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser");
+                  console.error(err);
+                });
           } else {
             watsonSpeech.replyWithAudio(ctx,
-                "Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg");
+                "Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg")
+                .catch((err) => {
+                  ctx.reply("Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg");
+                  console.error(err);
+                });
           }
         })
         .catch(() => {
           watsonSpeech.replyWithAudio(ctx,
-              "Ich konnte dem Sekretariat leider keine Mail schicken. Versuche es bitte erneut");
+              "Ich konnte dem Sekretariat leider keine Mail schicken. Versuche es bitte erneut")
+              .catch((err) => {
+                ctx.reply("Ich konnte dem Sekretariat leider keine Mail schicken. Versuche es bitte erneut");
+                console.error(err);
+              });
         });
   };
 
@@ -101,7 +134,7 @@ module.exports = () => {
     //       homeAddress = res;
     //     });
 
-    gplaces.getPlaces({
+    return gplaces.getPlaces({
       query: "Apotheke",
       location: homeAddress,
       rankby: "distance",
@@ -111,10 +144,21 @@ module.exports = () => {
             gplaces.getPlaceById(answer.results[0].place_id)
                 .then((res) => ctx.reply(res.result.url))
                 .catch((err) => ctx.reply("error: " + err + answer.results[0].name));
+          })
+          .catch((err) => {
+            ctx.reply("Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:");
+            gplaces.getPlaceById(answer.results[0].place_id)
+                .then((res) => ctx.reply(res.result.url))
+                .catch((err) => ctx.reply("error: " + err + answer.results[0].name));
+            console.error(err);
           });
     }).catch(() => {
       watsonSpeech.replyWithAudio(ctx,
-          "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser");
+          "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser")
+          .catch((err) => {
+            ctx.reply("Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser");
+            console.error(err);
+          });
     });
   };
   return this;
