@@ -4,7 +4,11 @@ let mockSet;
 
 describe("onCallback(...) tests", () => {
   beforeEach(() => {
-    mockSet = jest.fn((key, data) => {});
+    mockSet = jest.fn((key, data) => {
+      return new Promise((resolve, reject)=>{
+        resolve();
+      });
+    });
     mockReply = jest.fn((msg, param) => {});
 
     const preferences = {set: mockSet, get: () => {}};
@@ -110,7 +114,11 @@ describe("onCallback(...) tests", () => {
 
 describe("onUpdate(...) tests", () => {
   beforeEach(() => {
-    mockSet = jest.fn((key, data) => {});
+    mockSet = jest.fn((key, data) => {
+      return new Promise((resolve, reject)=>{
+        resolve();
+      });
+    });
     mockReply = jest.fn((msg, param) => {});
 
     const preferences = {set: mockSet};
@@ -196,6 +204,9 @@ describe("onUpdate(...) tests", () => {
 describe("Wrapper functions tests", () => {
   beforeEach(() => {
     mockSet = jest.fn((key, data) => {
+      return new Promise((resolve, reject)=>{
+        resolve();
+      });
     });
     mockReply = jest.fn((msg, param) => {
     });
@@ -204,7 +215,7 @@ describe("Wrapper functions tests", () => {
     start = require("../usecases/start")(preferences, null);
   });
 
-  test("_setHomeAddress(...) resolves with single-element array and returns it to the user", async () => {
+  test("_setHomeAddress(...) resolves with single-element array", async () => {
     const ctx = {reply: mockReply};
     start._homeAddresses = [];
     const promise = new Promise(((resolve, reject) => {
@@ -215,7 +226,7 @@ describe("Wrapper functions tests", () => {
       });
     }));
     await start._setHomeAddress(promise, ctx);
-    expect(mockReply.mock.calls.length).toEqual(2);
+    expect(mockSet.mock.calls.length).toEqual(2);
   });
 
   test("_setHomeAddress(...) resolves with multi-element array", async () => {
@@ -240,13 +251,13 @@ describe("Wrapper functions tests", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("_setStop(...) resolves with single stop element and returns it to the user", async () => {
+  test("_setStop(...) resolves with single stop element", async () => {
     const ctx = {reply: mockReply};
     const promise = new Promise((resolve, reject) => {
       resolve({stopID: 4711, name: "Sample Stop"});
     });
     await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
-    expect(mockReply.mock.calls.length).toEqual(2);
+    expect(mockSet.mock.calls.length).toEqual(1);
   });
 
   test("_setStop(...) resolves with array", async () => {

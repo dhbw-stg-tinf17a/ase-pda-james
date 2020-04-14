@@ -52,14 +52,19 @@ module.exports = (preferences, oAuth2Client) => {
         ctx.reply("Wähle deine Adresse aus:", Markup.inlineKeyboard(addressButtons).extra()); // (3a II)
       } else { // (4)
         const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
-        this._homeAddress = address;
-        preferences.set("home_address", address);
         const location = data.results[0].geometry.location;
         const coordinates = location.lat + ", " + location.lng;
-        preferences.set("home_address_coordinates", coordinates).then(() => {
-          ctx.reply(`Ich habe ${address} als Heimatadresse gespeichert.`);
-          this._chooseTravelMethod(ctx); // (4)
-        });
+        this._homeAddress = address;
+        try {
+          preferences.set("home_address", address);
+          preferences.set("home_address_coordinates", coordinates).then(() => {
+            ctx.reply(`Ich habe ${address} als Heimatadresse gespeichert.`);
+            this._chooseTravelMethod(ctx); // (4)
+          });
+        } catch (error) {
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Heimatadresse nicht speichern...");
+        }
       }
     }).catch((err) => {
       ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
@@ -95,6 +100,9 @@ module.exports = (preferences, oAuth2Client) => {
           } else { // (5d) => (6)
             ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
           }
+        }).catch((error) => {
+          console.log(error);
+          ctx.reply(`Sorry, ich konnte deine ${stopString} nicht speichern...`);
         });
       }
     }).catch((error) => {
@@ -127,6 +135,9 @@ module.exports = (preferences, oAuth2Client) => {
           } else { // (6)
             ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
           }
+        }).catch((error)=>{
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Uni-Adresse nicht speichern...");
         });
       }
     }).catch((err) => {
@@ -164,14 +175,20 @@ module.exports = (preferences, oAuth2Client) => {
 
       // Process name and ask for email address (1) => (2)
       case "start_name":
-        preferences.set("name", waRes.context.name);
+        preferences.set("name", waRes.context.name).catch((error)=>{
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deinen Namen nicht speichern...");
+        });
         ctx.reply("Hallo " + waRes.context.name + "\n" +
             "Sag mir deine Email");
         break;
 
       // Process email address and ask for home address (2) => (3)
       case "start_email":
-        preferences.set("email", waRes.context.email);
+        preferences.set("email", waRes.context.email).catch((error)=>{
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Email-Adresse nicht speichern...");
+        });
         ctx.reply("Sag mir deine Adresse");
         break;
 
@@ -187,7 +204,10 @@ module.exports = (preferences, oAuth2Client) => {
 
       // Process university secretary email address and authenticate user for Google Calendar (6) => (7)
       case "start_uni_email":
-        preferences.set("uni_email", waRes.context.uni_email);
+        preferences.set("uni_email", waRes.context.uni_email).catch((error)=>{
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Uni-Email-Adresse nicht speichern...");
+        });
 
         ctx.reply("Jetzt richten wir deinen Kalender ein. Bitte authentifiziere dich mit diesem Link:");
         this._auth(cal.authenticateUser(ctx)); // (7)
@@ -215,15 +235,24 @@ module.exports = (preferences, oAuth2Client) => {
       // Choose home address from list and ask for preferred travel method (3a II) => (4)
       case "addr":
         this._homeAddress = this._homeAddresses[data].address;
-        preferences.set("home_address", this._homeAddress);
-        preferences.set("home_address_coordinates", this._homeAddresses[data].location);
+        try {
+          preferences.set("home_address", this._homeAddress);
+          preferences.set("home_address_coordinates", this._homeAddresses[data].location);
+        } catch (error) {
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Heimatadresse nicht speichern...");
+        }
+
         this._chooseTravelMethod(ctx); // (4)
         break;
 
       // Choose preferred travel method from list and process home stop (4 II) => (4ab) OR
       // Choose preferred travel method from list and ask for university name (4 II) => (5)
       case "tid":
-        preferences.set("commute", data);
+        preferences.set("commute", data).catch((error) => {
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine bevorzugte Transportmöglichkeit nicht speichern...");
+        });
         this._commutePreference = data;
         if (this._commutePreference === "vvs") { // (4ab)
           this._setStop(vvs.getStopByKeyword(this._homeAddress), ctx, "sid");
@@ -234,7 +263,10 @@ module.exports = (preferences, oAuth2Client) => {
 
       // OPTIONAL: Choose home stop from list and ask for university address (4a II) => (5)
       case "sid":
-        preferences.set("home_stop_id", data);
+        preferences.set("home_stop_id", data).catch((error) => {
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Haltestelle zuhause nicht speichern...");
+        });
         ctx.reply("An welcher Uni/Hochschule bist du?"); // (5)
         break;
 
@@ -242,7 +274,10 @@ module.exports = (preferences, oAuth2Client) => {
       // OPTIONAL: Choose uni address from list and ask for uni secretary email address (5a II) => (6)
       case "uid":
         const uniAddress = this._uniAddresses[data].address;
-        preferences.set("uni_address", uniAddress);
+        preferences.set("uni_address", uniAddress).catch((error) => {
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Uni-Adresse nicht speichern...");
+        });
         if (this._commutePreference==="vvs") { // (5cd)
           this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid");
         } else { // (6)
@@ -252,13 +287,19 @@ module.exports = (preferences, oAuth2Client) => {
 
       // OPTIONAL: Choose uni stop from list and ask for uni secretary address (5c II) => (6)
       case "usid":
-        preferences.set("uni_stop_id", data);
+        preferences.set("uni_stop_id", data).catch((error) => {
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deine Uni-Haltestelle nicht speichern...");
+        });
         ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
         break;
 
       // Save lecture calendar ID (8 II) => done!
       case "cid":
-        preferences.set("lecture_cal_id", data);
+        preferences.set("lecture_cal_id", data).catch((error) => {
+          console.log(error);
+          ctx.reply("Sorry, ich konnte deinen Kalender nicht speichern...");
+        });
         ctx.reply("Danke! Das war's.");
         break;
     }
