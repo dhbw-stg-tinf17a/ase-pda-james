@@ -31,10 +31,10 @@ const createEmailText = (absentTime, absentReason) => {
 const createEmailOptions = (emailText) => {
   let recipient;
   recipient = "melanie@stach24.de";
-  // preferences.get("uni_email")
-  //     .then((res) => {
-  //       recipient = res;
-  //     });
+  preferences.get("uni_email")
+      .then((res) => {
+        recipient = res;
+      });
 
   return {
     recipient: recipient,
@@ -69,7 +69,7 @@ const setAbsentTimes = (waRes) => {
     endAbsentDay: null,
     startAbsentTime: null,
     endAbsentTime: null,
-  });
+  }).catch((err) => console.error(err));
   return {startAbsent, endAbsent, startAbsentDay, endAbsentDay, startAbsentTime, endAbsentTime};
 };
 

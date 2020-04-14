@@ -7,9 +7,19 @@ describe("setAbsentTimes", () => {
   const onlyStartTimeAndDay = require("../../__fixtures__/sendAbsentHelpers/onlyStartTimeAndDay");
   const onlyTimeDays = require("../../__fixtures__/sendAbsentHelpers/onlyTimeDays");
 
+
   beforeEach(() => {
-    setAbsentTimes = require("./sendAbsentHelpers").setAbsentTimes;
+    jest.resetModules();
+    jest.resetAllMocks();
     jest.mock("moment", () => () => ({format: () => "2020-04-01"}));
+    jest.doMock("../services/watsonAssistant", () => {
+      return function() {
+        return {
+          setContext: jest.fn().mockRejectedValue("Expected Test Error"),
+        };
+      };
+    });
+    setAbsentTimes = require("./sendAbsentHelpers").setAbsentTimes;
   });
 
   test("if the entity dates get converted correctly if only start time is in the response", () => {
@@ -44,19 +54,43 @@ describe("setAbsentTimes", () => {
 });
 
 describe("createEmailOptions", () => {
+  let getFunction;
   beforeEach(() => {
+    jest.resetModules();
+    jest.resetAllMocks();
+    getFunction = jest.fn();
+    jest.doMock("../services/preferences", () => {
+      return function() {
+        return {
+          get: getFunction,
+        };
+      };
+    });
     createEmailOptions = require("./sendAbsentHelpers").createEmailOptions;
   });
 
   test("if the mailOptions get set correctly", () => {
+    getFunction.mockResolvedValue("example1@mail.de");
     const mailOptions = createEmailOptions("Email Text");
     expect(mailOptions.htmlText).toBe("Email Text");
     expect(mailOptions.subject).toBe("Abwesenheit");
+    expect(mailOptions.recipient).toBe("melanie@stach24.de");
   });
 });
 
 describe("createEmailText", () => {
+  let getFunction;
   beforeEach(() => {
+    jest.resetModules();
+    jest.resetAllMocks();
+    getFunction = jest.fn();
+    jest.doMock("../services/preferences", () => {
+      return function() {
+        return {
+          get: getFunction,
+        };
+      };
+    });
     createEmailText = require("./sendAbsentHelpers").createEmailText;
   });
 
@@ -67,6 +101,7 @@ describe("createEmailText", () => {
       endAbsentTime: "14:00",
     };
     const absentReason = "Krankheit";
+    getFunction.mockResolvedValue("James");
     const mailText = createEmailText(absentTimes, absentReason);
     expect(mailText).toBe(
         `
@@ -86,6 +121,7 @@ describe("createEmailText", () => {
       endAbsentTime: "14:00",
     };
     const absentReason = "Interviews";
+    getFunction.mockRejectedValue();
     const mailText = createEmailText(absentTimes, absentReason);
     expect(mailText).toBe(
         `

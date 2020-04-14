@@ -76,10 +76,8 @@ module.exports = () => {
       //   lectureCalId = res;
       // })
 
-      console.log(absentTimes.startAbsent, absentTimes.endAbsent);
       gcalendar.getBusySlotsByCalendarId(absentTimes.startAbsent, absentTimes.endAbsent, lectureCalId)
           .then((res) => {
-            console.log(res);
             if (res.length === 0) {
               // eslint-disable-next-line prefer-promise-reject-errors
               reject(false);
@@ -96,7 +94,6 @@ module.exports = () => {
 
 
   this.sendMail = (ctx, waRes) => {
-    console.log("sendMail wird nicht gemockt");
     const emailMessage = createEmailText(
         absentTimes,
         waRes.context.absentReason);
