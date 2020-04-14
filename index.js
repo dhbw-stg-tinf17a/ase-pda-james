@@ -6,19 +6,21 @@ const path = require("path");
 const {google} = require("googleapis");
 const fs = require("fs");
 
-const Manager = require("./app/Manager");
+const Manager = require("./app/manager");
 
 let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
-const mongoUrl = "mongodb://localhost:27017";
+let mongoUrl = "mongodb://localhost:27017";
+if (process.env.PROD) {
+  mongoUrl = "mongodb://mongo:27017";
+}
 
-
-mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
+mongoClient.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true}, function(err, con) {
   if (err) {
     console.log(err);
   } else {
     // MongoDB
-    db = con.db("student_pda");
+    const db = con.db("student_pda");
     connection = con;
     console.log("Connected with MongoDB!");
 
@@ -48,8 +50,9 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
 
     // Manager
     const manager = new Manager();
-    manager.start(oAuth2Client);
+    const preferences = require("./app/services/preferences")(db);
+    manager.start(preferences, oAuth2Client);
 
-    require("./app/rest.js")(app, db, manager.getTelegramBot(), oAuth2Client);
+    require("./app/rest.js")(app, preferences, manager.getTelegramBot(), oAuth2Client);
   }
 });

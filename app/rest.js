@@ -1,14 +1,15 @@
 const axios = require("axios");
 const gplaces = require("./services/gplaces")();
-const todo = require("./services/todo")(db);
 
-module.exports = function(app, db, ctx, oAuth2Client) {
-  const preferences = require("./services/preferences")(db);
+module.exports = function(app, preferences, ctx, oAuth2Client) {
+  const todo = require("./services/todo")(preferences);
+
+  // const preferences = require("./services/preferences")(db);
   app.get("/mstodo", (req, res) => {
     const code = req.query.code;
     const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +
         "&code=" + code + "&client_secret=" + process.env.MS_TODO_CLIENT_SECRET +
-        "&grant_type=authorization_code" + "&redirect_uri=http://localhost:8080/mstodo";
+        "&grant_type=authorization_code" + `&redirect_uri=${process.env.BACKEND_URL}/mstodo`;
     axios.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", queryParams,
     ).then((tokenRes)=>{
       const authToken = tokenRes.data.access_token;
@@ -44,9 +45,14 @@ module.exports = function(app, db, ctx, oAuth2Client) {
     }).then(() => {
       return preferences.get("chat_id_google_auth");
     }).then((chatId) => {
-      console.log(chatId);
       res.send("Danke, bitte kehre zu Telegram zurück.");
       ctx.telegram.sendMessage(chatId, "Die Integration mit Google wurde erfolgreich durchgeführt.");
+
+      // mock ctx to trigger use case
+      const start = require("./usecases/start.js")(preferences, oAuth2Client);
+      const waRes = {generic: [{text: "start_is_authenticated"}]};
+      const mockCtx = {reply: (msg, param)=>ctx.telegram.sendMessage(chatId, msg, param)};
+      start.onUpdate(mockCtx, waRes);
     }).catch((err) => {
       if (err) {
         console.error(err);

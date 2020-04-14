@@ -25,7 +25,7 @@ module.exports = () => {
         // --- ERROR HANDLING ------------------------------------------------------------------------------------------
 
         // Query keyword not resolvable
-        if (typeof pointRes === "undefined" || pointRes === null) {
+        if (!pointRes) {
           error.VvsUnresolvableKeywordError.prototype = Object.create(Error.prototype);
           const err = new error.VvsUnresolvableKeywordError("The query is not valid. " +
             "Please provide a valid query or try again.", key);
@@ -55,7 +55,7 @@ module.exports = () => {
             return a.distance - b.distance;
           });
 
-          resolve(stopRes[0]);
+          // resolve(stopRes[0]);
         }
         resolve(stopRes);
       });

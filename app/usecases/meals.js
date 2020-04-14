@@ -13,7 +13,7 @@ const sendPlaces = (ctx, query) => {
           answer.results[i].place_id);
 
       // reply as HTML links to gmaps
-      ctx.replyWithHTML(`<a href='${mapsURL}'>${answer.results[i].name}</a>`)
+      ctx.replyWithHTML(`<a href='${mapsURL}'>${answer.results[i].name}</a>`);
     }
   }).catch((err) => {
     ctx.reply("Ups, da hat etwas nicht funktioniert..." + err);
@@ -21,8 +21,8 @@ const sendPlaces = (ctx, query) => {
   });
 };
 
-module.exports = (db, oAuth2Client) => {
-  const cal = require("../services/gcalendar")(db, oAuth2Client);
+module.exports = (preferences, oAuth2Client) => {
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
   this.onUpdate = (ctx, waRes) => {
     const replyPlaces = () => {
       const typeOfFood = waRes.entities[0].value;
@@ -63,9 +63,9 @@ module.exports = (db, oAuth2Client) => {
 
           // watson seems to be under maintenance and cannot be tested properly
           /* watsonSpeech.replyWithAudio(ctx, `${start} Minuten zum nächsten Termin`).then(() => {
-          }).catch(
-              (error) => console.error("Error in Watson.replyWithAudio", error)
-          );*/
+                     }).catch(
+                     (error) => console.error("Error in Watson.replyWithAudio", error)
+                     );*/
         }).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
