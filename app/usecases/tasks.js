@@ -1,8 +1,8 @@
 
-module.exports = function(db, oAuth2Client) {
-  const msTodo = require("../services/todo")(db);
-  const preferences = require("../services/preferences")(db);
-  const cal = require("../services/gcalendar")(db, oAuth2Client);
+module.exports = function(preferences, oAuth2Client) {
+  // const preferences = require("../services/preferences")(db);
+  const msTodo = require("../services/todo")(preferences);
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
   const gsearch = require("../services/gsearch");
 
   this.onUpdate = (ctx, waRes)=>{

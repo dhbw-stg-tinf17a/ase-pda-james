@@ -1,7 +1,7 @@
 const axios = require("axios");
 
-module.exports = function(db) {
-  const preferences = require("../services/preferences")(db);
+module.exports = function(preferences) {
+  // const preferences = require("../services/preferences")(db);
 
   this.getTodos = () => {
     return new Promise((resolve, reject)=>{

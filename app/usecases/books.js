@@ -4,9 +4,7 @@ const mailer = require("../services/mailer")();
 const gPlaces = require("../services/gplaces")();
 const {createEmailText, createEmailOptions} = require("../utils/bookHelpers");
 
-module.exports = (db) => {
-  const preferences = require("../services/preferences")(db);
-
+module.exports = (preferences) => {
   let date;
   let keyword;
   const library = {
