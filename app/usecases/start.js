@@ -5,12 +5,14 @@ const Markup = require("telegraf/markup"); // Telegram answer button handling
 
 
 module.exports = (preferences, oAuth2Client) => {
-  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client); // for Google authentication
 
-  this._commutePreference;
   this._homeAddress;
-  this._homeAddresses;
+  this._commutePreference;
   this._uniAddress;
+
+  // required helper variables for handling callback button options for addresses
+  this._homeAddresses;
   this._uniAddresses;
 
   // Function to set preferred travel method (4 II)
@@ -33,14 +35,16 @@ module.exports = (preferences, oAuth2Client) => {
   // ==== INTERNAL WRAPPER FUNCTIONS FOR SERVICE RETURN HANDLING =======================================================
 
   // Process service function to obtain and save home address (3)
-  this._setHomeAddress=(promise, ctx)=>{
+  this._setHomeAddress = (promise, ctx) => {
     promise.then((data) => {
       if (data.results.length > 1) { // (3a I)
+        this._homeAddresses = [];
         const addressButtons = data.results.map((result) => {
           // drop ", Germany"
           const address = result.formatted_address.split(", ").slice(0, -1).join(", ");
           const location = result.geometry.location;
           const coordinates = location.lat + ", " + location.lng;
+          // required for callback buttons that only can hold 64 bytes
           this._homeAddresses[result.place_id] = {address: address, location: coordinates};
           return [Markup.callbackButton(address, "start_addr_" + result.place_id)];
         });
@@ -53,6 +57,7 @@ module.exports = (preferences, oAuth2Client) => {
         const location = data.results[0].geometry.location;
         const coordinates = location.lat + ", " + location.lng;
         preferences.set("home_address_coordinates", coordinates);
+        ctx.reply(`Ich habe ${address} als Heimatadresse gespeichert.`);
         this._chooseTravelMethod(ctx); // (4)
       }
     }).catch((err) => {
@@ -62,7 +67,19 @@ module.exports = (preferences, oAuth2Client) => {
   };
 
   // Process service function to obtain and save transit stop (4ab) (5cd)
-  this._setStop = (promise, ctx, indicator, stopType, stopString) => {
+  this._setStop = (promise, ctx, indicator) => {
+    let stopType;
+    let stopString;
+    if (indicator === "sid") {
+      stopType = "home";
+      stopString = "Haltestelle zuhause";
+    } else if (indicator === "usid") {
+      stopType = "uni";
+      stopString = "Uni-Haltestelle";
+    } else {
+      return new Error("Invalid indicator");
+    }
+
     promise.then((data) => {
       if (Array.isArray(data)) { // (4a I) and (5c I)
         const stopButtons = data.map((stop) => {
@@ -92,8 +109,9 @@ module.exports = (preferences, oAuth2Client) => {
         const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
         this._uniAddress = address;
         preferences.set("uni_address", address);
+        ctx.reply(`Ich habe ${address} als Adresse deiner Uni gespeichert.`);
         if (this._commutePreference==="vvs") { // (5cd)
-          this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid", "uni", "Uni-Haltestelle");
+          this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid");
         } else { // (6)
           ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
         }
@@ -102,10 +120,11 @@ module.exports = (preferences, oAuth2Client) => {
         const uniButtons = location.map((uni) => {
           // drop ", Germany" from address string
           const address = uni.formatted_address.split(", ").slice(0, -1).join(", ");
+          // required for callback buttons that only can hold 64 bytes
           this._uniAddresses[uni.place_id] = {address: address};
           return [Markup.callbackButton(address, "start_uid_" + uni.place_id)];
-          ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra()); // (5a II)
         });
+        ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra()); // (5a II)s
       }
     }).catch((err) => {
       console.log(err);
@@ -155,7 +174,6 @@ module.exports = (preferences, oAuth2Client) => {
 
       // Process home address (3) => (3a) or (4)
       case "start_address":
-        this._homeAddresses=[];
         this._setHomeAddress(gplaces.getPlaces({query: waRes.context.address}), ctx); // (3)
         break;
 
@@ -182,6 +200,7 @@ module.exports = (preferences, oAuth2Client) => {
 
   // ===================================================================================================================
   //  DIALOG CALLBACK HANDLING
+  //  Disclaimer: Switch case indicators are brief since Telegraf buttons can only hold 64 bytes
   // ===================================================================================================================
   this.onCallbackQuery = (ctx) => {
     // remove "start_" prefix
@@ -204,7 +223,7 @@ module.exports = (preferences, oAuth2Client) => {
         preferences.set("commute", data);
         this._commutePreference = data;
         if (this._commutePreference === "vvs") { // (4ab)
-          this._setStop(vvs.getStopByKeyword(this._homeAddress), ctx, "sid", "home", "Haltestelle zuhause");
+          this._setStop(vvs.getStopByKeyword(this._homeAddress), ctx, "sid");
         } else { // (5)
           ctx.reply("An welcher Uni/Hochschule bist du?"); // (5)
         }
@@ -222,7 +241,7 @@ module.exports = (preferences, oAuth2Client) => {
         const uniAddress = this._uniAddresses[data].address;
         preferences.set("uni_address", uniAddress);
         if (this._commutePreference==="vvs") { // (5cd)
-          this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid", "Uni-Haltestelle");
+          this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid");
         } else { // (6)
           ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats"); // (6)
         }

@@ -2,43 +2,13 @@ let start;
 let mockReply;
 let mockSet;
 
-describe("onCallback", () => {
+describe("onCallback(...) tests", () => {
   beforeEach(() => {
     mockSet = jest.fn((key, data) => {});
     mockReply = jest.fn((msg, param) => {});
 
     const preferences = {set: mockSet, get: () => {}};
     start = require("../usecases/start")(preferences, null, null);
-  });
-
-  test("onCallbackQuery(...) sets previously obtained calendar ID", () => {
-    const data = "start_cid_test";
-    const ctx = {reply: mockReply, callbackQuery: {data: data}};
-    start.onCallbackQuery(ctx);
-
-    expect(mockSet).toHaveBeenCalledWith("lecture_cal_id", "test");
-    expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockReply.mock.calls.length).toEqual(1);
-  });
-
-  test("onCallbackQuery(...) sets previously obtained home stop ID", () => {
-    const data = "start_sid_test";
-    const ctx = {reply: mockReply, callbackQuery: {data: data}};
-    start.onCallbackQuery(ctx);
-
-    expect(mockSet).toHaveBeenCalledWith("home_stop_id", "test");
-    expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockReply.mock.calls.length).toEqual(1);
-  });
-
-  test("onCallBackQuery(...) sets previously obtained uni stop ID", () => {
-    const data = "start_usid_test";
-    const ctx = {reply: mockReply, callbackQuery: {data: data}};
-    start.onCallbackQuery(ctx);
-
-    expect(mockSet).toHaveBeenCalledWith("uni_stop_id", "test");
-    expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockReply.mock.calls.length).toEqual(1);
   });
 
   test("onCallBackQuery(...) sets previously obtained home address", () => {
@@ -54,28 +24,17 @@ describe("onCallback", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  /*  test("uid", ()=>{
-     const data = "start_uid_test";
-     const ctx = {reply: mockReply, callbackQuery: {data: data}};
-     start.onCallbackQuery(ctx);
-     // expect(mockSet.mock.calls.length).toEqual(1);
-     // const spy = jest.spyOn(start, "uniAddresses");
-     // spy.mockReturnValue({test: "Hauptstraße 1"});
-     // expect(mockSet).toHaveBeenCalled();
-     // expect(mockReply.mock.calls.length).toEqual(1);
-     });*/
-
-  test("uid - catch", () => {
-    const data = "start_uid_test";
+  test("onCallbackQuery(...) catches error because of undefined home address", () => {
+    const data = "start_addr_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     try {
       start.onCallbackQuery(ctx);
-    } catch (error) {
-      expect(error).toBeDefined();
+    } catch (e) {
+      expect(e).toBeDefined();
     }
   });
 
-  test("tid", () => {
+  test("onCallbackQuery(...) sets previously obtained travel method", () => {
     const data = "start_tid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
@@ -84,7 +43,28 @@ describe("onCallback", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("uid", () => {
+  test("onCallbackQuery(...) catches error because of undefined or invalid travel method", () => {
+    const data = "start_tid_test";
+    const ctx = {reply: mockReply, callbackQuery: {data: data}};
+    try {
+      start.onCallbackQuery(ctx);
+    } catch (error) {
+      expect(error).toBeDefined();
+      expect(mockReply.mock.calls.length).toEqual(1);
+    }
+  });
+
+  test("onCallbackQuery(...) sets previously obtained home stop ID", () => {
+    const data = "start_sid_test";
+    const ctx = {reply: mockReply, callbackQuery: {data: data}};
+    start.onCallbackQuery(ctx);
+
+    expect(mockSet).toHaveBeenCalledWith("home_stop_id", "test");
+    expect(mockSet.mock.calls.length).toEqual(1);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("onCallbackQuery(...) sets previously obtained uni address", () => {
     const data = "start_uid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start._uniAddresses = {test: {
@@ -97,59 +77,53 @@ describe("onCallback", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("addr", () => {
-    const data = "start_addr_test";
-    const ctx = {reply: mockReply, callbackQuery: {data: data}};
-    try {
-      start.onCallbackQuery(ctx);
-    } catch (e) {
-      expect(e).toBeDefined();
-    }
-  });
-
-  test("tid - catch", () => {
-    const data = "start_tid_test";
+  test("onCallbackQuery(...) catches error because of undefined uni address", () => {
+    const data = "start_uid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     try {
       start.onCallbackQuery(ctx);
     } catch (error) {
       expect(error).toBeDefined();
-      expect(mockReply.mock.calls.length).toEqual(1);
     }
   });
 
-  test("tid - parameter vss", () => {
-    const data = "start_tid_vvs";
+  test("onCallBackQuery(...) sets previously obtained uni stop ID", () => {
+    const data = "start_usid_test";
     const ctx = {reply: mockReply, callbackQuery: {data: data}};
     start.onCallbackQuery(ctx);
+
+    expect(mockSet).toHaveBeenCalledWith("uni_stop_id", "test");
     expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockSet).toHaveBeenCalledWith("commute", "vvs");
-  });
-});
-describe("onUpdate", () => {
-  beforeEach(() => {
-    mockSet = jest.fn((key, data) => {
-
-    });
-
-    mockReply = jest.fn((msg, param) => {
-
-    });
-
-    const preferences = {set: mockSet};
-    start = require("../usecases/start")(preferences, null, null);
-  });
-
-  test("start", () => {
-    const waRes = {generic: [{text: "start"}]};
-    const ctx = {reply: mockReply};
-    start.onUpdate(ctx, waRes);
-    // expect(mockSet.mock.calls.length).toEqual(1);
-    // expect(mockSet).toHaveBeenCalledWith("lecture_cal_id", "test");
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("start_name", () => {
+  test("onCallbackQuery(...) sets previously obtained calendar ID", () => {
+    const data = "start_cid_test";
+    const ctx = {reply: mockReply, callbackQuery: {data: data}};
+    start.onCallbackQuery(ctx);
+
+    expect(mockSet).toHaveBeenCalledWith("lecture_cal_id", "test");
+    expect(mockSet.mock.calls.length).toEqual(1);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+});
+describe("onUpdate(...) tests", () => {
+  beforeEach(() => {
+    mockSet = jest.fn((key, data) => {});
+    mockReply = jest.fn((msg, param) => {});
+
+    const preferences = {set: mockSet};
+    start = require("../usecases/start")(preferences, null);
+  });
+
+  test("onUpdate(...) recognizes dialog start and replies", () => {
+    const waRes = {generic: [{text: "start"}]};
+    const ctx = {reply: mockReply};
+    start.onUpdate(ctx, waRes);
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("onUpdate(...) recognizes and saves input name and replies accordingly", () => {
     const waRes = {generic: [{text: "start_name"}], context: {name: "John"}};
     const ctx = {reply: mockReply};
     start.onUpdate(ctx, waRes);
@@ -159,7 +133,7 @@ describe("onUpdate", () => {
     expect(mockReply.mock.calls[0][0]).toContain("John");
   });
 
-  test("start_email", () => {
+  test("onUpdate(...) recognizes and saves input email address and replies", () => {
     const waRes = {generic: [{text: "start_email"}], context: {email: "john@test.com"}};
     const ctx = {reply: mockReply};
     start.onUpdate(ctx, waRes);
@@ -168,27 +142,18 @@ describe("onUpdate", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("start_address catch", () => {
+  test("onUpdate(...) catches error because of non-existing input address and replies", () => {
     const waRes = {generic: [{text: "start_address"}], context: {address: "Samplestreet 17 SampleCity"}};
     const ctx = {reply: mockReply};
     try {
       start.onUpdate(ctx, waRes);
     } catch (e) {
       expect(e).toBeDefined();
-    }
-  });
-
-  test("start_address catch reply", () => {
-    const waRes = {generic: [{text: "start_address"}], context: {address: "Samplestreet 17 SampleCity"}};
-    const ctx = {reply: mockReply};
-    try {
-      start.onUpdate(ctx, waRes);
-    } catch (e) {
       expect(mockReply.calls.length).toEqual(1);
     }
   });
 
-  test("start_uni", () => {
+  test("onUpdate(...) catches error because of undefined input uni", () => {
     const waRes = {generic: [{text: "start_uni"}], context: {uni: undefined}};
     const ctx = {reply: mockReply};
 
@@ -199,7 +164,8 @@ describe("onUpdate", () => {
     }
   });
 
-  test("start_uni_email", () => {
+  test("onUpdate(...) recognizes and saves input secretary email and catches error because of " +
+    "impossible Google authentication", () => {
     const waRes = {generic: [{text: "start_uni_email"}], context: {uni_email: "sek@test.com"}};
     const ctx = {reply: mockReply};
 
@@ -213,10 +179,9 @@ describe("onUpdate", () => {
     }
   });
 
-  test("start_is_authenticated", () => {
+  test("onUpdate(...) catches error because of undefined calendars due to no authentication", () => {
     const waRes = {generic: [{text: "start_is_authenticated"}]};
     const ctx = {reply: mockReply};
-
 
     try {
       start.onUpdate(ctx, waRes);
@@ -225,17 +190,35 @@ describe("onUpdate", () => {
       expect(mockReply.mock.calls.length).toEqual(1);
     }
   });
+});
+describe("Wrapper functions tests", () => {
+  beforeEach(() => {
+    mockSet = jest.fn((key, data) => {
+    });
+    mockReply = jest.fn((msg, param) => {
+    });
 
-  test("_chooseTravelMethod", () => {
-    const ctx = {reply: mockReply};
-    start._chooseTravelMethod(ctx);
-
-    expect(mockReply.mock.calls.length).toEqual(1);
+    const preferences = {set: mockSet};
+    start = require("../usecases/start")(preferences, null);
   });
 
-  test("_setHomeAddress resolve", async () => {
+  test("_setHomeAddress(...) resolves with single-element array and returns it to the user", async () => {
     const ctx = {reply: mockReply};
-    start._homeAddresses=[];
+    start._homeAddresses = [];
+    const promise = new Promise(((resolve, reject) => {
+      resolve({
+        results: [
+          {place_id: "a", formatted_address: "test", geometry: {location: {lng: "49.0", lat: "8.0"}}},
+        ],
+      });
+    }));
+    await start._setHomeAddress(promise, ctx);
+    expect(mockReply.mock.calls.length).toEqual(2);
+  });
+
+  test("_setHomeAddress(...) resolves with multi-element array", async () => {
+    const ctx = {reply: mockReply};
+    start._homeAddresses = [];
     const promise = new Promise(((resolve, reject) => {
       resolve({
         results: [
@@ -248,7 +231,35 @@ describe("onUpdate", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("_setUniAddress resolves with array", async () => {
+  test("_chooseTravelMethod(...) is called", () => {
+    const ctx = {reply: mockReply};
+    start._chooseTravelMethod(ctx);
+
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("_setStop(...) resolves with single stop element and returns it to the user", async () => {
+    const ctx = {reply: mockReply};
+    const promise = new Promise((resolve, reject) => {
+      resolve({stopID: 4711, name: "Sample Stop"});
+    });
+    await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
+    expect(mockReply.mock.calls.length).toEqual(2);
+  });
+
+  test("_setStop(...) resolves with array", async () => {
+    const ctx = {reply: mockReply};
+    const promise = new Promise((resolve, reject) => {
+      resolve([
+        {stopID: 4711, name: "Sample Stop"},
+        {stopID: 1337, name: "Yeet Stop"},
+      ]);
+    });
+    await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
+    expect(mockReply.mock.calls.length).toEqual(1);
+  });
+
+  test("_setUniAddress(...) resolves with single-element array", async () => {
     const ctx = {reply: mockReply};
     start._uniAddresses = [];
     const promise = new Promise(((resolve, reject) => {
@@ -263,7 +274,7 @@ describe("onUpdate", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 
-  test("_setCalendar resolves with array", async () => {
+  test("_setCalendar(...) resolves with single-element array", async () => {
     const ctx = {reply: mockReply};
     const promise = new Promise(((resolve, reject) => {
       resolve([
@@ -272,41 +283,6 @@ describe("onUpdate", () => {
       ]);
     }));
     await start._setCalendar(promise, ctx);
-    expect(mockReply.mock.calls.length).toEqual(1);
-  });
-
-  test("_setHomeAddress resolve one address only", async () => {
-    const ctx = {reply: mockReply};
-    start._homeAddresses=[];
-    const promise = new Promise(((resolve, reject) => {
-      resolve({
-        results: [
-          {place_id: "a", formatted_address: "test", geometry: {location: {lng: "49.0", lat: "8.0"}}},
-        ],
-      });
-    }));
-    await start._setHomeAddress(promise, ctx);
-    expect(mockReply.mock.calls.length).toEqual(1);
-  });
-
-  test("_setStop(...) resolves with single stop element", async () => {
-    const ctx = {reply: mockReply};
-    const promise = new Promise((resolve, reject) => {
-      resolve({stopID: 4711, name: "Sample Stop"});
-    });
-    await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
-    expect(mockReply.mock.calls.length).toEqual(1);
-  });
-
-  test("_setStop(...) resolves with array", async () => {
-    const ctx = {reply: mockReply};
-    const promise = new Promise((resolve, reject) => {
-      resolve([
-        {stopID: 4711, name: "Sample Stop"},
-        {stopID: 1337, name: "Yeet Stop"},
-      ]);
-    });
-    await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 });
