@@ -107,6 +107,7 @@ describe("onCallback(...) tests", () => {
     expect(mockReply.mock.calls.length).toEqual(1);
   });
 });
+
 describe("onUpdate(...) tests", () => {
   beforeEach(() => {
     mockSet = jest.fn((key, data) => {});
@@ -191,6 +192,7 @@ describe("onUpdate(...) tests", () => {
     }
   });
 });
+
 describe("Wrapper functions tests", () => {
   beforeEach(() => {
     mockSet = jest.fn((key, data) => {
