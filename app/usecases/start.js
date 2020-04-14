@@ -56,9 +56,10 @@ module.exports = (preferences, oAuth2Client) => {
         preferences.set("home_address", address);
         const location = data.results[0].geometry.location;
         const coordinates = location.lat + ", " + location.lng;
-        preferences.set("home_address_coordinates", coordinates);
-        ctx.reply(`Ich habe ${address} als Heimatadresse gespeichert.`);
-        this._chooseTravelMethod(ctx); // (4)
+        preferences.set("home_address_coordinates", coordinates).then(() => {
+          ctx.reply(`Ich habe ${address} als Heimatadresse gespeichert.`);
+          this._chooseTravelMethod(ctx); // (4)
+        });
       }
     }).catch((err) => {
       ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
@@ -87,13 +88,14 @@ module.exports = (preferences, oAuth2Client) => {
         });
         ctx.reply(`Wähle deine ${stopString} aus:`, Markup.inlineKeyboard(stopButtons).extra()); // (4a II) and (5c II)
       } else { // (4b) and (5d)
-        preferences.set(`${stopType}_stop_id`, data.stopID);
-        ctx.reply(`Ich habe deine ${stopString}: "${data.name}" gespeichert`);
-        if (stopType === "home") { // (4b) => (5)
-          ctx.reply("An welcher Uni/Hochschule bist du?");
-        } else { // (5d) => (6)
-          ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
-        }
+        preferences.set(`${stopType}_stop_id`, data.stopID).then(() => {
+          ctx.reply(`Ich habe deine ${stopString}: "${data.name}" gespeichert`);
+          if (stopType === "home") { // (4b) => (5)
+            ctx.reply("An welcher Uni/Hochschule bist du?");
+          } else { // (5d) => (6)
+            ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
+          }
+        });
       }
     }).catch((error) => {
       ctx.reply("Sorry, jetzt gab es ein Problem");
@@ -105,17 +107,7 @@ module.exports = (preferences, oAuth2Client) => {
     promise.then((data) => {
       const location = data.results;
 
-      if (location.length === 1) { // (5b)
-        const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
-        this._uniAddress = address;
-        preferences.set("uni_address", address);
-        ctx.reply(`Ich habe ${address} als Adresse deiner Uni gespeichert.`);
-        if (this._commutePreference==="vvs") { // (5cd)
-          this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid");
-        } else { // (6)
-          ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
-        }
-      } else { // (5a I)
+      if (location.length > 1) { // (5a I)
         this._uniAddresses = [];
         const uniButtons = location.map((uni) => {
           // drop ", Germany" from address string
@@ -124,7 +116,18 @@ module.exports = (preferences, oAuth2Client) => {
           this._uniAddresses[uni.place_id] = {address: address};
           return [Markup.callbackButton(address, "start_uid_" + uni.place_id)];
         });
-        ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra()); // (5a II)s
+        ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra()); // (5a II)
+      } else { // (5b)
+        const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
+        this._uniAddress = address;
+        preferences.set("uni_address", address).then(() => {
+          ctx.reply(`Ich habe ${address} als Adresse deiner Uni gespeichert.`);
+          if (this._commutePreference==="vvs") { // (5cd)
+            this._setStop(vvs.getStopByKeyword(address), ctx, "usid");
+          } else { // (6)
+            ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
+          }
+        });
       }
     }).catch((err) => {
       console.log(err);
