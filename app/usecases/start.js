@@ -16,7 +16,7 @@ module.exports = (preferences, oAuth2Client) => {
   this._uniAddresses;
 
   // Function to set preferred travel method (4 II)
-  this._chooseTravelMethod=(ctx)=>{
+  this._chooseTravelMethod = (ctx) => {
     // set travel method
     const travelMethods = [
       {displayName: "Laufen", value: "walking"},
@@ -32,7 +32,8 @@ module.exports = (preferences, oAuth2Client) => {
     ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
   };
 
-  // ==== INTERNAL WRAPPER FUNCTIONS FOR SERVICE RETURN HANDLING =======================================================
+  // ==== INTERNAL WRAPPER FUNCTIONS FOR SERVICE RETURN HANDLING
+  // =======================================================
 
   // Process service function to obtain and save home address (3)
   this._setHomeAddress = (promise, ctx) => {
@@ -91,14 +92,15 @@ module.exports = (preferences, oAuth2Client) => {
         const stopButtons = data.map((stop) => {
           return [Markup.callbackButton(stop.name, `start_${indicator}_` + stop.stopID)];
         });
-        ctx.reply(`Wähle deine ${stopString} aus:`, Markup.inlineKeyboard(stopButtons).extra()); // (4a II) and (5c II)
+        ctx.reply(`Wähle deine ${stopString} aus:`, Markup.inlineKeyboard(stopButtons).extra()); // (4a II) and
+        // (5c II)
       } else { // (4b) and (5d)
         preferences.set(`${stopType}_stop_id`, data.stopID).then(() => {
-          ctx.reply(`Ich habe deine ${stopString}: "${data.name}" gespeichert`);
+          const reply = `Ich habe deine ${stopString}: "${data.name}" gespeichert`;
           if (stopType === "home") { // (4b) => (5)
-            ctx.reply("An welcher Uni/Hochschule bist du?");
+            ctx.reply(reply + "\nAn welcher Uni/Hochschule bist du?");
           } else { // (5d) => (6)
-            ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
+            ctx.reply(reply + "\nJetzt sag mir noch die Email Adresse deines Sekretariats");
           }
         }).catch((error) => {
           console.log(error);
@@ -111,7 +113,7 @@ module.exports = (preferences, oAuth2Client) => {
   };
 
   // Process service function to obtain and save uni address (5)
-  this._setUniAddress=(promise, ctx)=> {
+  this._setUniAddress = (promise, ctx) => {
     promise.then((data) => {
       const location = data.results;
 
@@ -130,12 +132,12 @@ module.exports = (preferences, oAuth2Client) => {
         this._uniAddress = address;
         preferences.set("uni_address", address).then(() => {
           ctx.reply(`Ich habe ${address} als Adresse deiner Uni gespeichert.`);
-          if (this._commutePreference==="vvs") { // (5cd)
+          if (this._commutePreference === "vvs") { // (5cd)
             this._setStop(vvs.getStopByKeyword(address), ctx, "usid");
           } else { // (6)
             ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
           }
-        }).catch((error)=>{
+        }).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Uni-Adresse nicht speichern...");
         });
@@ -149,7 +151,7 @@ module.exports = (preferences, oAuth2Client) => {
   this._auth = (fn) => fn;
 
   // Process service function to obtain and save lecture calendar. (8)
-  this._setCalendar=(promise, ctx) => { // (8 I)
+  this._setCalendar = (promise, ctx) => { // (8 I)
     promise.then((cals) => {
       const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_cid_" + resCal.id)]);
       ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra()); // (8 II)
@@ -162,49 +164,49 @@ module.exports = (preferences, oAuth2Client) => {
   // ===================================================================================================================
 
   // ===================================================================================================================
-  //  WATSON ASSISTANT DIALOG HANDLING
+  // WATSON ASSISTANT DIALOG HANDLING
   // ===================================================================================================================
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       // Beginning of dialog (automatically triggered) (0) => (1)
       case "start":
         ctx.reply("Hallo, ich bin James! 🎩\n" +
-            "Erzähl mir doch ein bisschen was über dich.\n" +
-            "Wie heißt du?");
+                    "Erzähl mir doch ein bisschen was über dich.\n" +
+                    "Wie heißt du?");
         break;
 
-      // Process name and ask for email address (1) => (2)
+        // Process name and ask for email address (1) => (2)
       case "start_name":
-        preferences.set("name", waRes.context.name).catch((error)=>{
+        preferences.set("name", waRes.context.name).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deinen Namen nicht speichern...");
         });
         ctx.reply("Hallo " + waRes.context.name + "\n" +
-            "Sag mir deine Email");
+                    "Sag mir deine Email");
         break;
 
-      // Process email address and ask for home address (2) => (3)
+        // Process email address and ask for home address (2) => (3)
       case "start_email":
-        preferences.set("email", waRes.context.email).catch((error)=>{
+        preferences.set("email", waRes.context.email).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Email-Adresse nicht speichern...");
         });
         ctx.reply("Sag mir deine Adresse");
         break;
 
-      // Process home address (3) => (3a) or (4)
+        // Process home address (3) => (3a) or (4)
       case "start_address":
         this._setHomeAddress(gplaces.getPlaces({query: waRes.context.address}), ctx); // (3)
         break;
 
-      // Process university address (5) => (5a) or (5b) or (6)
+        // Process university address (5) => (5a) or (5b) or (6)
       case "start_uni":
         this._setUniAddress(gplaces.getPlaces({query: waRes.context.uni}), ctx); // (5)
         break;
 
-      // Process university secretary email address and authenticate user for Google Calendar (6) => (7)
+        // Process university secretary email address and authenticate user for Google Calendar (6) => (7)
       case "start_uni_email":
-        preferences.set("uni_email", waRes.context.uni_email).catch((error)=>{
+        preferences.set("uni_email", waRes.context.uni_email).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Uni-Email-Adresse nicht speichern...");
         });
@@ -213,7 +215,7 @@ module.exports = (preferences, oAuth2Client) => {
         this._auth(cal.authenticateUser(ctx)); // (7)
         break;
 
-      // Ask to choose lecture calendar (7) => (8)
+        // Ask to choose lecture calendar (7) => (8)
       case "start_is_authenticated":
         this._setCalendar(cal.getCalendars(), ctx);
         break;
@@ -222,8 +224,8 @@ module.exports = (preferences, oAuth2Client) => {
   // ===================================================================================================================
 
   // ===================================================================================================================
-  //  DIALOG CALLBACK HANDLING
-  //  Disclaimer: Switch case indicators are brief since Telegraf buttons can only hold 64 bytes
+  // DIALOG CALLBACK HANDLING Disclaimer: Switch case indicators are brief since Telegraf buttons can only hold 64
+  // bytes
   // ===================================================================================================================
   this.onCallbackQuery = (ctx) => {
     // remove "start_" prefix
@@ -244,10 +246,11 @@ module.exports = (preferences, oAuth2Client) => {
         }
 
         this._chooseTravelMethod(ctx); // (4)
+
         break;
 
-      // Choose preferred travel method from list and process home stop (4 II) => (4ab) OR
-      // Choose preferred travel method from list and ask for university name (4 II) => (5)
+        // Choose preferred travel method from list and process home stop (4 II) => (4ab) OR
+        // Choose preferred travel method from list and ask for university name (4 II) => (5)
       case "tid":
         preferences.set("commute", data).catch((error) => {
           console.log(error);
@@ -259,48 +262,53 @@ module.exports = (preferences, oAuth2Client) => {
         } else { // (5)
           ctx.reply("An welcher Uni/Hochschule bist du?"); // (5)
         }
+
         break;
 
-      // OPTIONAL: Choose home stop from list and ask for university address (4a II) => (5)
+        // OPTIONAL: Choose home stop from list and ask for university address (4a II) => (5)
       case "sid":
         preferences.set("home_stop_id", data).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Haltestelle zuhause nicht speichern...");
         });
         ctx.reply("An welcher Uni/Hochschule bist du?"); // (5)
+
         break;
 
-      // OPTIONAL: Choose uni address from list and process uni stop (5a II) => (5cd)
-      // OPTIONAL: Choose uni address from list and ask for uni secretary email address (5a II) => (6)
+        // OPTIONAL: Choose uni address from list and process uni stop (5a II) => (5cd)
+        // OPTIONAL: Choose uni address from list and ask for uni secretary email address (5a II) => (6)
       case "uid":
         const uniAddress = this._uniAddresses[data].address;
         preferences.set("uni_address", uniAddress).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Uni-Adresse nicht speichern...");
         });
-        if (this._commutePreference==="vvs") { // (5cd)
+        if (this._commutePreference === "vvs") { // (5cd)
           this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid");
         } else { // (6)
           ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats"); // (6)
         }
+
         break;
 
-      // OPTIONAL: Choose uni stop from list and ask for uni secretary address (5c II) => (6)
+        // OPTIONAL: Choose uni stop from list and ask for uni secretary address (5c II) => (6)
       case "usid":
         preferences.set("uni_stop_id", data).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Uni-Haltestelle nicht speichern...");
         });
         ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
+
         break;
 
-      // Save lecture calendar ID (8 II) => done!
+        // Save lecture calendar ID (8 II) => done!
       case "cid":
         preferences.set("lecture_cal_id", data).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deinen Kalender nicht speichern...");
         });
         ctx.reply("Danke! Das war's.");
+
         break;
     }
   };
