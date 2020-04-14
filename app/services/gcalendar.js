@@ -2,9 +2,7 @@ const {google} = require("googleapis");
 const {busyToFree, calculatTimeUntilEvent} = require("../utils/calendarHelpers");
 const moment = require("moment");
 
-module.exports = function(db, oAuth2Client) {
-  const preferences = require("./preferences")(db);
-
+module.exports = function(preferences, oAuth2Client) {
   this.authenticateUser = (ctx) => {
     preferences.set("chat_id_google_auth", ctx.chat.id).then(() => {
       const url = oAuth2Client.generateAuthUrl({

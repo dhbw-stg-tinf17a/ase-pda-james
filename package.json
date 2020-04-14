@@ -30,6 +30,7 @@
     "telegraf-inline-menu": "^4.0.0"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^1.1.5",
     "eslint": "^6.8.0",
     "eslint-config-google": "^0.14.0",
     "jest": "^25.1.0",

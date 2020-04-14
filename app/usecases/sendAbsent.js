@@ -9,7 +9,7 @@ module.exports = () => {
   let lectureCalId;
   let homeAddress;
   let absentTimes = {};
-
+  
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       case "absent_welcome":

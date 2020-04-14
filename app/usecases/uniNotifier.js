@@ -3,36 +3,31 @@ const watsonSpeech = require("../services/watsonSpeech")(); // voice I/O handlin
 const speak = require("../../app/waResponses.js").uniNotifier(); // constant answers for voice assistant
 
 
-module.exports = (db, oAuth2Client) => {
+module.exports = (preferences, oAuth2Client) => {
   // const prefs = require("../services/preferences.js")(db);
   const vvs = require("../services/vvs/vvs.js")();
   const maps = require("../services/gmaps.js");
-  const cal = require("../services/gcalendar.js")(db, oAuth2Client);
+  const cal = require("../services/gcalendar.js")(preferences, oAuth2Client);
   moment.locale("de");
 
   // ==== TEMPORARY: getting and setting preferences ===================================================================
-  // let homeAddr;
-  // let uniAddr;
-  // let commutePref;
-  // let lectureCal;
-  //
-  // prefs.set("homeAddr", "Ernsthaldenstraße 47, Stuttgart");
-  // prefs.set("uniAddr", "Rotebühlplatz 41, Stuttgart");
-  // prefs.set("commute", "vvs");
-  // prefs.set("lectureCal", "jamesaseprojekt@gmail.com");
-  //
-  // prefs.get("homeAddr").then((res) => {
-  //   homeAddr = res;
-  // });
-  // prefs.get("uniAddr").then((res) => {
-  //   uniAddr = res;
-  // });
-  // prefs.get("commute").then((res) => {
-  //   commutePref = res;
-  // });
-  // prefs.get("lectureCal").then((res) => {
-  //   lectureCal = res;
-  // });
+  let homeAddr;
+  let uniAddr;
+  let commutePref;
+  let lectureCal;
+
+  preferences.get("home_address").then((res) => {
+    homeAddr = res;
+  });
+  preferences.get("uni_address").then((res) => {
+    uniAddr = res;
+  });
+  preferences.get("commute").then((res) => {
+    commutePref = res;
+  });
+  preferences.get("lecture_cal_id").then((res) => {
+    lectureCal = res;
+  });
   // ===================================================================================================================
 
   this.onUpdate = async function(ctx, waRes) {
@@ -40,9 +35,6 @@ module.exports = (db, oAuth2Client) => {
     if (waRes.generic[0].text !== "uniNotifier_welcome") {
       return new Error("Unknown intent.");
     }
-
-    // TEMPORARY: provide Google authentication URL
-    cal.authenticateUser(ctx);
 
     watsonSpeech.replyWithAudio(ctx, speak.firstResponse);
 
