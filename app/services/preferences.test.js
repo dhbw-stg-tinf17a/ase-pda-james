@@ -32,18 +32,17 @@ describe("Preferences", () => {
     prefs = require("./preferences")(db);
   });
   test("get 'notSaved' returns undefined", () => {
-    prefs.get("hallo").then((res)=>{
+    return prefs.get("hallo").then((res)=>{
       expect(res).toBe(undefined);
     }).catch(fail);
   });
   test("get 'answerToUniverseAndEverything' returns 42", ()=>{
-    prefs.get("answerToUniverseAndEverything").then((res)=>{
+    return prefs.get("answerToUniverseAndEverything").then((res)=>{
       expect(res).toBe(42);
     }).catch(fail);
   });
   test("set 'example' triggers database updateOne function", ()=>{
-    prefs.set("example", "1337").then(()=>{
-      // console.log(db.collection("preferences").count.mock);
+    return prefs.set("example", "1337").then(()=>{
       expect(updateOne).toHaveBeenCalled();
     }).catch(fail);
   });
