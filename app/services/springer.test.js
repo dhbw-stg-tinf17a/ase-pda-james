@@ -16,4 +16,12 @@ describe("Springer service", () => {
       expect(data).toEqual(searchResponse);
     });
   });
+
+  test("rejects if API error occurs", () => {
+    axios.get.mockRejectedValue(new Error());
+
+    return springer.getByKeyword("user experience").catch((error) => {
+      expect(error).toBeDefined();
+    });
+  });
 });
