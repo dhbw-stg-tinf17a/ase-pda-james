@@ -1,6 +1,3 @@
-// const cal = jest.genMockFromModule("../services/gcalendar")(null, null);
-// mport * as cal from "../services/gcalendar"
-// jest.mock("../services/gcalendar");
 let meals;
 let ctx;
 const DB_KEY_LAST_FOOD = "meals_last_food";
@@ -96,21 +93,12 @@ describe("meals", () => {
     expect(mockReply).toHaveBeenCalledWith("Ups, da ist etwas schiefgelaufen...");
   });
 
-  /* test("onUpdate(...) meals_start", () => {
-     const waRes = {generic: [{text: "meals_start"}]};
-     meals._replyMealsStart = ()=>new Error();
-     meals.onUpdate(ctx, waRes);
-     expect(mockReply).toHaveBeenCalledWith("Sorry, jetzt ist etwas schiefgelaufen!");
-     expect(mockReply).toContain("Sorry")
-     });*/
-
-
   test("onUpdate(...) meals_start_with_food catch", () => {
     const waRes = {generic: [{text: "meals_start_with_food"}]};
     try {
       meals.onUpdate(ctx, waRes);
     } catch (e) {
-      expect(e).toBeDefined;
+      expect(e).toBeDefined();
     }
   });
 
@@ -129,27 +117,14 @@ describe("meals", () => {
     try {
       meals.onUpdate(ctx, waRes);
     } catch (e) {
-      expect(e).toBeDefined;
+      expect(e).toBeDefined();
     }
   });
 
   test("onUpdate(...) meals_start", () => {
     const waRes = {generic: [{text: "meals_start"}]};
-
-    try {
-      meals.onUpdate(ctx, waRes);
-    } catch (e) {
-      expect(e).toBeDefined;
-    }
-  });
-
-  test("onUpdate(...) meals_cron", async () => {
-    const waRes = {generic: [{text: "meals_cron"}]};
-
-    try {
-      await meals.onUpdate(ctx, waRes);
-    } catch (e) {
-      expect(e).toBeDefined;
-    }
+    meals._replyMealsStart = mockCallback;
+    meals.onUpdate(ctx, waRes);
+    expect(mockCallback).toHaveBeenCalled();
   });
 });
