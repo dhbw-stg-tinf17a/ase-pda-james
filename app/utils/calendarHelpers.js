@@ -6,25 +6,25 @@ const pairwise = (arr, func) => {
   }
 };
 
-const freeAroundEvent = (busySlot) => {
+const freeAroundEvent = (busySlot, now = moment()) => {
   const startTime = moment(busySlot.start);
 
   if (startTime.hours() >= 10) {
     return [
       {
-        start: moment().hours(9).minutes(0).seconds(0).milliseconds(0).format(),
+        start: now.hours(9).minutes(0).seconds(0).milliseconds(0).format(),
         end: moment(busySlot.start).format(),
       },
       {
         start: moment(busySlot.end).format(),
-        end: moment().hours(17).minutes(0).seconds(0).milliseconds(0).format(),
+        end: now.hours(17).minutes(0).seconds(0).milliseconds(0).format(),
       },
     ];
   } else {
     return [
       {
         start: moment(busySlot.end).format(),
-        end: moment().hours(17).minutes(0).seconds(0).milliseconds(0).format(),
+        end: now.hours(17).minutes(0).seconds(0).milliseconds(0).format(),
       },
     ];
   }
@@ -52,7 +52,7 @@ const busyToFree = (busySlots) => {
   return freeSlots;
 };
 
-const calculatTimeUntilEvent = (event, fallbackEvent, now = moment()) => {
+const calculateTimeUntilEvent = (event, fallbackEvent, now = moment()) => {
   const start = event.start.date ?
       moment(event.start.date) :
       moment(event.start.dateTime);
@@ -70,4 +70,4 @@ const calculatTimeUntilEvent = (event, fallbackEvent, now = moment()) => {
   }
 };
 
-module.exports = {busyToFree, pairwise, freeAroundEvent, calculatTimeUntilEvent};
+module.exports = {busyToFree, pairwise, freeAroundEvent, calculateTimeUntilEvent};

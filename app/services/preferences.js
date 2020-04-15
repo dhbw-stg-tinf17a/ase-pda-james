@@ -2,7 +2,17 @@ module.exports = function(db) {
   this.get = (key)=>{
     return new Promise((resolve, reject)=>{
       db.collection("preferences").findOne({}).then((prefs)=>{
-        resolve(prefs[key]);
+        if (!prefs) {
+          db.collection("preferences").insertOne({}, function(err, res) {
+            if (err) {
+              reject(err);
+            } else {
+              this.get(key).then(resolve).catch(reject);
+            }
+          });
+        } else {
+          resolve(prefs[key]);
+        }
       }).catch(reject);
     });
   };

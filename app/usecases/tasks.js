@@ -1,8 +1,8 @@
 
-module.exports = function(db, oAuth2Client) {
-  const preferences = require("../services/preferences")(db);
+module.exports = function(preferences, oAuth2Client) {
+  // const preferences = require("../services/preferences")(db);
   const msTodo = require("../services/todo")(preferences);
-  const cal = require("../services/gcalendar")(db, oAuth2Client);
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
   const gsearch = require("../services/gsearch");
 
   this.onUpdate = (ctx, waRes)=>{
@@ -104,7 +104,6 @@ module.exports = function(db, oAuth2Client) {
             }).catch((err)=>{
               console.error(err);
               ctx.reply("Tut mir Leid, es gab einen Fehler mit den der MS ToDo API.");
-              console.log(taskId);
             });
           }).catch((err)=>{
             console.error(err);
