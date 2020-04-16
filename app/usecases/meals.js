@@ -50,7 +50,7 @@ module.exports = (preferences, oAuth2Client) => {
       },
       );
     }).catch((error)=> {
-      console.log(error);
+      console.error(error);
       ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
     });
   };
@@ -71,7 +71,7 @@ module.exports = (preferences, oAuth2Client) => {
           this._replyMealsStart(cal.getTimeUntilNextEvent(), ctx, preferences);
           break;
         } catch (error) {
-          console.log(error);
+          console.error(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
         }
 
@@ -92,7 +92,7 @@ module.exports = (preferences, oAuth2Client) => {
                      (error) => console.error("Error in Watson.replyWithAudio", error)
                      );*/
         }).catch((error) => {
-          console.log(error);
+          console.error(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
         });
         break;
@@ -105,7 +105,7 @@ module.exports = (preferences, oAuth2Client) => {
         }).catch((error) => {
           // dont message user in case of an error
           // user does not expect a scheduled message stating an error
-          console.log("Error in cron job", error);
+          console.error("Error in cron job", error);
         });
         break;
 
