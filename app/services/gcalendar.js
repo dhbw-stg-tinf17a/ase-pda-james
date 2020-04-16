@@ -1,5 +1,5 @@
 const {google} = require("googleapis");
-const {busyToFree, calculatTimeUntilEvent} = require("../utils/calendarHelpers");
+const {busyToFree, calculateTimeUntilEvent} = require("../utils/calendarHelpers");
 const moment = require("moment");
 
 module.exports = function(preferences, oAuth2Client) {
@@ -38,7 +38,7 @@ module.exports = function(preferences, oAuth2Client) {
         const event = res.data.items[0];
         const fallbackEvent = res.data.items[1];
 
-        const timeUntil = calculatTimeUntilEvent(event, fallbackEvent);
+        const timeUntil = calculateTimeUntilEvent(event, fallbackEvent);
         resolve(timeUntil);
       }).catch((error) => {
         reject(error);

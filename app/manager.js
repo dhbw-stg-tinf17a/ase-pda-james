@@ -4,14 +4,16 @@ const Telegraf = require("telegraf");
 const cron = require("node-cron");
 
 module.exports = class Manager {
-  constructor() {
+  constructor(db) {
     this.cronHasBeenStarted=false;
+    this.db = db;
   }
 
 
   start(preferences, oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
+    
     // const preferences = require("./services/preferences")(db);
     this.usecases.start = require("./usecases/start.js")(preferences, oAuth2Client);
     this.usecases.absent = require("./usecases/sendAbsent.js")(preferences, oAuth2Client);
