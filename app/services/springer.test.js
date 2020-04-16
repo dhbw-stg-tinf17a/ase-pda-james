@@ -21,6 +21,7 @@ describe("Springer service", () => {
     axios.get.mockRejectedValue(new Error());
 
     return springer.getByKeyword("user experience").catch((error) => {
+      expect.assertions(1);
       expect(error).toBeDefined();
     });
   });

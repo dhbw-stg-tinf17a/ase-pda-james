@@ -3,12 +3,18 @@ jest.mock("../services/mailer");
 describe("onUpdate", () => {
   let onUpdate;
   let ctx;
+  let books;
 
   beforeEach(() => {
+    books = require("./books")();
     onUpdate = require("./books")().onUpdate;
     ctx = {
-      reply: jest.fn((message) => message),
-      replyWithHTML: jest.fn((message) => message),
+      reply: jest.fn((message) => {
+        return new Promise((resolve, reject) => resolve());
+      }),
+      replyWithHTML: jest.fn((message) => {
+        return new Promise((resolve, reject) => resolve());
+      }),
     };
   });
 
@@ -20,7 +26,7 @@ describe("onUpdate", () => {
     };
 
     onUpdate(ctx, waRes);
-    expect(ctx.reply).toBeCalledWith("Zu welchem Thema möchtest du recherchieren?");
+    expect(ctx.reply.mock.calls).toHaveLength(1);
   });
 
   test("switches to which-day", () => {
@@ -31,10 +37,11 @@ describe("onUpdate", () => {
     };
 
     onUpdate(ctx, waRes);
-    expect(ctx.reply).toBeCalledWith("Wann möchtest du lernen?");
+    expect(ctx.reply.mock.calls).toHaveLength(1);
   });
 
-  test("switches to slots", () => {
+  test("switches to slots", async () => {
+    jest.setTimeout(12000);
     const waRes = {
       generic: [
         {text: "book_slots"},
@@ -45,8 +52,33 @@ describe("onUpdate", () => {
       },
     };
 
-    onUpdate(ctx, waRes);
-    expect(ctx.reply).toBeCalledWith("Alles klar! Gib mir einen Moment...");
+    const getPlacesMock = jest.fn((id) => {
+      return new Promise((resolve, reject) => resolve({}));
+    });
+
+    const getPlaceByIdMock = jest.fn((id) => {
+      return new Promise((resolve, reject) => resolve({}));
+    });
+
+    const gPlaces = jest.doMock("../services/gplaces", () => {
+      return jest.fn(() => ({
+        getPlaces: getPlacesMock,
+        getPlaceById: getPlaceByIdMock,
+      }));
+    });
+
+    const springer = jest.doMock("../services/springer", () => {
+      return jest.fn(() => ({
+        getByKeyword: (keyword) => {
+          return new Promise((resolve, reject) => resolve({records: []}));
+        },
+      }));
+    });
+
+    await onUpdate(ctx, waRes);
+    expect(ctx.reply.mock.calls).toHaveLength(4);
+    expect(books.keyword).toEqual("test");
+    expect(books.date).toEqual("2020-04-08");
   });
 
   test("switches to default", () => {
