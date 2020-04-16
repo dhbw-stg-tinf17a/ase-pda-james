@@ -1,143 +1,594 @@
+describe("onUpdate", () => {
+  let onUpdate;
+  let ctx;
+  const replyFunc = jest.fn((message) => message);
+  let replyWithAudioFunction;
+  let sendAbsentModule;
+  let hasUniFunction;
+  let sendMailFunction;
+  let getFunction;
 
-const messageResponse = require("../../__fixtures__/watsonAssistant/watsonContextResponse");
-const messageResponseAllTimes = require("../../__fixtures__/watsonAssistant/AllTimeResponse");
-const messageResponseNoTimes = require("../../__fixtures__/watsonAssistant/NoTimeResponse");
-let sendAbsent;
 
-
-describe("sendAbsent convertEntityDates", () => {
   beforeEach(() => {
-    sendAbsent= require("./sendAbsent")();
-  });
-  test("if the entity dates get converted correctly if only one sys-time is in the response", () => {
-    sendAbsent.convertEntityDates(messageResponse);
-    expect(sendAbsent.startAbsentTime).toBe("13:00:00");
-    expect(sendAbsent.endAbsentTime).toBeNull();
-    expect(sendAbsent.startAbsentDay).toBeNull();
-    expect(sendAbsent.endAbsentDay).toBeNull();
+    jest.resetModules();
+    jest.resetAllMocks();
 
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
+    replyWithAudioFunction = jest.fn();
+    jest.doMock("../services/watsonSpeech", () => {
+      return function() {
+        return {
+          replyWithAudio: replyWithAudioFunction,
+        };
+      };
+    });
+    getFunction=jest.fn().mockResolvedValue();
+    const preferences = {get: getFunction};
+    sendAbsentModule = require("./sendabsent")(preferences, null);
+    hasUniFunction = jest.fn();
+    sendMailFunction = jest.fn().mockRejectedValue("Expected Test Error");
+    sendAbsentModule.hasUni = hasUniFunction;
+    sendAbsentModule.sendMail = sendMailFunction;
+    sendAbsentModule.findPharmacy = jest.fn();
+    onUpdate = sendAbsentModule.onUpdate;
+    ctx = {
+      reply: replyFunc,
     };
-    sendAbsent.setAbsentTimes();
-    expect(sendAbsent.startAbsent).toBe("2020-04-01T13:00:00+02:00");
-    expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
   });
 
-  test("if the entity dates get converted correctly if all times are in the response", () => {
-    sendAbsent.convertEntityDates(messageResponseAllTimes);
-    expect(sendAbsent.startAbsentTime).toBe("14:00:00");
-    expect(sendAbsent.endAbsentTime).toBe("15:00:00");
-    expect(sendAbsent.startAbsentDay).toBe("2020-04-03");
-    expect(sendAbsent.endAbsentDay).toBe("2020-04-04");
-    sendAbsent.setAbsentTimes();
-    expect(sendAbsent.startAbsent).toBe("2020-04-03T14:00:00+02:00");
-    expect(sendAbsent.endAbsent).toBe("2020-04-04T15:00:00+02:00");
-  });
-
-  test("if the entity dates get converted correctly if no time entities are in the response ", () => {
-    sendAbsent.convertEntityDates(messageResponseNoTimes);
-    expect(sendAbsent.startAbsentTime).toBeNull();
-    expect(sendAbsent.endAbsentTime).toBeNull();
-    expect(sendAbsent.startAbsentDay).toBeNull();
-    expect(sendAbsent.endAbsentDay).toBeNull();
-
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
+  test("switches to welcome watsonSpeech success", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
     };
-    sendAbsent.setAbsentTimes();
-    expect(sendAbsent.startAbsent).toBe("2020-04-01T06:00:00+02:00");
-    expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
+    replyWithAudioFunction.mockResolvedValue();
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyWithAudioFunction).toBeCalledWith({
+      reply: replyFunc,
+    }, "Warum gehst du nicht in die Uni?");
+  });
+
+  test("switches to welcome watsonSpeech fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+    };
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Warum gehst du nicht in die Uni?");
+  });
+
+  test("switches to reason_else watsonSpeech succes", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_reason_else"},
+      ],
+      entities: [],
+    };
+    replyWithAudioFunction.mockResolvedValue();
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyWithAudioFunction).toBeCalledWith({
+      reply: replyFunc,
+    }, "Wie lange wirst du nicht in die Uni kommen?");
+  });
+
+  test("switches to reason_else watsonSpeech fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_reason_else"},
+      ],
+      entities: [],
+    };
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Wie lange wirst du nicht in die Uni kommen?");
+  });
+
+  test("switches to reason_sick watsonSpeech success", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_reason_sick"},
+      ],
+      entities: [],
+    };
+    replyWithAudioFunction.mockResolvedValue();
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+
+    await onUpdate(ctx, waRes);
+    expect(replyWithAudioFunction).toBeCalledWith({
+      reply: replyFunc,
+    },
+    "Das tut mir leid. Gute Besserung");
+  });
+
+  test("switches to reason_sick watsonSpeech fail hasUni success", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_reason_sick"},
+      ],
+      entities: [],
+    };
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Das tut mir leid. Gute Besserung");
+  });
+
+  test("switches to reason_sick watsonSpeech fail hasUni fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_reason_sick"},
+      ],
+      entities: [],
+    };
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    hasUniFunction.mockResolvedValue();
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Das tut mir leid. Gute Besserung");
+  });
+
+  test("switches to time with absent_reason sick watsonSpeech success", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_time"},
+      ],
+      entities: [],
+      context: {absentReason: "Krankheit"},
+    };
+    replyWithAudioFunction.mockResolvedValue();
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Ok");
+    expect(replyWithAudioFunction).toBeCalledWith({
+      reply: replyFunc,
+    },
+    "Du hast zu dieser Zeit keine Uni. Aber ich hoffe es geht dir bald besser");
+  });
+
+  test("switches to time with absent_reason interview watsonSpeech success", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_time"},
+      ],
+      entities: [],
+      context: {absentReason: "Interviews"},
+    };
+    replyWithAudioFunction.mockResolvedValue();
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Ok");
+    expect(replyWithAudioFunction).toBeCalledWith({
+      reply: replyFunc,
+    },
+    "Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg");
+  });
+
+
+  test("switches to time with absent_reason sick watsonSpeech fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_time"},
+      ],
+      entities: [],
+      context: {absentReason: "Krankheit"},
+    };
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Ok");
+    expect(replyFunc).toBeCalledWith("Du hast zu dieser Zeit keine Uni. Aber ich hoffe es geht dir bald besser");
+  });
+
+  test("switches to time with absent_reason interview watsonSpeech fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_time"},
+      ],
+      entities: [],
+      context: {absentReason: "Interviews"},
+    };
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    hasUniFunction.mockRejectedValue("Expected Test Error");
+    await onUpdate(ctx, waRes);
+    expect(replyFunc).toBeCalledWith("Ok");
+    expect(replyFunc).toBeCalledWith(
+        "Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg");
+  });
+
+  test("switches to time with absent_reason interview watsonSpeech fail hasUni success", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_time"},
+      ],
+      entities: [],
+      context: {absentReason: "Interviews"},
+    };
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    hasUniFunction.mockResolvedValue();
+    await onUpdate(ctx, waRes);
   });
 });
 
-describe("sendAbsent convertEntityReasons", () => {
+describe("hasUni", () => {
+  let getBusySlotsByCalendarIdFunction;
+  let hasUni;
+  let getFunction;
+
   beforeEach(() => {
-    sendAbsent= require("./sendAbsent")();
+    jest.resetModules();
+    jest.resetAllMocks();
+
+    getBusySlotsByCalendarIdFunction = jest.fn();
+    jest.doMock("../services/gcalendar", () => {
+      return function() {
+        return {
+          getBusySlotsByCalendarId: getBusySlotsByCalendarIdFunction,
+        };
+      };
+    });
+
+    jest.doMock("../utils/sendAbsentHelpers", () => {
+      return {
+        createEmailText: jest.fn(() => {
+          return "emailText";
+        }),
+        createEmailOptions: jest.fn(() => {
+          return {
+            recipient: "email@test.de",
+            subject: "Abwesenheit",
+            htmlText: "emailText",
+          };
+        }),
+        setAbsentTimes: jest.fn(() => {
+          return {
+            startAbsent: "",
+            endAbsent: "",
+            startAbsentDay: "",
+            endAbsentDay: "",
+            startAbsentTime: "",
+            endAbsentTime: "",
+          };
+        }),
+      };
+    });
+    getFunction=jest.fn().mockResolvedValue("id");
+    const preferences = {get: getFunction};
+    hasUni = require("./sendAbsent")(preferences, null).hasUni;
   });
-  test("if the entity absentReasons gets converted correctly", () => {
-    expect(sendAbsent.absentReason).toBeNull();
-    sendAbsent.convertEntityReasons(messageResponseAllTimes);
-    expect(sendAbsent.absentReason).toBe("Krankheit");
+
+  test("if rejects when no events get fetched from gcal", () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {},
+    };
+    getBusySlotsByCalendarIdFunction.mockResolvedValue([]);
+
+    return hasUni(waRes)
+        .catch((err) => expect(err).toBe(false));
+  });
+
+  test("if resolves if gcal request fails", () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {},
+    };
+    getBusySlotsByCalendarIdFunction.mockRejectedValue("Expected Test Error");
+
+    return hasUni(waRes)
+        .catch((err) => expect(err).toBe(true));
+  });
+
+  test("if resolves if events get fteched by gcal", () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {},
+    };
+    getBusySlotsByCalendarIdFunction.mockResolvedValue(["result1", "result2"]);
+
+    return hasUni(waRes)
+        .catch((err) => expect(err).toBe(true));
   });
 });
 
-describe("sendAbsent setAbsentTimes", () => {
+
+describe("sendMail", () => {
+  let sendMail;
+  let ctx;
+  let getFunction;
+
+
+  const replyFunc = jest.fn((message) => message);
+  let replyWithAudioFunction;
+  let sendMailFunction;
+
   beforeEach(() => {
-    sendAbsent= require("./sendAbsent")();
-  });
-  test("if startAbsent/endAbsent get specified correctly if only startAbsentTime specified", () => {
-    sendAbsent.startAbsentTime = "13:00:00";
-    expect(sendAbsent.startAbsentTime).toBe("13:00:00");
-    expect(sendAbsent.endAbsentTime).toBeNull();
-    expect(sendAbsent.startAbsentDay).toBeNull();
-    expect(sendAbsent.endAbsentDay).toBeNull();
+    jest.resetModules();
+    jest.resetAllMocks();
 
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
+    replyWithAudioFunction = jest.fn();
+    jest.doMock("../services/watsonSpeech", () => {
+      return function() {
+        return {
+          replyWithAudio: replyWithAudioFunction,
+        };
+      };
+    });
+
+    sendMailFunction = jest.fn();
+    jest.doMock("../services/mailer", () => {
+      return function() {
+        return {
+          sendMail: sendMailFunction,
+        };
+      };
+    });
+
+
+    jest.doMock("../utils/sendAbsentHelpers", () => {
+      return {
+        createEmailText: jest.fn(() => {
+          return "emailText";
+        }),
+        createEmailOptions: jest.fn(() => {
+          return {
+            recipient: "email@test.de",
+            subject: "Abwesenheit",
+            htmlText: "emailText",
+          };
+        }),
+        setAbsentTimes: jest.fn(() => {
+          return {
+            startAbsent: "",
+            endAbsent: "",
+            startAbsentDay: "",
+            endAbsentDay: "",
+            startAbsentTime: "",
+            endAbsentTime: "",
+          };
+        }),
+      };
+    });
+    getFunction=jest.fn().mockResolvedValue();
+    const preferences = {get: getFunction};
+    sendMail = require("./sendAbsent")(preferences, null).sendMail;
+    ctx = {
+      reply: replyFunc,
     };
-    sendAbsent.setAbsentTimes();
-    expect(sendAbsent.startAbsent).toBe("2020-04-01T13:00:00+02:00");
-    expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
   });
 
-  test("if startAbsent/endAbsent get specified correctly everything specified", () => {
-    sendAbsent.startAbsentTime ="14:00:00";
-    sendAbsent.endAbsentTime="15:00:00";
-    sendAbsent.startAbsentDay="2020-04-03";
-    sendAbsent.endAbsentDay="2020-04-04";
-    expect(sendAbsent.startAbsentTime).toBe("14:00:00");
-    expect(sendAbsent.endAbsentTime).toBe("15:00:00");
-    expect(sendAbsent.startAbsentDay).toBe("2020-04-03");
-    expect(sendAbsent.endAbsentDay).toBe("2020-04-04");
-    sendAbsent.setAbsentTimes();
-    expect(sendAbsent.startAbsent).toBe("2020-04-03T14:00:00+02:00");
-    expect(sendAbsent.endAbsent).toBe("2020-04-04T15:00:00+02:00");
-  });
-
-  test("if startAbsent/endAbsent get specified correctly if nothing specified", () => {
-    expect(sendAbsent.startAbsentTime).toBeNull();
-    expect(sendAbsent.endAbsentTime).toBeNull();
-    expect(sendAbsent.startAbsentDay).toBeNull();
-    expect(sendAbsent.endAbsentDay).toBeNull();
-
-    const currentDate = new Date("2020-04-01T11:01:58.135Z");
-    realDate = Date;
-    global.Date = class extends Date {
-      constructor(date) {
-        if (date) {
-          return super(date);
-        }
-        return currentDate;
-      }
+  test("if sendMail works if absent reason is sick", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {absentReason: "Krankheit"},
     };
-    sendAbsent.setAbsentTimes();
-    expect(sendAbsent.startAbsent).toBe("2020-04-01T06:00:00+02:00");
-    expect(sendAbsent.endAbsent).toBe("2020-04-01T22:30:00+02:00");
-    global.Date = realDate;
+    sendMailFunction.mockResolvedValue();
+    replyWithAudioFunction.mockResolvedValue();
+    await sendMail(ctx, waRes);
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({reply: replyFunc},
+        "Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser");
+  });
+
+  test("if sendMail works if absent reason is sick watsonSpeech fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {absentReason: "Krankheit"},
+    };
+    sendMailFunction.mockResolvedValue();
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    await sendMail(ctx, waRes);
+    expect(replyFunc).toHaveBeenCalledWith(
+        "Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser");
+  });
+
+  test("if sendMail works if absent reason is interview", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {absentReason: "Interviews"},
+    };
+    sendMailFunction.mockResolvedValue();
+    replyWithAudioFunction.mockResolvedValue();
+    await sendMail(ctx, waRes);
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({reply: replyFunc},
+        "Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg");
+  });
+  test("if sendMail works if absent reason is interview watsonSpeech fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {absentReason: "Interviews"},
+    };
+    sendMailFunction.mockResolvedValue();
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    await sendMail(ctx, waRes);
+    expect(replyFunc).toHaveBeenCalledWith(
+        "Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg");
+  });
+
+  test("if sendMail send right answer if mail can't be send", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {absentReason: "Interviews"},
+    };
+
+    sendMailFunction.mockRejectedValue("Expected Test Error");
+    replyWithAudioFunction.mockResolvedValue();
+    await sendMail(ctx, waRes);
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({reply: replyFunc},
+        "Ich konnte dem Sekretariat leider keine Mail schicken. Versuche es bitte erneut");
+  });
+
+  test("if sendMail send right answer if mail can't be send watsonSpeech fail", async () => {
+    const waRes = {
+      generic: [
+        {text: "absent_welcome"},
+      ],
+      entities: [],
+      context: {absentReason: "Interviews"},
+    };
+
+    sendMailFunction.mockRejectedValue("Expected Test Error");
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    await sendMail(ctx, waRes);
+    expect(replyFunc).toHaveBeenCalledWith(
+        "Ich konnte dem Sekretariat leider keine Mail schicken. Versuche es bitte erneut");
+  });
+});
+
+describe("findPharmacy", () => {
+  let ctx;
+  let replyWithAudioFunction;
+  let getPlacesFunction;
+  let getPlaceByIdFunction;
+  let findPharmacy;
+  let getFunction;
+  let preferences;
+  const replyFunc = jest.fn((message) => message);
+
+  beforeEach(() => {
+    jest.resetModules();
+    jest.resetAllMocks();
+
+    replyWithAudioFunction = jest.fn();
+    jest.doMock("../services/watsonSpeech", () => {
+      return function() {
+        return {
+          replyWithAudio: replyWithAudioFunction,
+        };
+      };
+    });
+
+    getPlacesFunction = jest.fn();
+    getPlaceByIdFunction = jest.fn();
+    jest.doMock("../services/gplaces", () => {
+      return function() {
+        return {
+          getPlaces: getPlacesFunction,
+          getPlaceById: getPlaceByIdFunction,
+        };
+      };
+    });
+    getFunction=jest.fn().mockResolvedValue("4000,4000");
+    const preferences = {get: getFunction};
+    findPharmacy = require("./sendAbsent")(preferences, null).findPharmacy;
+    ctx = {
+      reply: replyFunc,
+    };
+  });
+
+  test("if pharmacy gets requested getPlaces success, getPlaceById success, watsonSpeech success", async () => {
+    getPlacesFunction.mockResolvedValue({
+      "results": [
+        {
+          "name": "Apotheke",
+        },
+      ],
+    });
+    getPlaceByIdFunction.mockResolvedValue({
+      "result":
+        {"url": "URL"},
+    });
+    replyWithAudioFunction.mockResolvedValue();
+    await findPharmacy(ctx);
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({
+      reply: replyFunc,
+    },
+    "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:" );
+  });
+
+  test("if pharmacy gets requested  getPlaces success, getPlaceById success, watsonSpeech fail", async () => {
+    getPlacesFunction.mockResolvedValue({
+      "results": [
+        {
+          "name": "Apotheke",
+        },
+      ],
+    });
+    getPlaceByIdFunction.mockResolvedValue({
+      "result":
+          {"url": "URL"},
+    });
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    await findPharmacy(ctx);
+    expect(replyFunc).toHaveBeenCalledWith(
+        "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:" );
+  });
+
+  test("if pharmacy gets requested  getPlaces success, getPlaceById fail, watsonSpeech success", async () => {
+    getPlacesFunction.mockResolvedValue({
+      "results": [
+        {
+          "name": "Apotheke",
+        },
+      ],
+    });
+    getPlaceByIdFunction.mockRejectedValue("Expected Test Error");
+    replyWithAudioFunction.mockResolvedValue();
+    await findPharmacy(ctx);
+    expect(replyFunc).toHaveBeenCalledWith(
+        "Apotheke" );
+  });
+
+  test("if pharmacy gets requested getPlaces success, getPlaceById fail, watsonSpeech fail", async () => {
+    getPlacesFunction.mockResolvedValue({
+      "results": [
+        {
+          "name": "Apotheke",
+        },
+      ],
+    });
+    getPlaceByIdFunction.mockRejectedValue("Expected Test Error");
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    await findPharmacy(ctx);
+    expect(replyFunc).toHaveBeenCalledWith(
+        "Apotheke" );
+  });
+
+  test("if pharmacy gets requested getPlaces fail, getPlaceById fail, watsonSpeech fail", async () => {
+    getPlacesFunction.mockRejectedValue("Expected Test Error");
+    getPlaceByIdFunction.mockResolvedValue();
+    replyWithAudioFunction.mockRejectedValue("Expected Test Error");
+    await findPharmacy(ctx);
+    expect(replyFunc).toHaveBeenCalledWith(
+        "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser" );
+  });
+  test("if pharmacy gets requested  getPlaces fail, getPlaceById fail, watsonSpeech success", async () => {
+    getPlacesFunction.mockRejectedValue("Expected Test Error");
+    getPlaceByIdFunction.mockResolvedValue();
+    replyWithAudioFunction.mockResolvedValue();
+    await findPharmacy(ctx);
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({
+      reply: replyFunc,
+    },
+    "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser" );
   });
 });

@@ -182,7 +182,7 @@ module.exports = {
 
   // Indicates whether each individual test should be reported during the run
   // fix: to have console logs in jest tests
-  verbose: true,
+  verbose: false,
   collectCoverage: true,
   collectCoverageFrom: [
     "**/*.js", "!**.test.js",

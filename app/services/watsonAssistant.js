@@ -82,7 +82,6 @@ module.exports = function() {
       )
           .then((res) => {
             res.result.output.context = res.result.context.skills["main skill"].user_defined;
-            console.log(res.result);
             resolve(res.result.output);
           })
           .catch((err) => {
@@ -125,8 +124,12 @@ module.exports = function() {
             resolve(res);
           })
           .catch((err) => {
-            console.error(err);
-            reject(err);
+            if (err.message === "Missing required parameters: sessionId") {
+              resolve();
+            } else {
+              console.error(err);
+              reject(err);
+            }
           });
     });
   };
