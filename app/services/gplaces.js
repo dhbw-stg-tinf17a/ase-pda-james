@@ -12,7 +12,7 @@ module.exports = function() {
       axios.get(gPlacesDetailEndpoint, {
         params: {
           place_id: id,
-          key: process.env.GOOGLE_PLACES_KEY,
+          key: process.env.GOOGLE_API_KEY,
         },
       }).then((res) => {
         if (res.data.status === "OK") {
@@ -124,7 +124,7 @@ module.exports = function() {
   };
   this.getPlacesNearby = (params) => {
     return new Promise((resolve, reject)=>{
-      params.key = process.env.GOOGLE_PLACES_KEY;
+      params.key = process.env.GOOGLE_API_KEY;
       if ("query" in params) {
         params.keyword = params.query;
         delete params.query;
@@ -154,7 +154,7 @@ module.exports = function() {
 
   this.getPlacesByText = (params) => {
     return new Promise((resolve, reject)=>{
-      params.key = process.env.GOOGLE_PLACES_KEY;
+      params.key = process.env.GOOGLE_API_KEY;
       axios.get(gPlacesTextSearchEndpoint, {params})
           .then((res) => {
             if (res.data.status === "OK") {

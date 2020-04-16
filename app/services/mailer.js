@@ -4,10 +4,16 @@ module.exports = function() {
   this.sendMail = (mail) =>{
     return new Promise((resolve, reject)=>{
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
         auth: {
+          type: "OAuth2",
           user: process.env.MAILER_USER,
-          pass: process.env.MAILER_PASSWORD,
+          clientId: process.env.MAILER_CLIENT_ID,
+          clientSecret: process.env.MAILER_CLIENT_SECRET,
+          refreshToken: process.env.MAILER_REFRESH_TOKEN,
+          accessToken: process.env.MAILER_ACCESS_TOKEN,
         },
       });
 
