@@ -55,46 +55,36 @@ describe("setAbsentTimes", () => {
 
 describe("createEmailOptions", () => {
   let getFunction;
+  let preferences;
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
     getFunction = jest.fn();
-    jest.doMock("../services/preferences", () => {
-      return function() {
-        return {
-          get: getFunction,
-        };
-      };
-    });
+    preferences = {get: getFunction};
     createEmailOptions = require("./sendAbsentHelpers").createEmailOptions;
   });
 
-  test("if the mailOptions get set correctly", () => {
+  test("if the mailOptions get set correctly", async () => {
     getFunction.mockResolvedValue("example1@mail.de");
-    const mailOptions = createEmailOptions("Email Text");
+    const mailOptions = await createEmailOptions(preferences, "Email Text");
     expect(mailOptions.htmlText).toBe("Email Text");
     expect(mailOptions.subject).toBe("Abwesenheit");
-    expect(mailOptions.recipient).toBe("melanie@stach24.de");
+    expect(mailOptions.recipient).toBe("example1@mail.de");
   });
 });
 
 describe("createEmailText", () => {
   let getFunction;
+  let preferences;
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
     getFunction = jest.fn();
-    jest.doMock("../services/preferences", () => {
-      return function() {
-        return {
-          get: getFunction,
-        };
-      };
-    });
+    preferences = {get: getFunction};
     createEmailText = require("./sendAbsentHelpers").createEmailText;
   });
 
-  test("if the mailText gets set correctly with reason sick", () => {
+  test("if the mailText gets set correctly with reason sick", async () => {
     const absentTimes = {
       startAbsentDay: "2020-04-13",
       startAbsentTime: "13:00",
@@ -102,36 +92,30 @@ describe("createEmailText", () => {
     };
     const absentReason = "Krankheit";
     getFunction.mockResolvedValue("James");
-    const mailText = createEmailText(absentTimes, absentReason);
-    expect(mailText).toBe(
-        `
-        <p>Guten Tag,</p></br> 
-        <p>Ich kann am 2020-04-13 von 13:00 bis 
-        14:00 aufgrund von Krankheit die Vorlesungen nicht besuchen.</p></br>
-        <p> Mit freundlichen Grüßen</p></br> 
-        <p>undefined</p>
-    `,
-    );
+    const mailText = await createEmailText(preferences, absentTimes, absentReason);
+    const expectedMailText = `<p>Guten Tag,</p></br>
+    <p>Ich kann am 2020-04-13 von 13:00 bis
+    14:00 aufgrund von Krankheit die Vorlesungen nicht besuchen.</p></br>
+    <p> Mit freundlichen Grüßen</p></br>
+    <p>James</p>`;
+    expect(mailText).toBe(expectedMailText);
   });
 
-  test("if the mailText gets set correctly with reason sick", () => {
+  test("if the mailText gets set correctly with reason interview", async () => {
     const absentTimes = {
       startAbsentDay: "2020-04-13",
       startAbsentTime: "13:00",
       endAbsentTime: "14:00",
     };
     const absentReason = "Interviews";
-    getFunction.mockRejectedValue();
-    const mailText = createEmailText(absentTimes, absentReason);
-    expect(mailText).toBe(
-        `
-        <p>Guten Tag,</p></br> 
-        <p>Ich kann am 2020-04-13 von 13:00 bis 
-        14:00 aufgrund eines Interviews die Vorlesungen nicht besuchen.</p></br>
-        <p> Mit freundlichen Grüßen</p></br> 
-        <p>undefined</p>
-    `,
-    );
+    getFunction.mockResolvedValue("ASE BOT");
+    const mailText = await createEmailText(preferences, absentTimes, absentReason);
+    const expectedMailText = `<p>Guten Tag,</p></br>
+    <p>Ich kann am 2020-04-13 von 13:00 bis
+    14:00 aufgrund eines Interviews die Vorlesungen nicht besuchen.</p></br>
+    <p> Mit freundlichen Grüßen</p></br>
+    <p>ASE BOT</p>`;
+    expect(mailText).toBe(expectedMailText);
   });
 });
 

@@ -1,41 +1,26 @@
 const moment = require("moment");
-const preferences = require("../services/preferences")();
 const watsonAssisstant = require("../services/watsonAssistant")();
 
-const createEmailText = (absentTime, absentReason) => {
-  let name;
-  preferences.get("name")
-      .then((res) => {
-        name = res;
-      })
-      .catch(()=> name = "James");
+const createEmailText = async (preferences, absentTime, absentReason) => {
+  const name = await preferences.get("name");
+
   if (absentReason === "Krankheit") {
-    return `
-        <p>Guten Tag,</p></br> 
-        <p>Ich kann am ${absentTime.startAbsentDay} von ${absentTime.startAbsentTime} bis 
-        ${absentTime.endAbsentTime} aufgrund von ${absentReason} die Vorlesungen nicht besuchen.</p></br>
-        <p> Mit freundlichen Grüßen</p></br> 
-        <p>${name}</p>
-    `;
+    return `<p>Guten Tag,</p></br>
+    <p>Ich kann am ${absentTime.startAbsentDay} von ${absentTime.startAbsentTime} bis
+    ${absentTime.endAbsentTime} aufgrund von ${absentReason} die Vorlesungen nicht besuchen.</p></br>
+    <p> Mit freundlichen Grüßen</p></br>
+    <p>${name}</p>`;
   } else {
-    return `
-        <p>Guten Tag,</p></br> 
-        <p>Ich kann am ${absentTime.startAbsentDay} von ${absentTime.startAbsentTime} bis 
-        ${absentTime.endAbsentTime} aufgrund eines ${absentReason} die Vorlesungen nicht besuchen.</p></br>
-        <p> Mit freundlichen Grüßen</p></br> 
-        <p>${name}</p>
-    `;
+    return `<p>Guten Tag,</p></br>
+    <p>Ich kann am ${absentTime.startAbsentDay} von ${absentTime.startAbsentTime} bis
+    ${absentTime.endAbsentTime} aufgrund eines ${absentReason} die Vorlesungen nicht besuchen.</p></br>
+    <p> Mit freundlichen Grüßen</p></br>
+    <p>${name}</p>`;
   }
 };
 
-const createEmailOptions = (emailText) => {
-  let recipient;
-  recipient = "melanie@stach24.de";
-  preferences.get("uni_email")
-      .then((res) => {
-        recipient = res;
-      });
-
+const createEmailOptions = async (preferences, emailText) => {
+  const recipient = await preferences.get("uni_email");
   return {
     recipient: recipient,
     subject: "Abwesenheit",

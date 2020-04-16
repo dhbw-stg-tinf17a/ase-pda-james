@@ -1,15 +1,13 @@
 const gplaces = require("../services/gplaces")();
 const mailer = require("../services/mailer")();
 const watsonSpeech = require("../services/watsonSpeech")();
-const preferences = require("../services/preferences")();
-const gcalendar = require("../services/gcalendar")();
 const {createEmailText, createEmailOptions, setAbsentTimes} = require("../utils/sendAbsentHelpers");
 
-module.exports = () => {
+module.exports = (preferences, oAuthClient) => {
+  const gcalendar = require("../services/gcalendar")(preferences, oAuthClient);
   let lectureCalId;
   let homeAddress;
   let absentTimes = {};
-  
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       case "absent_welcome":
@@ -37,7 +35,8 @@ module.exports = () => {
                       console.error(err);
                     });
               } else {
-                return watsonSpeech.replyWithAudio(ctx, "Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg")
+                return watsonSpeech.replyWithAudio(ctx,
+                    "Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg")
                     .catch((err) => {
                       ctx.reply("Du hast zu dieser Zeit keine Uni. Aber ich wünsche dir viel Erfolg");
                       console.error(err);
@@ -68,13 +67,9 @@ module.exports = () => {
 
 
   this.hasUni = (waRes) => {
-    return new Promise((resolve, reject)=>{
+    return new Promise( async (resolve, reject)=>{
       absentTimes = setAbsentTimes(waRes);
-      lectureCalId = "1nc6dpksqqc9pk2jg85f0hd5hkn8ups1@import.calendar.google.com";
-
-      // preferences.get("lecture_cal_id").then((res) => {
-      //   lectureCalId = res;
-      // })
+      const lectureCalId = await preferences.get("lecture_cal_id");
 
       gcalendar.getBusySlotsByCalendarId(absentTimes.startAbsent, absentTimes.endAbsent, lectureCalId)
           .then((res) => {
@@ -93,11 +88,11 @@ module.exports = () => {
   };
 
 
-  this.sendMail = (ctx, waRes) => {
-    const emailMessage = createEmailText(
+  this.sendMail = async (ctx, waRes) => {
+    const emailMessage = await createEmailText(preferences,
         absentTimes,
         waRes.context.absentReason);
-    const emailOptions = createEmailOptions(emailMessage);
+    const emailOptions = await createEmailOptions(preferences, emailMessage);
     return mailer.sendMail(emailOptions)
         .then(() => {
           if (waRes.context.absentReason === "Krankheit") {
@@ -126,20 +121,16 @@ module.exports = () => {
         });
   };
 
-  this.findPharmacy = (ctx) => {
-    homeAddress = "48.805960, 9.234850";
-
-    // preferences.get("home_address_coordinates")
-    //     .then((res) => {
-    //       homeAddress = res;
-    //     });
+  this.findPharmacy = async (ctx) => {
+    const homeAddress = await preferences.get("home_address_coordinates");
 
     return gplaces.getPlaces({
       query: "Apotheke",
       location: homeAddress,
       rankby: "distance",
     }).then((answer) => {
-      return watsonSpeech.replyWithAudio(ctx, "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:")
+      return watsonSpeech.replyWithAudio(ctx,
+          "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:")
           .then(() => {
             gplaces.getPlaceById(answer.results[0].place_id)
                 .then((res) => ctx.reply(res.result.url))

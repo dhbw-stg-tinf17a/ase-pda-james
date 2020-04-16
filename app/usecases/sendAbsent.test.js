@@ -6,6 +6,7 @@ describe("onUpdate", () => {
   let sendAbsentModule;
   let hasUniFunction;
   let sendMailFunction;
+  let getFunction;
 
 
   beforeEach(() => {
@@ -20,7 +21,9 @@ describe("onUpdate", () => {
         };
       };
     });
-    sendAbsentModule = require("./sendabsent")();
+    getFunction=jest.fn().mockResolvedValue();
+    const preferences = {get: getFunction};
+    sendAbsentModule = require("./sendabsent")(preferences, null);
     hasUniFunction = jest.fn();
     sendMailFunction = jest.fn().mockRejectedValue("Expected Test Error");
     sendAbsentModule.hasUni = hasUniFunction;
@@ -216,6 +219,7 @@ describe("onUpdate", () => {
 describe("hasUni", () => {
   let getBusySlotsByCalendarIdFunction;
   let hasUni;
+  let getFunction;
 
   beforeEach(() => {
     jest.resetModules();
@@ -254,7 +258,9 @@ describe("hasUni", () => {
         }),
       };
     });
-    hasUni = require("./sendAbsent")().hasUni;
+    getFunction=jest.fn().mockResolvedValue("id");
+    const preferences = {get: getFunction};
+    hasUni = require("./sendAbsent")(preferences, null).hasUni;
   });
 
   test("if rejects when no events get fetched from gcal", () => {
@@ -304,7 +310,7 @@ describe("hasUni", () => {
 describe("sendMail", () => {
   let sendMail;
   let ctx;
-  let mailer;
+  let getFunction;
 
 
   const replyFunc = jest.fn((message) => message);
@@ -358,8 +364,9 @@ describe("sendMail", () => {
         }),
       };
     });
-
-    sendMail = require("./sendAbsent")().sendMail;
+    getFunction=jest.fn().mockResolvedValue();
+    const preferences = {get: getFunction};
+    sendMail = require("./sendAbsent")(preferences, null).sendMail;
     ctx = {
       reply: replyFunc,
     };
@@ -463,6 +470,8 @@ describe("findPharmacy", () => {
   let getPlacesFunction;
   let getPlaceByIdFunction;
   let findPharmacy;
+  let getFunction;
+  let preferences;
   const replyFunc = jest.fn((message) => message);
 
   beforeEach(() => {
@@ -488,7 +497,9 @@ describe("findPharmacy", () => {
         };
       };
     });
-    findPharmacy = require("./sendAbsent")().findPharmacy;
+    getFunction=jest.fn().mockResolvedValue("4000,4000");
+    const preferences = {get: getFunction};
+    findPharmacy = require("./sendAbsent")(preferences, null).findPharmacy;
     ctx = {
       reply: replyFunc,
     };
