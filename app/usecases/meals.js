@@ -1,35 +1,61 @@
 const gmaps = require("../services/gmaps");
 const gplaces = require("../services/gplaces")();
 const watsonSpeech = require("../services/watsonSpeech")();
+const DB_KEY_LAST_FOOD = "meals_last_food";
+
+module.exports = (preferences, oAuth2Client) => {
+  const cal = require("../services/gcalendar")(preferences, oAuth2Client);
 
 
-// reply with 3 matching places for user food choice
-const sendPlaces = (ctx, query) => {
-  gplaces.getPlaces({
-    query: query,
-  }).then((answer) => {
-    for (let i = 0; i < 3; i++) {
-      const mapsURL = gmaps.getGoogleMapsRedirectionURL(answer.results[i].formatted_address,
-          answer.results[i].place_id);
+  // reply with 3 matching places for user food choice
+  this._sendPlaces = (ctx, query) => {
+    gplaces.getPlaces({
+      query: query,
+    }).then((answer) => {
+      for (let i = 0; i < 3; i++) {
+        const mapsURL = gmaps.getGoogleMapsRedirectionURL(answer.results[i].formatted_address,
+            answer.results[i].place_id);
 
-      // reply as HTML links to gmaps
-      ctx.replyWithHTML(`<a href='${mapsURL}'>${answer.results[i].name}</a>`)
-    }
-  }).catch((err) => {
-    ctx.reply("Ups, da hat etwas nicht funktioniert..." + err);
-    // console.log(`answer is ${err}`);
-  });
-};
+        // reply as HTML links to gmaps
+        ctx.replyWithHTML(`<a href='${mapsURL}'>${answer.results[i].name}</a>`);
+      }
+    }).catch((err) => {
+      ctx.reply("Ups, da hat etwas nicht funktioniert..." + err);
+      // console.log(`answer is ${err}`);
+    });
+  };
 
-module.exports = (db, oAuth2Client) => {
-  const cal = require("../services/gcalendar")(db, oAuth2Client);
+  this._capitalize=(s)=> s && s[0].toUpperCase() + s.slice(1);
+
+
+  this._replyPlaces = (ctx, typeOfFood, prefs) => {
+    typeOfFood=this._capitalize(typeOfFood);
+    // store food in preferences
+    prefs.set(DB_KEY_LAST_FOOD, typeOfFood);
+
+    ctx.reply(`Okay hier sind 3 Vorschläge für ${typeOfFood}:`);
+    this._sendPlaces(ctx, typeOfFood);
+  };
+
+  this._replyMealsStart=(promise, ctx, prefs)=> {
+    promise.then((start) => {
+      prefs.get(DB_KEY_LAST_FOOD).then((data) => {
+        let reply = `${start} Minuten zum nächsten Termin\nWas möchtest du essen?\n`;
+        if (data) {
+          reply += `Das letzte mal hast du nach "${data}" gesucht.`;
+        } else {
+          reply += "Indisch, Pizza, Italienisch...";
+        }
+        ctx.reply(reply);
+      },
+      );
+    }).catch((error)=> {
+      console.error(error);
+      ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
+    });
+  };
+
   this.onUpdate = (ctx, waRes) => {
-    const replyPlaces = () => {
-      const typeOfFood = waRes.entities[0].value;
-      ctx.reply(`Okay hier sind 3 Vorschläge für ${typeOfFood}:`);
-      sendPlaces(ctx, typeOfFood);
-    };
-
     // log watson answer if necessary
     // console.log(waRes);
 
@@ -41,33 +67,32 @@ module.exports = (db, oAuth2Client) => {
     switch (waRes.generic[0].text) {
       // "ICH HABE HUNGER" continues with meals_food_only
       case "meals_start":
-        cal.getTimeUntilNextEvent().then((start) => {
-          ctx.reply(`${start} Minuten zum nächsten Termin`);
-          ctx.reply("Was möchtest du essen? \n Indisch, Pizza, Italienisch...");
-        }).catch((error) => {
-          console.log(error);
+        try {
+          this._replyMealsStart(cal.getTimeUntilNextEvent(), ctx, preferences);
+          break;
+        } catch (error) {
+          console.error(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
-        });
-        break;
+        }
 
         // "PIZZA"
       case "meals_food_only":
-        replyPlaces();
+        this._replyPlaces(ctx, waRes.entities[0].value, preferences);
         break;
 
         // "ICH WILL PIZZA ESSEN"
       case "meals_start_with_food":
         cal.getTimeUntilNextEvent().then((start) => {
           ctx.reply(`${start} Minuten zum nächsten Temin`);
-          replyPlaces();
+          this._replyPlaces(ctx, waRes.entities[0].value, preferences);
 
           // watson seems to be under maintenance and cannot be tested properly
           /* watsonSpeech.replyWithAudio(ctx, `${start} Minuten zum nächsten Termin`).then(() => {
-          }).catch(
-              (error) => console.error("Error in Watson.replyWithAudio", error)
-          );*/
+                     }).catch(
+                     (error) => console.error("Error in Watson.replyWithAudio", error)
+                     );*/
         }).catch((error) => {
-          console.log(error);
+          console.error(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
         });
         break;
@@ -75,12 +100,12 @@ module.exports = (db, oAuth2Client) => {
         // "CRON JOB"
       case "meals_cron":
         cal.getTimeUntilNextEvent().then((start) => {
-          ctx.reply(`Du hast ${start} Minuten zum nächsten Temin. `+
-          "Sag mir was du essen willst und ich suche etwas passendes! (z.B. Pizza, Indisch...)");
+          ctx.reply(`Du hast ${start} Minuten zum nächsten Temin. ` +
+                        "Sag mir was du essen willst und ich suche etwas passendes! (z.B. Pizza, Indisch...)");
         }).catch((error) => {
           // dont message user in case of an error
           // user does not expect a scheduled message stating an error
-          console.log("Error in cron job", error);
+          console.error("Error in cron job", error);
         });
         break;
 

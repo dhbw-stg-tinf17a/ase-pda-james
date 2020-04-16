@@ -1,8 +1,6 @@
 const axios = require("axios");
 
-module.exports = function(db) {
-  const preferences = require("../services/preferences")(db);
-
+module.exports = function(preferences) {
   this.getTodos = () => {
     return new Promise((resolve, reject)=>{
       preferences.get("ms_todo_token").then((token)=>{
@@ -25,7 +23,7 @@ module.exports = function(db) {
                 });
                 resolve(todos);
               }).catch((err)=>{
-                if (err.response.status == 401) {
+                if (err.response && err.response.status == 401) {
                   this.requestRefresh().then(()=>{
                     this.getTodos().then(resolve).catch(reject);
                   }).catch(reject);
@@ -104,45 +102,53 @@ module.exports = function(db) {
       });
     });
   };
+
   this.authorizeUser = (ctx) => {
-    preferences.set("chat_id_ms_todo", ctx.chat.id).then(()=>{
-      const base = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
-      const client = `?client_id=${process.env.MS_TODO_CLIENT_ID}`;
-      const scope = "&scope=https%3A%2F%2Foutlook.office.com%2Ftasks.readwrite%20offline_access";
-      const responseType = "&response_type=code";
-      const redirectUri = "&redirect_uri=http://localhost:8080/mstodo";
-      ctx.reply("Bitte melde dich bei Microsoft Todo an:\n" + base + client + scope + responseType + redirectUri);
-    }).catch((err)=>{
-      ctx.reply("Tut mir Leid, da hat etwas nicht funktioniert");
-      console.error(err);
+    return new Promise((resolve, reject) =>{
+      preferences.set("chat_id_ms_todo", ctx.chat.id).then(()=>{
+        const base = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+        const client = `?client_id=${process.env.MS_TODO_CLIENT_ID}`;
+        const scope = "&scope=https%3A%2F%2Foutlook.office.com%2Ftasks.readwrite%20offline_access";
+        const responseType = "&response_type=code";
+        const redirectUri = "&redirect_uri=http://localhost:8080/mstodo";
+        ctx.reply("Bitte melde dich bei Microsoft Todo an:\n" + base + client + scope + responseType + redirectUri);
+        resolve();
+      }).catch((err)=>{
+        ctx.reply("Tut mir Leid, da hat etwas nicht funktioniert");
+        console.error(err);
+      });
     });
   };
 
   this.chooseFolder = (ctx, chatId) => {
-    preferences.get("ms_todo_token").then((token)=>{
-      axios.get("https://outlook.office.com/api/v2.0/me/taskfolders", {
-        headers: {"Authorization": `Bearer ${token}`},
-      }).then((res)=>{
-        const inlineKeyboardMarkup = {inline_keyboard: [[]]};
+    return new Promise((resolve, reject)=>{
+      preferences.get("ms_todo_token").then((token)=>{
+        axios.get("https://outlook.office.com/api/v2.0/me/taskfolders", {
+          headers: {"Authorization": `Bearer ${token}`},
+        }).then((res)=>{
+          const inlineKeyboardMarkup = {inline_keyboard: [[]]};
 
-        const tasks = res.data.value;
-        let i = 0;
-        tasks.forEach((task)=>{
-          inlineKeyboardMarkup.inline_keyboard[0].push({
-            text: task.Name,
-            callback_data: "tasks_choosefolder_" + i,
+          const tasks = res.data.value;
+          let i = 0;
+          tasks.forEach((task)=>{
+            inlineKeyboardMarkup.inline_keyboard[0].push({
+              text: task.Name,
+              callback_data: "tasks_choosefolder_" + i,
+            });
+            i++;
           });
-          i++;
+          ctx.telegram.sendMessage(chatId,
+              "Bitte wähle das Microsoft Todo Projekt aus, auf das ich ein Auge haben soll",
+              {reply_markup: inlineKeyboardMarkup});
+          resolve();
+        }).catch((err)=>{
+          console.error(err);
+          ctx.telegram.sendMessage(chatId, "Es gab einen Fehler bei der Auswahl des Microsoft Todo Projekts.");
         });
-        ctx.telegram.sendMessage(chatId, "Bitte wähle das Microsoft Todo Projekt aus, auf das ich ein Auge haben soll",
-            {reply_markup: inlineKeyboardMarkup});
       }).catch((err)=>{
         console.error(err);
         ctx.telegram.sendMessage(chatId, "Es gab einen Fehler bei der Auswahl des Microsoft Todo Projekts.");
       });
-    }).catch((err)=>{
-      console.error(err);
-      ctx.telegram.sendMessage(chatId, "Es gab einen Fehler bei der Auswahl des Microsoft Todo Projekts.");
     });
   };
 

@@ -1,10 +1,8 @@
 const {google} = require("googleapis");
-const {busyToFree, calculatTimeUntilEvent} = require("../utils/calendarHelpers");
+const {busyToFree, calculateTimeUntilEvent} = require("../utils/calendarHelpers");
 const moment = require("moment");
 
-module.exports = function(db, oAuth2Client) {
-  const preferences = require("./preferences")(db);
-
+module.exports = function(preferences, oAuth2Client) {
   this.authenticateUser = (ctx) => {
     preferences.set("chat_id_google_auth", ctx.chat.id).then(() => {
       const url = oAuth2Client.generateAuthUrl({
@@ -12,7 +10,8 @@ module.exports = function(db, oAuth2Client) {
         scope: "https://www.googleapis.com/auth/calendar",
       });
 
-      ctx.reply(url);
+      // ctx.reply(url);
+      ctx.replyWithHTML(`<a href='${url}'>Google Authentifizierung</a>`);
     }).catch((err) => {
       console.error(err);
       ctx.reply("Tut mir leid, da ist mir ein Fehler unterlaufen.");
@@ -39,7 +38,7 @@ module.exports = function(db, oAuth2Client) {
         const event = res.data.items[0];
         const fallbackEvent = res.data.items[1];
 
-        const timeUntil = calculatTimeUntilEvent(event, fallbackEvent);
+        const timeUntil = calculateTimeUntilEvent(event, fallbackEvent);
         resolve(timeUntil);
       }).catch((error) => {
         reject(error);
