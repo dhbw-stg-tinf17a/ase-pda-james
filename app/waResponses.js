@@ -1,8 +1,9 @@
 function uniNotifier() {
-  this.firstResponse = "Ich schaue mal nach, wann Du los musst";
+  this.firstResponse = "Ich schaue mal nach, wann Du los musst 😊";
   this.early = "Du hast die nächste Woche über keine Vorlesungen. Genieß' die Freiheit!";
 
-  this.transitLate = "Du bist spät dran. Nimm die nächstmögliche Bahn zur Uni";
+  this.transitLate = (ttl) =>`Du bist spät dran. Die nächste Bahn zur Uni fährt in ${ttl} Minuten! Beeil dich!`;
+  this.minutesLate = (mins) => `❗️ Du kommst voraussichtlich ca. <b>${mins} Minuten zu spät</b>.`;
   this.transitOnTime = (dep, start, arr, stop, duration, interchanges) => {
     return (
       `Du bist gut in der Zeit. Nimm die Bahn ${dep} von der Haltestelle ${start}. 
@@ -16,9 +17,9 @@ function uniNotifier() {
       `Du bist gut in der Zeit. Mach' dich ${dep} auf den Weg zur Uni, dann bist Du püunktlich zur Vorlesung da!`
     );
   };
-  this.nonTransitLate = "Du bist spät dran! Mach' dich so schnell wie möglich auf den Weg zur Uni!";
+  this.nonTransitLate = (mins) => `Du bist spät dran! Mach' dich so schnell wie möglich auf den Weg zur Uni! Du kommst voraussichtlich ca. ${mins} Minuten zu spät.`;
 
-  this.googleMapsUrl = "Hier hast Du eine Routenbeschreibung von Google Maps.";
+  this.googleMapsUrl = (url) => `Hier hast Du eine <b><a href="${url}">Routenbeschreibung</a> von Google Maps</b>. 🗺`;
 
   return this;
 }
