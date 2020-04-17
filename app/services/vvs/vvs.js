@@ -93,7 +93,7 @@ module.exports = () => {
         // --- ERROR HANDLING ------------------------------------------------------------------------------------------
 
         // Parameter Error
-        if (tripsRes == null) {
+        if (!tripsRes) {
           error.VvsInvalidParametersError.prototype = Object.create(Error.prototype);
           const err = new error.VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
 
@@ -125,7 +125,7 @@ module.exports = () => {
             origin: legs[0].start.stopName,
             destination: legs[legs.length - 1].end.stopName,
             duration: (
-              (legs[legs.length - 1].end.date - legs[0].start.date) / 1000 / 60
+              moment(legs[legs.length - 1].end.date).subtract(legs[0].start.date, "minutes")
             ),
             legs: legs,
           });
