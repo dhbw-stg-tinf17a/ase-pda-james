@@ -11,7 +11,7 @@ module.exports = function(preferences, oAuth2Client) {
       });
 
       // ctx.reply(url);
-      ctx.replyWithHTML(`<a href='${url}'>Google Authentifizierung</a>`);
+      ctx.replyWithHTML(`<a href='${ url }'>Google Authentifizierung</a>`);
     }).catch((err) => {
       console.error(err);
       ctx.reply("Tut mir leid, da ist mir ein Fehler unterlaufen.");
@@ -62,7 +62,7 @@ module.exports = function(preferences, oAuth2Client) {
           singleEvents: true,
           orderBy: "startTime",
         }).then((res) => {
-          const items = res.data.items.map(({summary, start, end}) => ({title: summary, start, end}));
+          const items = res.data.items.map(({summary, start, end}) => ({title: summary, start, end})) || [];
           resolve(items);
         }).catch((error) => {
           reject(error);
