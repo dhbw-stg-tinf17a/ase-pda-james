@@ -29,7 +29,7 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
-  this.getTimeUntilNextEvent = (calendarId = "primary") => {
+  this.getTimeUntilNextEvent = (calendarId) => {
     return new Promise((resolve, reject) => {
       this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});

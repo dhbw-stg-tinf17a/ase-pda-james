@@ -261,3 +261,60 @@ describe("getNextEvents", () => {
     }
   });
 });
+
+describe("getTimeUntilNextEvent", () => {
+  let getTimeUntilNextEvent;
+
+  beforeEach(() => {
+    jest.resetModules();
+    jest.resetAllMocks();
+
+    jest.doMock("googleapis", () => {
+      return {
+        google: {
+          calendar: jest.fn(() => ({
+            events: {
+              list: ({calendarId}) => {
+                if (!calendarId) {
+                  return Promise.reject(new Error());
+                } else {
+                  return Promise.resolve({
+                    data: require("../../__fixtures__/calendar/listEventsResponse"),
+                  });
+                }
+              },
+            },
+          })),
+        },
+      };
+    });
+
+    const oAuth2Client = {};
+    const preferences = {
+      get: jest.fn((key) => {
+        if (key === "google_auth_tokens") {
+          return Promise.resolve(preferencesAuthResponse);
+        } else {
+          return Promise.reject(new Error());
+        }
+      }),
+    };
+
+    getTimeUntilNextEvent = require("./gcalendar")(preferences, oAuth2Client).getTimeUntilNextEvent;
+  });
+
+  test("resolves", async () => {
+    const time = await getTimeUntilNextEvent("primary");
+    expect(typeof time).toBe("number");
+  });
+
+  test("rejects with wrong parameters", async () => {
+    expect.assertions(1);
+
+    try {
+      await getTimeUntilNextEvent();
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
+  });
+});
