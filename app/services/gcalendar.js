@@ -3,6 +3,17 @@ const {busyToFree, calculateTimeUntilEvent} = require("../utils/calendarHelpers"
 const moment = require("moment");
 
 module.exports = function(preferences, oAuth2Client) {
+  this.addCredentialsToClient = async () => {
+    try {
+      const credentials = await preferences.get("google_auth_tokens");
+      oAuth2Client.credentials = JSON.parse(credentials);
+
+      return oAuth2Client;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   this.authenticateUser = (ctx) => {
     preferences.set("chat_id_google_auth", ctx.chat.id).then(() => {
       const url = oAuth2Client.generateAuthUrl({
@@ -20,11 +31,7 @@ module.exports = function(preferences, oAuth2Client) {
 
   this.getTimeUntilNextEvent = (calendarId = "primary") => {
     return new Promise((resolve, reject) => {
-      preferences.get("google_auth_tokens").then((credentials) => {
-        oAuth2Client.credentials = JSON.parse(credentials);
-
-        return oAuth2Client;
-      }).then((client) => {
+      this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         return calendar.events.list({
@@ -48,11 +55,7 @@ module.exports = function(preferences, oAuth2Client) {
 
   this.getNextEvents = (calendarId) => {
     return new Promise((resolve, reject) => {
-      preferences.get("google_auth_tokens").then((credentials) => {
-        oAuth2Client.credentials = JSON.parse(credentials);
-
-        return oAuth2Client;
-      }).then((client) => {
+      this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         calendar.events.list({
@@ -76,11 +79,7 @@ module.exports = function(preferences, oAuth2Client) {
       timeMax = moment().add(1, "d").toISOString(),
       calendarId) => {
     return new Promise((resolve, reject) => {
-      preferences.get("google_auth_tokens").then((credentials) => {
-        oAuth2Client.credentials = JSON.parse(credentials);
-
-        return oAuth2Client;
-      }).then((client) => {
+      this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         return calendar.freebusy.query({
@@ -104,11 +103,7 @@ module.exports = function(preferences, oAuth2Client) {
       timeMax = moment().add(1, "d").toISOString(),
       lectureCalendarId) => {
     return new Promise((resolve, reject) => {
-      preferences.get("google_auth_tokens").then((credentials) => {
-        oAuth2Client.credentials = JSON.parse(credentials);
-
-        return oAuth2Client;
-      }).then((client) => {
+      this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         return calendar.freebusy.query({
@@ -154,11 +149,7 @@ module.exports = function(preferences, oAuth2Client) {
 
   this.createEvent = (event) => {
     return new Promise((resolve, reject) => {
-      preferences.get("google_auth_tokens").then((credentials) => {
-        oAuth2Client.credentials = JSON.parse(credentials);
-
-        return oAuth2Client;
-      }).then((client) => {
+      this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         return calendar.events.insert({
@@ -173,11 +164,7 @@ module.exports = function(preferences, oAuth2Client) {
 
   this.getCalendars = () => {
     return new Promise((resolve, reject) => {
-      preferences.get("google_auth_tokens").then((credentials) => {
-        oAuth2Client.credentials = JSON.parse(credentials);
-
-        return oAuth2Client;
-      }).then((client) => {
+      this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         return calendar.calendarList.list({showHidden: true});
@@ -190,11 +177,7 @@ module.exports = function(preferences, oAuth2Client) {
 
   this.getFreeSlots = (lectureCalendarId, date) => {
     return new Promise((resolve, reject) => {
-      preferences.get("google_auth_tokens").then((credentials) => {
-        oAuth2Client.credentials = JSON.parse(credentials);
-
-        return oAuth2Client;
-      }).then((client) => {
+      this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         return calendar.freebusy.query({

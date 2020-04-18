@@ -1,7 +1,50 @@
-jest.mock("googleapis");
-jest.mock("./preferences");
+const preferencesAuthResponse = require("../../__fixtures__/calendar/preferencesAuthResponse");
 
-JSON.parse = jest.fn().mockImplementation(() => ({}));
+jest.mock("googleapis");
+
+describe("addCredentialsToClient", () => {
+  let addCredentialsToClient;
+  let preferences;
+
+  beforeEach(() => {
+    jest.resetModules();
+    jest.resetAllMocks();
+  });
+
+  test("returns client with credentials", async () => {
+    const oAuth2Client = {};
+    const preferences = {
+      get: jest.fn((key) => {
+        if (key === "google_auth_tokens") {
+          return Promise.resolve(preferencesAuthResponse);
+        } else {
+          return Promise.resolve();
+        }
+      }),
+    };
+    addCredentialsToClient = require("./gcalendar")(preferences, oAuth2Client).addCredentialsToClient;
+
+    const client = await addCredentialsToClient();
+
+    expect(client).toHaveProperty("credentials");
+  });
+
+  test("throws error if preferences does not return", async () => {
+    const oAuth2Client = {};
+    const preferences = {
+      get: jest.fn((key) => Promise.reject(new Error())),
+    };
+
+    addCredentialsToClient = require("./gcalendar")(preferences, oAuth2Client).addCredentialsToClient;
+
+    expect.assertions(1);
+    try {
+      await addCredentialsToClient();
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
+  });
+});
 
 describe("getCalendars", () => {
   let getCalendars;
