@@ -15,7 +15,7 @@ const createOpeningHoursLines = (openingHours, date) => {
 
   const dayToHighlight = moment(date);
 
-  let result = "";
+  let result;
 
   if (openingHours.length > 0) {
     result = openingHours.map((entry, index) => {
@@ -49,9 +49,9 @@ const createEmailText = (keyword, records, {name, address, openingHours}, date) 
   `;
 };
 
-const createEmailOptions = (keyword, emailText) => {
+const createEmailOptions = (keyword, emailText, emailAddress) => {
   return {
-    recipient: process.env.MY_EMAIL,
+    recipient: emailAddress,
     subject: `Rechercheergebnisse zum Thema ${ keyword }`,
     htmlText: emailText,
   };
