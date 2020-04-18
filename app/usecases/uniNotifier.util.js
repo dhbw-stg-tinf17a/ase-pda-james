@@ -46,7 +46,8 @@ module.exports = () => {
   // returns speakable departure time for non-transit
   this.getSpeakableDeparture = (timeParams) => {
     return moment(timeParams.lectureStart)
-        .subtract((timeParams.arrBuffer + timeParams.commuteDuration), "minutes")
+        .subtract(timeParams.arrBuffer, "minutes")
+        .subtract(timeParams.commuteDuration, "minutes")
         .calendar(timeParams.currentTime, {
           sameDay: "[um] HH [Uhr] m",
           nextWeek: "[am] dddd [um] HH [Uhr] m",
@@ -69,8 +70,15 @@ ${leg.mode.destination}.\n`;
     return itinerary;
   };
 
+  // calculate the minutes the user is approx. going to be late for class
   this.minutesLate = (arrTime, lectureStart) => {
     return moment(arrTime).diff(lectureStart, "minutes");
+  };
+
+  // calculate full minutes until the first connection leaves the stop
+  this.timeToLeave = (connLeaves, currTime) => {
+    return Math.ceil(moment(connLeaves)
+        .diff(currTime, "minutes", true));
   };
 
   return this;

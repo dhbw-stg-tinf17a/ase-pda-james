@@ -4,8 +4,6 @@ const moment = require("moment");
 const util = require("./vvs.util");
 const error = require("./vvs.error");
 
-const ul = require("util");
-
 module.exports = () => {
   this.getStopByKeyword = (key) => {
     return new Promise((resolve, reject) => {
@@ -128,7 +126,6 @@ module.exports = () => {
         trip.duration = moment(legs[legs.length - 1].end.date).diff(legs[0].start.date, "minutes");
         trip.legs = legs;
 
-        console.log(ul.inspect(trip, false, null));
         resolve(trip);
       });
     });

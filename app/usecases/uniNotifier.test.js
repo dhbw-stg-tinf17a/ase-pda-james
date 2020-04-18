@@ -1,14 +1,9 @@
-
-describe("Utility Function tests", () => {
+describe("Utility Function Tests", () => {
   let util;
   let moment;
   let currentTime;
 
   beforeAll(() => {
-    jest.clearAllMocks();
-    jest.resetAllMocks();
-    jest.resetModules();
-
     moment = require("moment");
     currentTime = moment();
   });
@@ -17,17 +12,16 @@ describe("Utility Function tests", () => {
     util = require("./uniNotifier.util")();
   });
 
-  test("transitLate() returns true when on-time connection has already passed", () => {
+  test("transitLate(...) returns true when on-time connection has already passed", () => {
     const timeParams = {
       currentTime: moment(currentTime),
       depTime: moment(currentTime).subtract(10, "minutes"),
       depBuffer: 10,
     };
-    console.log(util);
     expect(util.transitLate(timeParams)).toBe(true);
   });
 
-  test("nonTransitLate() returns false if lecture start is after commute time incl. buffers", () => {
+  test("nonTransitLate(...) returns false if lecture start is after commute time incl. buffers", () => {
     const timeParams = {
       currentTime: moment(currentTime),
       lectureStart: moment(currentTime).add(1, "hours"),
@@ -38,7 +32,7 @@ describe("Utility Function tests", () => {
     expect(util.nonTransitLate(timeParams)).toBe(false);
   });
 
-  test("lectureEndsOnArrival() returns true if lecture ends before commute time passes", () => {
+  test("lectureEndsOnArrival(...) returns true if lecture ends before commute time passes", () => {
     const timeParams = {
       currentTime: moment(currentTime),
       lectureEnd: moment(currentTime).add(15, "minutes"),
@@ -49,16 +43,21 @@ describe("Utility Function tests", () => {
     expect(util.lectureEndsOnArrival(timeParams)).toBe(true);
   });
 
-  test("mintesLate() calculates correct dely to being on-time", () => {
+  test("minutesLate(...) calculates correct delay to being on-time", () => {
     const lectureStart = currentTime;
     const arrTime = moment(currentTime).add(20, "minutes");
 
     expect(util.minutesLate(arrTime, lectureStart)).toEqual(20);
   });
+
+  test("timeToLeave(...) calculates correct number of minutes before connection leaves", () => {
+    const connLeaves = moment(currentTime).add(10, "minutes");
+
+    expect(util.timeToLeave(connLeaves, currentTime)).toEqual(10);
+  });
 });
 
-
-describe("[UNI NOTIFIER Use Case Tests] onUpdate() VVS LATE", () => {
+describe("onUpdate(...) Function Tests (transit, late, attendance possible)", () => {
   let uniNotifier;
   let dialog;
 
@@ -70,6 +69,10 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() VVS LATE", () => {
   let replyWithAudioFn;
 
   beforeAll(async () => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+    jest.resetModules();
+
     dialog = require("./uniNotifier.resp")();
 
     mockCtx = {
@@ -85,6 +88,7 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() VVS LATE", () => {
         });
       }),
     };
+
     mockWaRes = {
       generic: [
         {text: "uniNotifier_welcome"},
@@ -110,7 +114,6 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() VVS LATE", () => {
         resolve(mockData);
       });
     });
-
     jest.doMock("../services/vvs/vvs", () => {
       return function() {
         return {
@@ -124,7 +127,6 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() VVS LATE", () => {
         resolve();
       });
     });
-
     jest.doMock("../services/watsonSpeech.js", () => {
       return function() {
         return {
@@ -143,6 +145,8 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() VVS LATE", () => {
             dep: "", arr: "",
           }),
           printItinerary: () => "",
+          minutesLate: () => 0,
+          timeToLeave: () => 0,
         };
       };
     });
@@ -151,28 +155,41 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() VVS LATE", () => {
     await uniNotifier.onUpdate(mockCtx, mockWaRes);
   });
 
-  test("onUpdate() switches to Uni Notifier use case", () => {
+  test("onUpdate(...) switches to Uni Notifier use case", () => {
     expect(mockCtx.replyWithHTML).toBeCalledWith(dialog.firstResponse);
   });
 
-  test("onUpdate() requests commute preference and resolves with transit case", () => {
+  test("onUpdate(...) requests commute preference and resolves with transit case", () => {
     expect(mockPrefs.get).toBeCalledWith("commute");
+    expect(mockPrefs.get("commute")).resolves.toBe("vvs");
   });
 
-  // test("onUpdate() requests commute preference and resolves with non-transit case", () => {
-  //   expect(mockPrefs.get).toBeCalledWith("commute");
-  // });
-
-  test("onUpdate() requests lecture calendar preference", () => {
+  test("onUpdate(...) requests lecture calendar preference and resolves", () => {
     expect(mockPrefs.get).toBeCalledWith("lecture_cal_id");
+    expect(mockPrefs.get("lecture_cal_id")).resolves.toBe("sample_cal_id");
   });
 
-  test("onUpdate() requests next lecture details", async () => {
+  test("onUpdate(...) requests next lecture details", () => {
     expect(getNextEventsFn).toBeCalled();
   });
+
+  test("onUpdate(...) calls VVS service twice and resolves", () => {
+    // test scenario recognizes that on-time connection cannot be met
+    expect(getTripFn).toBeCalledTimes(2);
+    expect(getTripFn()).resolves.toBeDefined();
+  });
+
+  test("onUpdate(...) calls watsonSpeech.replyWithAudio(...)", () => {
+    expect(replyWithAudioFn).toBeCalled();
+  });
+
+  test("onUpdate(...) replies with HTML three times", () => {
+    // initial response, late info, and trip itinerary
+    expect(mockCtx.replyWithHTML).toBeCalledTimes(3);
+  });
 });
 
-describe("[UNI NOTIFIER Use Case Tests] onUpdate() NON-TRANSIT LATE", () => {
+describe("onUpdate(...) Function Tests (driving, late, attendance possible)", () => {
   let uniNotifier;
   let dialog;
 
@@ -258,7 +275,7 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() NON-TRANSIT LATE", () => {
             dep: "", arr: "",
           }),
           getSpeakableDeparture: () => false,
-          minutesLate: () => 42,
+          minutesLate: () => 0,
         };
       };
     });
@@ -267,28 +284,42 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() NON-TRANSIT LATE", () => {
     await uniNotifier.onUpdate(mockCtx, mockWaRes);
   });
 
-  test("onUpdate() switches to Uni Notifier use case", () => {
+  test("onUpdate(...) switches to Uni Notifier use case", () => {
     expect(mockCtx.replyWithHTML).toBeCalledWith(dialog.firstResponse);
   });
 
-  test("onUpdate() requests commute preference and resolves with transit case", () => {
+  test("onUpdate(...) requests commute preference and resolves with driving case", () => {
     expect(mockPrefs.get).toBeCalledWith("commute");
+    expect(mockPrefs.get("commute")).resolves.toBe("driving");
   });
 
-  // test("onUpdate() requests commute preference and resolves with non-transit case", () => {
-  //   expect(mockPrefs.get).toBeCalledWith("commute");
-  // });
-
-  test("onUpdate() requests lecture calendar preference", () => {
+  test("onUpdate(...) requests lecture calendar preference and resolves", () => {
     expect(mockPrefs.get).toBeCalledWith("lecture_cal_id");
+    expect(mockPrefs.get("lecture_cal_id")).resolves.toBe("sample_cal_id");
   });
 
-  test("onUpdate() requests next lecture details", async () => {
-    // expect(getNextEventsFn).toBeCalled();
+  test("onUpdate(...) requests next lecture details", async () => {
+    expect(getNextEventsFn).toBeCalled();
+  });
+
+
+  test("onUpdate(...) calls Google Maps service and resolves with duration parameter", () => {
+    expect(getDirectionsFn).toBeCalled();
+    expect(getDirectionsFn("Stuttgart Hauptbahnhof")).resolves.toBeDefined();
+    expect(getDirectionsFn("Stuttgart Hauptbahnhof")).resolves.toHaveProperty("duration");
+  });
+
+  test("onUpdate(...) calls watsonSpeech.replyWithAudio", () => {
+    expect(replyWithAudioFn).toBeCalled();
+  });
+
+  test("onUpdate(...) replies with HTML three times", () => {
+    // initial response, late information, Google Maps route URL
+    expect(mockCtx.replyWithHTML).toBeCalledTimes(3);
   });
 });
 
-describe("[UNI NOTIFIER Use Case Tests] onUpdate() BRANCEHES", () => {
+describe("onUpdate(...) Function Tests (edge case branches)", () => {
   let uniNotifier;
   let dialog;
 
@@ -374,16 +405,16 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() BRANCEHES", () => {
             dep: "", arr: "",
           }),
           getSpeakableDeparture: () => false,
-          minutesLate: () => 42,
+          minutesLate: () => 0,
         };
       };
     });
 
     uniNotifier = require("./uniNotifier")(mockPrefs, null);
-    // await uniNotifier.onUpdate(mockCtx, mockWaRes);
   });
 
-  test("onUpdate() does not switch to Uni Notifier use case", async () => {
+  test("onUpdate(...) does not recognize Uni Notifier use case", async () => {
+    // override with invalid Watson Assistant intent
     mockWaRes = {
       generic: [
         {text: "sth_else"},
@@ -392,18 +423,20 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() BRANCEHES", () => {
 
     try {
       await uniNotifier.onUpdate(mockCtx, mockWaRes);
-    } catch (e) {
-      return expect(e).toBeDefined();
+    } catch (error) {
+      return expect(error).toBeDefined();
     }
   });
 
-  test("onUpdate() recognizes invalid commute preference", async () => {
+  test("onUpdate(...) recognizes invalid commute preference", async () => {
+    // restore correct Watson Assistant Intent
     mockWaRes = {
       generic: [
         {text: "uniNotifier_welcome"},
       ],
     };
 
+    // override preferences to return invalid commute method
     mockPrefs = {
       get: jest.fn((key) => {
         return new Promise((resolve, reject) => {
@@ -413,16 +446,18 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() BRANCEHES", () => {
       }),
     };
 
+    // re-initialize uniNotifier function with updated parameters
     uniNotifier = require("./uniNotifier")(mockPrefs, null);
 
     try {
       await uniNotifier.onUpdate(mockCtx, mockWaRes);
-    } catch (e) {
-      return expect(e).toBeDefined();
+    } catch (error) {
+      return expect(error).toBeDefined();
     }
   });
 
-  test("onUpdate() recognizes no next lectures", async () => {
+  test("onUpdate(...) recognizes no next lectures", async () => {
+    // restore preferences to resolve valid commute method
     mockPrefs = {
       get: jest.fn((key) => {
         return new Promise((resolve, reject) => {
@@ -432,6 +467,7 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() BRANCEHES", () => {
       }),
     };
 
+    // override Google Calender function to return empty lecture array
     getNextEventsFn = jest.fn(() => []);
     jest.doMock("../services/gcalendar", () => {
       return function() {
@@ -441,12 +477,13 @@ describe("[UNI NOTIFIER Use Case Tests] onUpdate() BRANCEHES", () => {
       };
     });
 
+    // re-initialize uniNotifier function with updated parameters
     uniNotifier = require("./uniNotifier")(mockPrefs, null);
-    await uniNotifier.onUpdate(mockCtx, mockWaRes);
+
     try {
       await uniNotifier.onUpdate(mockCtx, mockWaRes);
-    } catch (e) {
-      return expect(e).toBeDefined();
+    } catch (error) {
+      return expect(error).toBeDefined();
     }
   });
 });

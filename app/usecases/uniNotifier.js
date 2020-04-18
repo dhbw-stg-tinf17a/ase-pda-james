@@ -11,7 +11,6 @@ module.exports = (preferences, oAuth2Client) => {
   const maps = require("../services/gmaps.js");
   const cal = require("../services/gcalendar.js")(preferences, oAuth2Client);
 
-
   // ===================================================================================================================
   // WATSON ASSISTANT DIALOG HANDLING
   // ===================================================================================================================
@@ -79,12 +78,19 @@ module.exports = (preferences, oAuth2Client) => {
         timeParams.commuteDuration = trip.duration;
 
         if (util.transitLate(transitTimeParams)) {
-          // set nre departure time to now incl. short buffer to reach first stop
+          // set new departure time to now incl. short buffer to reach first stop
           tripParams.date = moment(timeParams.currentTime).add(transitTimeParams.lateDepBuffer, "minutes");
           tripParams.isArrTime = false; // API calculates departures at the given time
 
           vvs.getTrip(tripParams).then((res) => {
             trip = res;
+            const legs = trip.legs;
+            const legAmt = legs.length;
+            const lastLeg = legs[legAmt - 1];
+
+            // update departure and arrival information
+            transitTimeParams.depTime = moment(legs[0].start.date);
+            transitTimeParams.arrTime = moment(lastLeg.end.date);
             timeParams.commuteDuration = trip.duration;
 
             if (util.lectureEndsOnArrival(timeParams)) {
@@ -92,10 +98,9 @@ module.exports = (preferences, oAuth2Client) => {
             }
 
             // calculate full minutes until the first connection leaves the stop
-            const timeToLeave = Math.ceil(moment(trip.legs[0].start.date).diff(timeParams.currentTime,
-                "minutes", true));
+            const timeToLeave = util.timeToLeave(transitTimeParams.depTime, timeParams.currentTime);
             // calculate the minutes the user is approx. going to be late for class
-            const minutesLate = moment(trip.legs[0].end.date).diff(timeParams.lectureStart, "minutes");
+            const minutesLate = util.minutesLate(transitTimeParams.arrTime, timeParams.lectureStart);
 
             watsonSpeech.replyWithAudio(ctx, dialog.transitLate(timeToLeave)).then(() => {
               ctx.replyWithHTML(dialog.minutesLate(minutesLate));
@@ -125,7 +130,6 @@ module.exports = (preferences, oAuth2Client) => {
             break;
           default:
             ctx.reply("Beim VVS-Service ist etwas schiefgelaufen. Versuche es nochmal.");
-            console.log(err);
             break;
         }
       });
@@ -143,11 +147,14 @@ module.exports = (preferences, oAuth2Client) => {
 
       maps.getDirections(tripParams).then((res) => {
         // convert duration string to integer
-        timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]);
+        timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]); // TODO: Fix splitting with hours
         const speakableDeparture = util.getSpeakableDeparture(timeParams);
         const routeUrl = maps.getGoogleMapsRedirectionURL(uniAddr);
-        const lateTime = util.minutesLate(moment(timeParams.currentTime).add(timeParams.commuteDuration, "minutes"),
-            timeParams.lectureStart);
+
+        const estimatedArrival = moment(timeParams.currentTime)
+            .add(timeParams.commuteDuration, "minutes")
+            .add(timeParams.arrBuffer, "minutes");
+        const lateTime = util.minutesLate(estimatedArrival, timeParams.lectureStart);
 
         if (util.nonTransitLate(timeParams)) {
           if (util.lectureEndsOnArrival(timeParams)) {
@@ -157,15 +164,14 @@ module.exports = (preferences, oAuth2Client) => {
             ctx.replyWithHTML(dialog.minutesLate(lateTime));
             ctx.replyWithHTML(dialog.googleMapsUrl(routeUrl));
           });
-        } else if (early(timeParams)) {
+        } else if (util.early(timeParams)) {
           watsonSpeech.replyWithAudio(ctx, dialog.early);
         } else /* if on time */ {
           watsonSpeech.replyWithAudio(ctx, dialog.nonTransitOnTime(speakableDeparture)).then(() => {
             ctx.replyWithHTML(dialog.googleMapsUrl(routeUrl));
           });
         }
-      }).catch((err) => {
-        console.log(err);
+      }).catch(() => {
         return ctx.reply("Beim Google-Maps-Service ist etwas schiefgelaufen. Versuche es nochmal.");
       });
     }
