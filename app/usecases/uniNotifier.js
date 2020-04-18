@@ -33,7 +33,8 @@ module.exports = (preferences, oAuth2Client) => {
     const nextLectures = await cal.getNextEvents(lectureCal);
 
     if (nextLectures.length === 0) {
-      return ctx.replyWithHTML(dialog.calEmpty);
+      ctx.replyWithHTML(dialog.calEmpty);
+      return new Error("Lecture Calendar is empty.");
     }
 
     const nextLecture = nextLectures[0]; // first API response element always returns next or current lecture
@@ -98,7 +99,7 @@ module.exports = (preferences, oAuth2Client) => {
 
             watsonSpeech.replyWithAudio(ctx, dialog.transitLate(timeToLeave)).then(() => {
               ctx.replyWithHTML(dialog.minutesLate(minutesLate));
-              ctx.replyWithHTML(printItinerary(trip));
+              ctx.replyWithHTML(util.printItinerary(trip));
             });
           });
         } else if (util.early(timeParams)) {
@@ -140,7 +141,7 @@ module.exports = (preferences, oAuth2Client) => {
         arrivalTime: moment(timeParams.lectureStart).subtract(timeParams.buffer, "minutes"),
       };
 
-      maps.getDirections(tripParams).then(async (res) => {
+      maps.getDirections(tripParams).then((res) => {
         // convert duration string to integer
         timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]);
         const speakableDeparture = util.getSpeakableDeparture(timeParams);

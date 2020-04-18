@@ -39,7 +39,7 @@ module.exports = {
       end: {
         stopName: "Rotebühlplatz",
         platform: "",
-        date: "2020-04-18T14:34:00.000+02:00",
+        date: "2020-02-01T09:45:00.000+02:00",
       },
       mode: {
         type: "Stadtbahn",
