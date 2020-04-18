@@ -147,9 +147,9 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
-  this.getCalendars = async () => {
+  this.getCalendars = () => {
     return new Promise((resolve, reject) => {
-      this.addCredentialsToClient().then((client) => {
+      return this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
         return calendar.calendarList.list({showHidden: true});
@@ -164,6 +164,10 @@ module.exports = function(preferences, oAuth2Client) {
 
   this.getFreeSlots = (lectureCalendarId, date) => {
     return new Promise((resolve, reject) => {
+      if (!lectureCalendarId || !date) {
+        reject(new Error("Falsche Paramter"));
+      }
+
       this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 

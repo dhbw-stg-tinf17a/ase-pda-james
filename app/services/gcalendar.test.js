@@ -1,7 +1,5 @@
 const preferencesAuthResponse = require("../../__fixtures__/calendar/preferencesAuthResponse");
 
-// jest.mock("googleapis");
-
 describe("addCredentialsToClient", () => {
   let addCredentialsToClient;
 
@@ -93,6 +91,26 @@ describe("getFreeSlots", () => {
   let getFreeSlots;
 
   beforeEach(() => {
+    jest.doMock("googleapis", () => {
+      return {
+        google: {
+          calendar: jest.fn(() => ({
+            freebusy: {
+              query: ({requestBody}) => {
+                if (!requestBody.items[0].id) {
+                  return Promise.reject(new Error());
+                } else {
+                  return Promise.resolve({
+                    data: require("../../__fixtures__/calendar/freebusyQueryResponse"),
+                  });
+                }
+              },
+            },
+          })),
+        },
+      };
+    });
+
     const oAuth2Client = {};
     const preferences = {
       get: jest.fn((key) => {
@@ -106,16 +124,22 @@ describe("getFreeSlots", () => {
     getFreeSlots = require("./gcalendar")(preferences, oAuth2Client).getFreeSlots;
   });
 
-  test("resolves", () => {
-    return getFreeSlots().then((slots) => {
-      expect(slots).toBeDefined();
-    });
+  test("resolves", async () => {
+    const slots = await getFreeSlots("primary", "2020-04-18T13:54:34.739Z");
+    expect(slots).toBeInstanceOf(Array);
+    expect(slots).toBeDefined();
+    expect(slots[0]).toHaveProperty("start");
+    expect(slots[0]).toHaveProperty("end");
   });
 
-  test("rejects", () => {
-    return getFreeSlots().catch((error) => {
+  test("rejects", async () => {
+    expect.assertions(1);
+
+    try {
+      await getFreeSlots();
+    } catch (error) {
       expect(error).toBeDefined();
-    });
+    }
   });
 });
 
@@ -123,21 +147,56 @@ describe("getBusySlotsByCalendarId", () => {
   let getBusySlotsByCalendarId;
 
   beforeEach(() => {
+    jest.doMock("googleapis", () => {
+      return {
+        google: {
+          calendar: jest.fn(() => ({
+            freebusy: {
+              query: ({requestBody}) => {
+                if (!requestBody.items[0].id) {
+                  return Promise.reject(new Error());
+                } else {
+                  return Promise.resolve({
+                    data: require("../../__fixtures__/calendar/freebusyQueryResponse"),
+                  });
+                }
+              },
+            },
+          })),
+        },
+      };
+    });
+
     const oAuth2Client = {};
-    const preferences = require("preferences")({});
+    const preferences = {
+      get: jest.fn((key) => {
+        if (key === "google_auth_tokens") {
+          return Promise.resolve(preferencesAuthResponse);
+        } else {
+          return Promise.reject(new Error());
+        }
+      }),
+    };
+
     getBusySlotsByCalendarId = require("./gcalendar")(preferences, oAuth2Client).getBusySlotsByCalendarId;
   });
 
-  test("resolves", () => {
-    return getBusySlotsByCalendarId("", "", "primary").then((slots) => {
-      expect(slots).toBeDefined();
-    });
+  test("resolves", async () => {
+    const slots = await getBusySlotsByCalendarId("2020-02-08T13:22:09.000Z", "2020-04-18T13:22:09.000Z", "primary");
+    expect(slots).toBeDefined();
+    expect(slots).toBeInstanceOf(Array);
+    expect(slots[0]).toHaveProperty("start");
+    expect(slots[0]).toHaveProperty("end");
   });
 
-  test("rejects with wrong parameters", () => {
-    return getBusySlotsByCalendarId("", "").catch((error) => {
+  test("rejects with wrong parameters", async () => {
+    expect.assertions(1);
+
+    try {
+      await getBusySlotsByCalendarId("", "");
+    } catch (error) {
       expect(error).toBeDefined();
-    });
+    }
   });
 });
 
