@@ -1,4 +1,4 @@
-describe("onUpdate", () => {
+()describe("onUpdate", () => {
   let onUpdate;
   let ctx;
 

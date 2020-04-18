@@ -52,7 +52,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
     return expect(vvs.getTrip(tripParams)).resolves.toBeDefined();
   });
 
-  test("getTrip(...) returns array that contains certain properties", () => {
+  test("getTrip(...) returns object that contains certain properties", () => {
     const mockRes = require("../../../__fixtures__/vvs/getTripResolve");
     axios.get.mockResolvedValue({data: mockRes});
 
@@ -62,12 +62,11 @@ describe("VVS Service: getStopByKeyword(...)", () => {
     };
 
     return vvs.getTrip(tripParams).then((res) => {
-      expect(Array.isArray(res)).toBe(true);
-      expect(typeof res[0]).toBe("object");
-      expect(res[0]).toHaveProperty("origin");
-      expect(res[0]).toHaveProperty("destination");
-      expect(res[0]).toHaveProperty("duration");
-      expect(res[0]).toHaveProperty("legs");
+      expect(typeof res).toBe("object");
+      expect(res).toHaveProperty("origin");
+      expect(res).toHaveProperty("destination");
+      expect(res).toHaveProperty("duration");
+      expect(res).toHaveProperty("legs");
     });
   });
 
@@ -77,7 +76,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
     const tripParams = {
       originId: "foo",
-      destinationId: "bad",
+      destinationId: "bar",
       // both IDs need to be valid numerical values for the API to resolve properly
     };
     return expect(vvs.getTrip(tripParams)).rejects.toBeDefined();

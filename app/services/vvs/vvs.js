@@ -4,6 +4,7 @@ const moment = require("moment");
 const util = require("./vvs.util");
 const error = require("./vvs.error");
 
+const ul = require("util");
 
 module.exports = () => {
   this.getStopByKeyword = (key) => {
@@ -91,19 +92,16 @@ module.exports = () => {
       };
 
       axios.get(apiUrl, apiParams).then((res) => {
+        // --- ERROR HANDLING ------------------------------------------------------------------------------------------
+        // Parameter Error
+        if (!res.data.trips) {
+          error.VvsInvalidParametersError.prototype = Object.create(Error.prototype);
+          const err = new error.VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
+          reject(err);
+        }
         const tripRes = res.data.trips.trip;
         const trip = {};
         const legs = [];
-
-        // --- ERROR HANDLING ------------------------------------------------------------------------------------------
-
-        // Parameter Error
-        if (!tripRes) {
-          error.VvsInvalidParametersError.prototype = Object.create(Error.prototype);
-          const err = new error.VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
-
-          reject(err);
-        }
 
         tripRes.legs.forEach((leg) => {
           legs.push({
@@ -130,6 +128,7 @@ module.exports = () => {
         trip.duration = moment(legs[legs.length - 1].end.date).diff(legs[0].start.date, "minutes");
         trip.legs = legs;
 
+        console.log(ul.inspect(trip, false, null));
         resolve(trip);
       });
     });

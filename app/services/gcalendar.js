@@ -62,7 +62,7 @@ module.exports = function(preferences, oAuth2Client) {
           singleEvents: true,
           orderBy: "startTime",
         }).then((res) => {
-          const items = res.data.items.map(({summary, start, end}) => ({title: summary, start, end}));
+          const items = res.data.items.map(({summary, start, end}) => ({title: summary, start, end})) || [];
           resolve(items);
         }).catch((error) => {
           reject(error);
