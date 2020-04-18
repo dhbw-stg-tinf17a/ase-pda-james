@@ -1,10 +1,9 @@
 const preferencesAuthResponse = require("../../__fixtures__/calendar/preferencesAuthResponse");
 
-jest.mock("googleapis");
+// jest.mock("googleapis");
 
 describe("addCredentialsToClient", () => {
   let addCredentialsToClient;
-  let preferences;
 
   beforeEach(() => {
     jest.resetModules();
@@ -18,7 +17,7 @@ describe("addCredentialsToClient", () => {
         if (key === "google_auth_tokens") {
           return Promise.resolve(preferencesAuthResponse);
         } else {
-          return Promise.resolve();
+          return Promise.reject(new Error());
         }
       }),
     };
@@ -50,15 +49,42 @@ describe("getCalendars", () => {
   let getCalendars;
 
   beforeEach(() => {
+    jest.doMock("googleapis", () => {
+      return {
+        google: {
+          calendar: jest.fn(() => ({
+            calendarList: {
+              list: () => {
+                return Promise.resolve({
+                  data: require("../../__fixtures__/calendar/calendarListResponse"),
+                });
+              },
+            },
+          })),
+        },
+      };
+    });
+
     const oAuth2Client = {};
-    const preferences = require("preferences")({});
+    const preferences = {
+      get: jest.fn((key) => {
+        if (key === "google_auth_tokens") {
+          return Promise.resolve(preferencesAuthResponse);
+        } else {
+          return Promise.reject(new Error());
+        }
+      }),
+    };
+
     getCalendars = require("./gcalendar")(preferences, oAuth2Client).getCalendars;
   });
 
-  test("resolves", () => {
+  test("resolves if there are calendars", () => {
     return getCalendars().then((calendars) => {
       expect(calendars).toBeDefined();
-      expect(calendars).toHaveLength(2);
+      expect(calendars).toBeInstanceOf(Array);
+      expect(calendars[0]).toHaveProperty("id");
+      expect(calendars[0]).toHaveProperty("summary");
     });
   });
 });
@@ -68,7 +94,15 @@ describe("getFreeSlots", () => {
 
   beforeEach(() => {
     const oAuth2Client = {};
-    const preferences = require("preferences")({});
+    const preferences = {
+      get: jest.fn((key) => {
+        if (key === "google_auth_tokens") {
+          return Promise.resolve(preferencesAuthResponse);
+        } else {
+          return Promise.reject(new Error());
+        }
+      }),
+    };
     getFreeSlots = require("./gcalendar")(preferences, oAuth2Client).getFreeSlots;
   });
 
@@ -80,38 +114,6 @@ describe("getFreeSlots", () => {
 
   test("rejects", () => {
     return getFreeSlots().catch((error) => {
-      expect(error).toBeDefined();
-    });
-  });
-});
-
-describe("createEvent", () => {
-  let createEvent;
-
-  beforeEach(() => {
-    const oAuth2Client = {};
-    const preferences = require("preferences")({});
-    createEvent = require("./gcalendar")(preferences, oAuth2Client).createEvent;
-  });
-
-  test("resolves", () => {
-    const event = {
-      summary: "Test event",
-      start: {
-        dateTime: "2020-04-07T10:00:00+02:00",
-      },
-      end: {
-        dateTime: "2020-04-07T11:00:00+02:00",
-      },
-    };
-
-    return createEvent(event).then((slots) => {
-      expect(slots).toBeDefined();
-    });
-  });
-
-  test("rejects with wrong parameters", () => {
-    return createEvent({}).catch((error) => {
       expect(error).toBeDefined();
     });
   });
@@ -143,20 +145,60 @@ describe("getNextEvents", () => {
   let getNextEvents;
 
   beforeEach(() => {
+    jest.resetModules();
+    jest.resetAllMocks();
+
+    jest.doMock("googleapis", () => {
+      return {
+        google: {
+          calendar: jest.fn(() => ({
+            events: {
+              list: ({calendarId}) => {
+                if (!calendarId) {
+                  return Promise.reject(new Error());
+                } else {
+                  return Promise.resolve({
+                    data: require("../../__fixtures__/calendar/listEventsResponse"),
+                  });
+                }
+              },
+            },
+          })),
+        },
+      };
+    });
+
     const oAuth2Client = {};
-    const preferences = require("preferences")({});
+    const preferences = {
+      get: jest.fn((key) => {
+        if (key === "google_auth_tokens") {
+          return Promise.resolve(preferencesAuthResponse);
+        } else {
+          return Promise.reject(new Error());
+        }
+      }),
+    };
+
     getNextEvents = require("./gcalendar")(preferences, oAuth2Client).getNextEvents;
   });
 
-  test("resolves", () => {
-    return getNextEvents("primary").then((slots) => {
-      expect(slots).toBeDefined();
-    });
+  test("resolves", async () => {
+    const events = await getNextEvents("primary");
+    expect(events).toBeDefined();
+    expect(events).toBeInstanceOf(Array);
+    expect(events).toHaveLength(3);
+    expect(events[0]).toHaveProperty("title");
+    expect(events[0]).toHaveProperty("start");
+    expect(events[0]).toHaveProperty("end");
   });
 
-  test("rejects with wrong parameters", () => {
-    return getNextEvents().catch((error) => {
+  test("rejects with wrong parameters", async () => {
+    expect.assertions(1);
+
+    try {
+      await getNextEvents();
+    } catch (error) {
       expect(error).toBeDefined();
-    });
+    }
   });
 });
