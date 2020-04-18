@@ -7,9 +7,9 @@ describe("getCalendars", () => {
   let getCalendars;
 
   beforeEach(() => {
-    const db = {};
     const oAuth2Client = {};
-    getCalendars = require("./gcalendar")(db, oAuth2Client).getCalendars;
+    const preferences = require("preferences")({});
+    getCalendars = require("./gcalendar")(preferences, oAuth2Client).getCalendars;
   });
 
   test("resolves", () => {
@@ -24,9 +24,9 @@ describe("getFreeSlots", () => {
   let getFreeSlots;
 
   beforeEach(() => {
-    const db = {};
     const oAuth2Client = {};
-    getFreeSlots = require("./gcalendar")(db, oAuth2Client).getFreeSlots;
+    const preferences = require("preferences")({});
+    getFreeSlots = require("./gcalendar")(preferences, oAuth2Client).getFreeSlots;
   });
 
   test("resolves", () => {
@@ -46,9 +46,9 @@ describe("createEvent", () => {
   let createEvent;
 
   beforeEach(() => {
-    const db = {};
     const oAuth2Client = {};
-    createEvent = require("./gcalendar")(db, oAuth2Client).createEvent;
+    const preferences = require("preferences")({});
+    createEvent = require("./gcalendar")(preferences, oAuth2Client).createEvent;
   });
 
   test("resolves", () => {
@@ -78,9 +78,9 @@ describe("getBusySlotsByCalendarId", () => {
   let getBusySlotsByCalendarId;
 
   beforeEach(() => {
-    const db = {};
     const oAuth2Client = {};
-    getBusySlotsByCalendarId = require("./gcalendar")(db, oAuth2Client).getBusySlotsByCalendarId;
+    const preferences = require("preferences")({});
+    getBusySlotsByCalendarId = require("./gcalendar")(preferences, oAuth2Client).getBusySlotsByCalendarId;
   });
 
   test("resolves", () => {
@@ -100,9 +100,9 @@ describe("getNextEvents", () => {
   let getNextEvents;
 
   beforeEach(() => {
-    const db = {};
     const oAuth2Client = {};
-    getNextEvents = require("./gcalendar")(db, oAuth2Client).getNextEvents;
+    const preferences = require("preferences")({});
+    getNextEvents = require("./gcalendar")(preferences, oAuth2Client).getNextEvents;
   });
 
   test("resolves", () => {
