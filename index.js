@@ -6,7 +6,7 @@ const path = require("path");
 const { google } = require("googleapis");
 const fs = require("fs");
 
-const Manager = require("./app/manager");
+const Manager = require("./app/modules/manager/manager");
 
 let connection = undefined;
 // const mongoUrl = "mongodb://localhost:27017";
@@ -50,9 +50,9 @@ mongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true 
 
     // Manager
     const manager = new Manager();
-    const preferences = require("./app/services/preferences")(db);
+    const preferences = require("./app/services/preferences/preferences")(db);
     manager.start(preferences, oAuth2Client);
 
-    require("./app/rest.js")(app, preferences, manager.getTelegramBot(), oAuth2Client);
+    require("./app/modules/rest/rest.js")(app, preferences, manager.getTelegramBot(), oAuth2Client);
   }
 });
