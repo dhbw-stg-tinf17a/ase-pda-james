@@ -41,6 +41,9 @@ describe("meals", () => {
     ctx = {reply: mockReply};
     meals = require("./meals")(preferences, null);
     preferences = {set: mockSet, get: mockGet};
+
+    // disable watson speech for tests
+    meals._replyTextAndSpeech = mockReply;
   });
 
   test("replyPlaces(...)", () => {

@@ -55,6 +55,13 @@ module.exports = (preferences, oAuth2Client) => {
     });
   };
 
+  this._replyTextAndSpeech=(ctx, text)=>{
+    ctx.reply(text);
+    return watsonSpeech.replyWithAudio(ctx, text).catch(
+        (error) => console.error("Error in Watson.replyWithAudio", error),
+    );
+  };
+
   this.onUpdate = (ctx, waRes) => {
     // log watson answer if necessary
     // console.log(waRes);
@@ -83,14 +90,8 @@ module.exports = (preferences, oAuth2Client) => {
         // "ICH WILL PIZZA ESSEN"
       case "meals_start_with_food":
         cal.getTimeUntilNextEvent().then((start) => {
-          ctx.reply(`${start} Minuten zum nächsten Temin`);
+          this._replyTextAndSpeech(ctx, `Du hast ${start} Minuten zum nächsten Termin`);
           this._replyPlaces(ctx, waRes.entities[0].value, preferences);
-
-          // watson seems to be under maintenance and cannot be tested properly
-          /* watsonSpeech.replyWithAudio(ctx, `${start} Minuten zum nächsten Termin`).then(() => {
-                     }).catch(
-                     (error) => console.error("Error in Watson.replyWithAudio", error)
-                     );*/
         }).catch((error) => {
           console.error(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
