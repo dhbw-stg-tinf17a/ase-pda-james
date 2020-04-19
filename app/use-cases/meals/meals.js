@@ -26,7 +26,6 @@ module.exports = (preferences, oAuth2Client) => {
 
   this._capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
 
-
   this._replyPlaces = (ctx, typeOfFood, prefs) => {
     typeOfFood = this._capitalize(typeOfFood);
     // store food in preferences
@@ -61,12 +60,13 @@ module.exports = (preferences, oAuth2Client) => {
     );
   };
 
-  this.onUpdate = (ctx, waRes) => {
+  this.onUpdate = async (ctx, waRes) => {
+    const calendarId = await preferences.get("lecture_cal_id");
     switch (waRes.generic[0].text) {
       // "ICH HABE HUNGER" continues with meals_food_only
       case "meals_start":
         try {
-          this._replyMealsStart(cal.getTimeUntilNextEvent(), ctx, preferences);
+          this._replyMealsStart(cal.getTimeUntilNextEvent(calendarId), ctx, preferences);
         } catch (error) {
           console.error(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
@@ -79,7 +79,7 @@ module.exports = (preferences, oAuth2Client) => {
 
         // "ICH WILL PIZZA ESSEN"
       case "meals_start_with_food":
-        cal.getTimeUntilNextEvent().then((start) => {
+        cal.getTimeUntilNextEvent(calendarId).then((start) => {
           this._replyTextAndSpeech(ctx, `Du hast ${start} Minuten zum nächsten Termin`);
           this._replyPlaces(ctx, waRes.entities[0].value, preferences);
         }).catch((error) => {
@@ -90,7 +90,7 @@ module.exports = (preferences, oAuth2Client) => {
 
         // "CRON JOB"
       case "meals_cron":
-        cal.getTimeUntilNextEvent().then((start) => {
+        cal.getTimeUntilNextEvent(calendarId).then((start) => {
           ctx.reply(`Du hast ${start} Minuten zum nächsten Temin. ` +
                         "Sag mir was du essen willst und ich suche etwas passendes! (z.B. Pizza, Indisch...)");
         }).catch((error) => {
