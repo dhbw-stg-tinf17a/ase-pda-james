@@ -8,6 +8,13 @@ const createResearchLinks = (results) => {
   return results.map((result) => `<p><a href="${ result.url }">${ result.title }</a></p>`).join("\n");
 };
 
+/**
+ * If there are opening hours provided, creates a line for every day of the week, highlighting the date-weekday.
+ * If no opening hours are provided, creates one line indicating that.
+ * @param {array<string>} openingHours
+ * @param {string} date
+ * @return {string}
+ */
 const createOpeningHoursLines = (openingHours, date) => {
   if (!date) {
     throw new Error("Parameter \"date\" fehlt");

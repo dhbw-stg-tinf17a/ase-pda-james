@@ -1,36 +1,46 @@
-const springerResponse = require("../../../test/__fixtures__/springerResponse");
-const getPlacesResponse = require("../../../test/__fixtures__/gplacesResponse");
-const getPlaceByIdResponse = require("../../../test/__fixtures__/gplacesIdResponse");
+const springerResponse = require("../../__fixtures__/springerResponse");
+const getPlacesResponse = require("../../__fixtures__/gplacesResponse");
+const getPlaceByIdResponse = require("../../__fixtures__/gplacesIdResponse");
 
 describe("onUpdate", () => {
   let onUpdate;
   let ctx;
   let books;
+  let replyWithAudioFn;
+  let replyWithHtmlFn;
+  let replyFn;
 
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
 
-    jest.doMock("../../services/api/gplaces/gplaces", () => {
+    jest.doMock("../services/gplaces", () => {
       return () => ({
         getPlaces: jest.fn().mockResolvedValue(getPlacesResponse),
         getPlaceById: jest.fn().mockResolvedValue(getPlaceByIdResponse),
       });
     });
 
-    jest.doMock("../../services/api/springer/springer", () => {
+    jest.doMock("../services/springer", () => {
       return {
         getByKeyword: jest.fn().mockResolvedValue(springerResponse),
       };
     });
 
+    replyWithAudioFn = jest.fn();
+    jest.doMock("../services/watsonSpeech", () => {
+      return function() {
+        return {
+          replyWithAudio: replyWithAudioFn,
+        };
+      };
+    });
+
+    replyFn = jest.fn();
+    replyWithHtmlFn = jest.fn();
     ctx = {
-      reply: jest.fn(() => {
-        return new Promise((resolve) => resolve());
-      }),
-      replyWithHTML: jest.fn(() => {
-        return new Promise((resolve) => resolve());
-      }),
+      reply: replyFn,
+      replyWithHTML: replyWithHtmlFn,
     };
 
     const preferences = {
@@ -50,30 +60,31 @@ describe("onUpdate", () => {
   test("switches to welcome", async () => {
     const waRes = {
       generic: [
-        { text: "book_welcome" },
+        {text: "book_welcome"},
       ],
     };
 
     await onUpdate(ctx, waRes);
-    expect(ctx.reply.mock.calls).toHaveLength(1);
+    expect(replyWithAudioFn).toBeCalledTimes(1);
+    expect(replyWithAudioFn).toBeCalledWith(expect.any(Object), "Zu welchem Thema möchtest du recherchieren?");
   });
 
   test("switches to which-day", async () => {
     const waRes = {
       generic: [
-        { text: "book_which-day" },
+        {text: "book_which-day"},
       ],
     };
 
     await onUpdate(ctx, waRes);
-    expect(ctx.reply.mock.calls).toHaveLength(1);
+    expect(replyWithAudioFn).toBeCalledTimes(1);
+    expect(replyWithAudioFn).toBeCalledWith(expect.any(Object), "Wann möchtest du lernen?");
   });
 
   test("switches to slots", async () => {
-    // jest.setTimeout(12000);
     const waRes = {
       generic: [
-        { text: "book_slots" },
+        {text: "book_slots"},
       ],
       context: {
         keyword: "test",
@@ -82,12 +93,18 @@ describe("onUpdate", () => {
     };
 
     await onUpdate(ctx, waRes);
-    expect(ctx.reply.mock.calls).toHaveLength(3);
+    expect(replyWithAudioFn).toBeCalledTimes(2);
+    expect(replyWithAudioFn).toBeCalledWith(expect.any(Object), "Alles klar! Gib mir einen Moment.");
+    expect(replyWithAudioFn).toBeCalledWith(expect.any(Object),
+        "Hier sind die ersten fünf Artikel, die ich zu \"test\" gefunden habe.");
+    expect(replyWithHtmlFn).toBeCalledTimes(2);
+    expect(replyFn).toBeCalledWith("📧 Soll ich dir noch mal eine Zusammenfassung per Email schicken?",
+        expect.any(Object));
     expect(books.keyword).toEqual("test");
     expect(books.date).toEqual("2020-04-08");
   });
 
-  /* test("switches to default", async () => {
+  test("switches to default", async () => {
     const waRes = {
       generic: [
         {text: "book_somerandomstuff"},
@@ -95,21 +112,34 @@ describe("onUpdate", () => {
     };
 
     await onUpdate(ctx, waRes);
-    expect(ctx.reply).not.toBeCalled();
-  }); */
+    expect(replyFn).not.toBeCalled();
+    expect(replyWithHtmlFn).not.toBeCalled();
+    expect(replyWithAudioFn).not.toBeCalled();
+  });
 });
 
 describe("onCallbackQuery", () => {
+  let books;
   let onCallbackQuery;
+  let replyWithAudioFn;
+  let replyWithHtmlFn;
+  let replyFn;
 
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
 
-    jest.doMock("../../services/mailer/mailer", () => {
+    jest.doMock("../services/mailer", () => {
       return () => ({
         sendMail: jest.fn(),
       });
+    });
+
+    jest.doMock("../utils/bookHelpers", () => {
+      return {
+        createEmailText: jest.fn(),
+        createEmailOptions: jest.fn(),
+      };
     });
 
     const preferences = {
@@ -122,37 +152,49 @@ describe("onCallbackQuery", () => {
       }),
     };
 
+    replyWithAudioFn = jest.fn();
+    jest.doMock("../services/watsonSpeech", () => {
+      return function() {
+        return {
+          replyWithAudio: replyWithAudioFn,
+        };
+      };
+    });
+
+    replyFn = jest.fn();
+    replyWithHtmlFn = jest.fn();
+
+    books = require("./books")(preferences);
+    books.springerRecords = springerResponse.records;
     onCallbackQuery = require("./books")(preferences).onCallbackQuery;
   });
 
   test("sends email", async () => {
     const ctx = {
-      reply: jest.fn(() => {
-        return new Promise((resolve) => resolve());
-      }),
-      replyWithHTML: jest.fn(() => {
-        return new Promise((resolve) => resolve());
-      }),
-      callbackQuery: { data: "book_yes" },
+      reply: replyFn,
+      replyWithHTML: replyWithHtmlFn,
+      callbackQuery: {data: "book_yes"},
     };
 
     await onCallbackQuery(ctx);
-    expect(ctx.reply.mock.calls).toHaveLength(2);
+    expect(replyWithAudioFn).toBeCalledTimes(2);
+    expect(replyWithAudioFn).toBeCalledWith(expect.any(Object),
+        "Ich schicke dir eine Email mit den Artikeln und den Öffnungszeiten der Bibliothek.");
+    expect(replyWithAudioFn).toBeCalledWith(expect.any(Object),
+        "Die Email ist raus. Viel Erfolg beim Lernen!");
   });
 
   test("does not send email", async () => {
     const ctx = {
-      reply: jest.fn(() => {
-        return new Promise((resolve) => resolve());
-      }),
-      replyWithHTML: jest.fn(() => {
-        return new Promise((resolve) => resolve());
-      }),
-      callbackQuery: { data: "book_no" },
+      reply: replyFn,
+      replyWithHTML: replyWithHtmlFn,
+      callbackQuery: {data: "book_no"},
     };
 
     await onCallbackQuery(ctx);
-    expect(ctx.reply.mock.calls).toHaveLength(1);
+    expect(replyWithAudioFn).toBeCalledTimes(1);
+    expect(replyWithAudioFn).toBeCalledWith(expect.any(Object), "Alles klar! Viel Erfolg beim Lernen!");
+    expect(replyFn).toBeCalledWith("👋🏼");
   });
 });
 
@@ -164,7 +206,7 @@ describe("formatLibraryInfo", () => {
   });
 
   test("creates the right string with parameters", () => {
-    const text = formatLibraryInfo({ name: "Bibliothek", address: "Bei mir zu Hause" });
+    const text = formatLibraryInfo({name: "Bibliothek", address: "Bei mir zu Hause"});
 
     expect(text).toBe(`
       Die nächste Bibliothek von dir zu Hause ist die "<b>Bibliothek</b>".\nDie Adresse lautet: Bei mir zu Hause.
@@ -183,8 +225,8 @@ describe("formatArticleResults", () => {
 
   test("creates the right string with parameters", () => {
     const articles = [
-      { url: [{ value: "xyz" }], title: "Test article" },
-      { url: [{ value: "abc" }], title: "Test article 2" },
+      {url: [{value: "xyz"}], title: "Test article"},
+      {url: [{value: "abc"}], title: "Test article 2"},
     ];
 
     const text = formatArticleResults(articles);
