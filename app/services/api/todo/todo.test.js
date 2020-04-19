@@ -27,8 +27,7 @@ describe("ToDo", () => {
 
     return todo.getTodos().then((todos) => {
       expect(todos.length).toBe(3);
-    }).catch((err) => {
-      console.error(err);
+    }).catch(() => {
       fail("promise rejection");
     });
   });

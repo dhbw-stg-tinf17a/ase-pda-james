@@ -15,8 +15,6 @@ const buildURL = (config) => {
   }
 
   params = new URLSearchParams(params);
-
-  console.log("buildURL", url + params);
   return url + params;
 };
 module.exports = { buildURL };

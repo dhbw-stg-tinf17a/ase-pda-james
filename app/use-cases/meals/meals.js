@@ -21,7 +21,6 @@ module.exports = (preferences, oAuth2Client) => {
       }
     }).catch((err) => {
       ctx.reply(`Ups, da hat etwas nicht funktioniert...${ err}`);
-      // console.log(`answer is ${err}`);
     });
   };
 
@@ -63,14 +62,6 @@ module.exports = (preferences, oAuth2Client) => {
   };
 
   this.onUpdate = (ctx, waRes) => {
-    // log watson answer if necessary
-    // console.log(waRes);
-
-    // if authentication has to be renewed uncomment line below
-    // cal.authenticateUser(ctx);
-
-    // print use case information if necessary
-    // ctx.reply("DEBUG" + waRes.generic[0].text);
     switch (waRes.generic[0].text) {
       // "ICH HABE HUNGER" continues with meals_food_only
       case "meals_start":

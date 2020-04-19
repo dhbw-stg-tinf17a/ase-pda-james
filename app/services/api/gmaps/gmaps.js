@@ -50,7 +50,5 @@ module.exports.getGoogleMapsRedirectionURL = (destination, placeId = null) => {
   }
 
   const params = new URLSearchParams(paramsObject);
-
-  // console.log("buildURL", url + params);
   return url + params;
 };

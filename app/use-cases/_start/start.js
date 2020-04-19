@@ -63,14 +63,12 @@ module.exports = (preferences, oAuth2Client) => {
             ctx.reply(`Ich habe ${address} als Heimatadresse gespeichert.`);
             this._chooseTravelMethod(ctx); // (4)
           });
-        } catch (error) {
-          console.log(error);
+        } catch (err) {
           ctx.reply("Sorry, ich konnte deine Heimatadresse nicht speichern...");
         }
       }
     }).catch((err) => {
       ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
-      console.log(err);
     });
   };
 
@@ -103,8 +101,7 @@ module.exports = (preferences, oAuth2Client) => {
           } else { // (5d) => (6)
             ctx.reply(`${reply }\nJetzt sag mir noch die Email Adresse deines Sekretariats`);
           }
-        }).catch((error) => {
-          console.log(error);
+        }).catch(() => {
           ctx.reply(`Sorry, ich konnte deine ${stopString} nicht speichern...`);
         });
       }
@@ -138,8 +135,7 @@ module.exports = (preferences, oAuth2Client) => {
           } else { // (6)
             ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
           }
-        }).catch((error) => {
-          console.log(error);
+        }).catch(() => {
           ctx.reply("Sorry, ich konnte deine Uni-Adresse nicht speichern...");
         });
       }

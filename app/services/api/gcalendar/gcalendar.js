@@ -135,8 +135,6 @@ module.exports = function (preferences, oAuth2Client) {
         // sort slots by start
         allSlots.sort(sortSlots);
 
-        console.log(allSlots);
-
         const startOfFirst = allSlots.length > 0 ? new Date(allSlots[0].start) : null;
 
         resolve(startOfFirst);

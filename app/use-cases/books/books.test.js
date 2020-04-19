@@ -82,7 +82,6 @@ describe("onUpdate", () => {
     };
 
     await onUpdate(ctx, waRes);
-    console.log(ctx.reply.mock.calls);
     expect(ctx.reply.mock.calls).toHaveLength(3);
     expect(books.keyword).toEqual("test");
     expect(books.date).toEqual("2020-04-08");
