@@ -19,6 +19,7 @@ module.exports.getDirections = (config) => {
           // handle success
           const distance = response.data.routes[0].legs[0].distance.text;
           const duration = response.data.routes[0].legs[0].duration.text;
+          const durationValue = Math.floor(response.data.routes[0].legs[0].duration.value / 60);
 
           // reformat direction steps to single string
           const steps = response.data.routes[0].legs[0].steps.map((step) => {
@@ -27,7 +28,7 @@ module.exports.getDirections = (config) => {
             return htmlToText.fromString(htmlText);
           });
 
-          resolve({distance: distance, duration: duration, steps: steps});
+          resolve({distance: distance, duration: duration, value: durationValue, steps: steps});
         })
         .catch(function(error) {
           // handle error
