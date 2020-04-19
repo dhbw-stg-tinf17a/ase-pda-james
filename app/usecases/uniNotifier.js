@@ -147,7 +147,7 @@ module.exports = (preferences, oAuth2Client) => {
 
       maps.getDirections(tripParams).then((res) => {
         // convert duration string to integer
-        timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]); // TODO: Fix splitting with hours
+        timeParams.commuteDuration = res.value;
         const speakableDeparture = util.getSpeakableDeparture(timeParams);
         const routeUrl = maps.getGoogleMapsRedirectionURL(uniAddr);
 
