@@ -46,17 +46,18 @@ module.exports = (preferences) => {
   this.onUpdate = async (ctx, waRes) => {
     switch (waRes.generic[0].text) {
       case "book_welcome":
-        // watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?");
-        return await ctx.reply("Zu welchem Thema möchtest du recherchieren?");
+        return await watsonSpeech.replyWithAudio(ctx, "Zu welchem Thema möchtest du recherchieren?");
+        // return await ctx.reply("Zu welchem Thema möchtest du recherchieren?");
       case "book_which-day":
-        // watsonSpeech.replyWithAudio(ctx, "Wann möchtest du lernen?");
-        return await ctx.reply("Wann möchtest du lernen?");
+        return await watsonSpeech.replyWithAudio(ctx, "Wann möchtest du lernen?");
+        // return await ctx.reply("Wann möchtest du lernen?");
       case "book_slots":
         try {
-          await ctx.reply("Alles klar! Gib mir einen Moment...");
-
           this.keyword = waRes.context.keyword;
           this.date = waRes.context.bookDate;
+
+          await watsonSpeech.replyWithAudio(ctx, "Alles klar! Gib mir einen Moment.");
+          // await ctx.reply("Alles klar! Gib mir einen Moment...");
 
           const coordinates = await preferences.get("home_address_coordinates");
 
@@ -79,7 +80,9 @@ module.exports = (preferences) => {
           const data = await springer.getByKeyword(this.keyword);
           this.springerRecords = data.records;
 
-          await ctx.reply(`Hier sind die ersten fünf Artikel, die ich zu "${ this.keyword }" gefunden habe.`);
+          await watsonSpeech.replyWithAudio(ctx,
+              `Hier sind die ersten fünf Artikel, die ich zu "${ this.keyword }" gefunden habe.`);
+          // await ctx.reply(`Hier sind die ersten fünf Artikel, die ich zu "${ this.keyword }" gefunden habe.`);
           await ctx.replyWithHTML(this.formatArticleResults(this.springerRecords.slice(0, 5)));
 
           await ctx.reply("📧 Soll ich dir noch mal eine Zusammenfassung per Email schicken?",
@@ -99,7 +102,9 @@ module.exports = (preferences) => {
 
     try {
       if (answer === "yes") {
-        await ctx.reply("Ich schicke dir eine Email mit den Artikeln und den Öffnungszeiten der Bibliothek.");
+        await watsonSpeech.replyWithAudio(ctx,
+            "Ich schicke dir eine Email mit den Artikeln und den Öffnungszeiten der Bibliothek.");
+        // await ctx.reply("Ich schicke dir eine Email mit den Artikeln und den Öffnungszeiten der Bibliothek.");
 
         const emailAddress = await preferences.get("email");
         const emailMessage = createEmailText(this.keyword, this.springerRecords, this.library, this.date);
@@ -107,11 +112,14 @@ module.exports = (preferences) => {
 
         await mailer.sendMail(emailOptions);
 
-        await ctx.reply("Die Email ist raus. Viel Erfolg beim Lernen!");
+        await watsonSpeech.replyWithAudio(ctx, "Die Email ist raus. Viel Erfolg beim Lernen!");
+        // await ctx.reply("Die Email ist raus. Viel Erfolg beim Lernen!");
       } else {
-        await ctx.reply("Alles klar! Viel Erfolg beim Lernen!");
+        await watsonSpeech.replyWithAudio(ctx, "Alles klar! Viel Erfolg beim Lernen!");
+        await ctx.reply("👋🏼");
       }
     } catch (error) {
+      console.error(error);
       ctx.reply("🙆‍ Da ist mir ein Fehler unterlaufen. Versuche es noch mal!");
     }
   };
