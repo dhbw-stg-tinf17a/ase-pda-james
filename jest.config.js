@@ -43,6 +43,7 @@ module.exports = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
+
   coverageThreshold: {
     "global": {
       "branches": 50,
@@ -51,7 +52,6 @@ module.exports = {
       "statements": 50
     },
   },
-
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
 
