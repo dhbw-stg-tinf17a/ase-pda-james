@@ -15,11 +15,11 @@ module.exports = {
         },
         {
             "name": "calcTime",
-            "value": "191.151"
+            "value": "179.694"
         },
         {
             "name": "serverTime",
-            "value": "2020-04-08T15:11:18"
+            "value": "2020-04-18T10:05:59"
         }
     ],
     "itdMessageList": [],
@@ -734,14 +734,14 @@ module.exports = {
     },
     "addOdvs": null,
     "dateTime": {
-        "deparr": "arr",
+        "deparr": "dep",
         "ttpFrom": "20191215",
         "ttpTo": "20201212",
         "year": "2020",
         "month": "4",
-        "day": "2",
-        "hour": "9",
-        "minute": "0"
+        "day": "18",
+        "hour": "10",
+        "minute": "5"
     },
     "option": {
         "ptOption": {

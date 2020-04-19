@@ -13,11 +13,11 @@ function resDateConverter(date, time) {
 
   return moment({
     years: year,
-    months: month,
+    months: month - 1, // months are 0-indexed ('0' is January, '1' is February, etc.)
     date: day,
     hours: hours,
     minutes: minutes,
-  }).toISOString();
-};
+  }).toISOString(true);
+}
 
 module.exports = {resDateConverter};

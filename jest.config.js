@@ -43,8 +43,15 @@ module.exports = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: undefined,
 
+  coverageThreshold: {
+    "global": {
+      "branches": 50,
+      "functions": 50,
+      "lines": 50,
+      "statements": 50
+    },
+  },
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
 
@@ -64,7 +71,7 @@ module.exports = {
   // globals: {},
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
-  // maxWorkers: "50%",
+  // maxWorkers: 8,
 
   // An array of directory names to be searched recursively up from the requiring module's location
   // moduleDirectories: [
@@ -192,6 +199,8 @@ module.exports = {
     "/coverage/",
     "/jest.config.js",
     "__fixtures__",
+    "/validation/",
+    "/app/services/__mocks__/",
   ],
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
