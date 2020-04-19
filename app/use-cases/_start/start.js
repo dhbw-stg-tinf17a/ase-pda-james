@@ -68,6 +68,7 @@ module.exports = (preferences, oAuth2Client) => {
         }
       }
     }).catch((err) => {
+      console.error(err);
       ctx.reply("Sorry, die Adresse wurde nicht gefunden. Starte den Prozess neu mit \"start\"");
     });
   };
@@ -105,7 +106,8 @@ module.exports = (preferences, oAuth2Client) => {
           ctx.reply(`Sorry, ich konnte deine ${stopString} nicht speichern...`);
         });
       }
-    }).catch((error) => {
+    }).catch((err) => {
+      console.error(err);
       ctx.reply("Sorry, jetzt gab es ein Problem");
     });
   };

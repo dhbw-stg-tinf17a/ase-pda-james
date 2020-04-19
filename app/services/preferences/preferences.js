@@ -3,7 +3,7 @@ module.exports = function (db) {
     return new Promise((resolve, reject) => {
       db.collection("preferences").findOne({}).then((prefs) => {
         if (!prefs) {
-          db.collection("preferences").insertOne({}, function (err, res) {
+          db.collection("preferences").insertOne({}, (err) => {
             if (err) {
               reject(err);
             } else {

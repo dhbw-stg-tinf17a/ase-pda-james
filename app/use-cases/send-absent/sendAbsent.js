@@ -5,8 +5,6 @@ const { createEmailText, createEmailOptions, setAbsentTimes } = require("./sendA
 
 module.exports = (preferences, oAuthClient) => {
   const gcalendar = require("../../services/api/gcalendar/gcalendar")(preferences, oAuthClient);
-  let lectureCalId;
-  let homeAddress;
   let absentTimes = {};
   this.onUpdate = (ctx, waRes) => {
     switch (waRes.generic[0].text) {

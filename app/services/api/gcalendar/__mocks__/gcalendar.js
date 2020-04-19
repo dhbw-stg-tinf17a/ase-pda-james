@@ -1,4 +1,4 @@
-module.exports = (db) => {
+module.exports = () => {
   return {
     authenticateUser: (ctx) => {
       if (!ctx) {

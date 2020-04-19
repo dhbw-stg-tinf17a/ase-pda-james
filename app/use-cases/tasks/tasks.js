@@ -5,14 +5,14 @@ module.exports = function (preferences, oAuth2Client) {
   const gsearch = require("../../services/api/gsearch/gsearch");
 
   this.onUpdate = (ctx, waRes) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (waRes.generic[0].text === "tasks_show") {
         msTodo.getTodos().then((todos) => {
           // show tasks to user
           let inlineKeyboardMarkup = { inline_keyboard: [[]] };
           let toSend = "Du hast folgende Aufgaben offen:\n";
           if (todos.length != 0) {
-            todos.forEach((todo, i) => {
+            todos.forEach((todo) => {
               toSend += `- ${todo.Subject}\n`;
             });
 
@@ -73,7 +73,7 @@ module.exports = function (preferences, oAuth2Client) {
   };
 
   this.onCallbackQuery = (ctx) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const data = ctx.callbackQuery.data.substr("tasks_".length);
 
       const type = data.split("_")[0];

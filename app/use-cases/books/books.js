@@ -1,8 +1,8 @@
-const watsonSpeech = require("../services/watsonSpeech")();
-const springer = require("../services/springer");
-const mailer = require("../services/mailer")();
-const gPlaces = require("../services/gplaces")();
-const {createEmailText, createEmailOptions} = require("../utils/bookHelpers");
+const watsonSpeech = require("../../modules/watson-speech/watsonSpeech")();
+const springer = require("../../services/api/springer/springer");
+const mailer = require("../../services/mailer/mailer")();
+const gPlaces = require("../../services/api/gplaces/gplaces")();
+const { createEmailText, createEmailOptions } = require("./books.util");
 const Markup = require("telegraf/markup"); // Telegram answer button handling
 
 module.exports = (preferences) => {
@@ -21,7 +21,6 @@ module.exports = (preferences) => {
    * @param {string} address
    * @return {string}
    */
-  this.formatLibraryInfo = ({name, address}) => {
   this.formatLibraryInfo = ({ name, address }) => {
     if (!name && !address) {
       throw new Error("Falsche Parameter");

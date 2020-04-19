@@ -29,7 +29,7 @@ module.exports = () => {
           const err = new error.VvsUnresolvableKeywordError("The query is not valid. " +
             "Please provide a valid query or try again.", key);
 
-          reject(err);
+          return reject(err);
         }
 
         // Query keyword ambiguous
@@ -43,7 +43,7 @@ module.exports = () => {
           const err = new error.VvsMultiplePointsError("The query returns multiple addresses. " +
             "Please specify your city in your query.\n", points);
 
-          reject(err);
+          return reject(err);
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ module.exports = () => {
         if (!res.data.trips) {
           error.VvsInvalidParametersError.prototype = Object.create(Error.prototype);
           const err = new error.VvsInvalidParametersError("The entered parameters are invalid.", apiParams);
-          reject(err);
+          return reject(err);
         }
         const tripRes = res.data.trips.trip;
         const trip = {};

@@ -29,7 +29,7 @@ describe("addCredentialsToClient", () => {
   test("throws error if preferences does not return", async () => {
     const oAuth2Client = {};
     const preferences = {
-      get: jest.fn((key) => Promise.reject(new Error())),
+      get: jest.fn(() => Promise.reject(new Error())),
     };
 
     addCredentialsToClient = require("./gcalendar")(preferences, oAuth2Client).addCredentialsToClient;

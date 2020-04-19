@@ -3,7 +3,7 @@ const moment = require("moment");
 const gPlacesDetailEndpoint = "https://maps.googleapis.com/maps/api/place/details/json";
 const gPlacesTextSearchEndpoint = "https://maps.googleapis.com/maps/api/place/textsearch/json";
 const gPlacesNearbySearchEndpoint = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
-const e = require("./gplacesErrors");
+const e = require("./gplaces.error");
 
 
 module.exports = function () {

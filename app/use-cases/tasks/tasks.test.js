@@ -1,7 +1,5 @@
 const msTodo = require("../../services/api/todo/todo");
-const gcal = require("../../services/api/gcalendar/gcalendar");
 const preferences = require("../../services/preferences/preferences");
-const gsearch = require("../../services/api/gsearch/gsearch");
 
 jest.mock("../../services/api/gsearch/gsearch");
 jest.mock("../../services/api/gcalendar/gcalendar");

@@ -4,12 +4,12 @@ let mockSet;
 
 describe("onCallback(...) tests", () => {
   beforeEach(() => {
-    mockSet = jest.fn((key, data) => {
-      return new Promise((resolve, reject) => {
+    mockSet = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve();
       });
     });
-    mockReply = jest.fn((msg, param) => {});
+    mockReply = jest.fn(() => {});
 
     const preferences = { set: mockSet, get: () => {} };
     start = require("./start")(preferences, null, null);
@@ -114,12 +114,12 @@ describe("onCallback(...) tests", () => {
 
 describe("onUpdate(...) tests", () => {
   beforeEach(() => {
-    mockSet = jest.fn((key, data) => {
-      return new Promise((resolve, reject) => {
+    mockSet = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve();
       });
     });
-    mockReply = jest.fn((msg, param) => {});
+    mockReply = jest.fn(() => {});
 
     const preferences = { get: () => "{}", set: mockSet };
     start = require("./start")(preferences, {});
@@ -203,12 +203,12 @@ describe("onUpdate(...) tests", () => {
 
 describe("Wrapper functions tests", () => {
   beforeEach(() => {
-    mockSet = jest.fn((key, data) => {
-      return new Promise((resolve, reject) => {
+    mockSet = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve();
       });
     });
-    mockReply = jest.fn((msg, param) => {
+    mockReply = jest.fn(() => {
     });
 
     const preferences = { set: mockSet };
@@ -218,7 +218,7 @@ describe("Wrapper functions tests", () => {
   test("_setHomeAddress(...) resolves with single-element array", async () => {
     const ctx = { reply: mockReply };
     start._homeAddresses = [];
-    const promise = new Promise(((resolve, reject) => {
+    const promise = new Promise(((resolve) => {
       resolve({
         results: [
           { place_id: "a", formatted_address: "test", geometry: { location: { lng: "49.0", lat: "8.0" } } },
@@ -232,7 +232,7 @@ describe("Wrapper functions tests", () => {
   test("_setHomeAddress(...) resolves with multi-element array", async () => {
     const ctx = { reply: mockReply };
     start._homeAddresses = [];
-    const promise = new Promise(((resolve, reject) => {
+    const promise = new Promise(((resolve) => {
       resolve({
         results: [
           { place_id: "a", formatted_address: "test", geometry: { location: { lng: "49.0", lat: "8.0" } } },
@@ -253,7 +253,7 @@ describe("Wrapper functions tests", () => {
 
   test("_setStop(...) resolves with single stop element", async () => {
     const ctx = { reply: mockReply };
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve) => {
       resolve({ stopID: 4711, name: "Sample Stop" });
     });
     await start._setStop(promise, ctx, "sid", "Haltestelle zuhause");
@@ -262,7 +262,7 @@ describe("Wrapper functions tests", () => {
 
   test("_setStop(...) resolves with array", async () => {
     const ctx = { reply: mockReply };
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve) => {
       resolve([
         { stopID: 4711, name: "Sample Stop" },
         { stopID: 1337, name: "Yeet Stop" },
@@ -275,7 +275,7 @@ describe("Wrapper functions tests", () => {
   test("_setUniAddress(...) resolves with single-element array", async () => {
     const ctx = { reply: mockReply };
     start._uniAddresses = [];
-    const promise = new Promise(((resolve, reject) => {
+    const promise = new Promise(((resolve) => {
       resolve({
         results: [
           { place_id: "a", formatted_address: "test" },
@@ -289,7 +289,7 @@ describe("Wrapper functions tests", () => {
 
   test("_setCalendar(...) resolves with single-element array", async () => {
     const ctx = { reply: mockReply };
-    const promise = new Promise(((resolve, reject) => {
+    const promise = new Promise(((resolve) => {
       resolve([
         { id: "a", summary: "test" },
         { id: "b", summary: "test" },

@@ -20,18 +20,20 @@ module.exports = function (app, preferences, ctx, oAuth2Client) {
             res.send("Danke, bitte kehre zurück zu Telegram.");
             todo.chooseFolder(ctx, chatId);
           }).catch((err) => {
-            res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
+            console.error(err);
+            res.status(500).send("Entschuldige, die Authentifizierung über Microsoft hat nicht funktioniert.");
           });
         }).catch((err) => {
-          res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
+          console.error(err);
+          res.status(500).send("Entschuldige, die Authentifizierung über Microsoft hat nicht funktioniert.");
         });
       }).catch((err) => {
         console.error(err);
-        res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
+        res.status(500).send("Entschuldige, die Authentifizierung über Microsoft hat nicht funktioniert.");
       });
     }).catch((err) => {
       console.error(err);
-      res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
+      res.status(500).send("Entschuldige, die Authentifizierung über Microsoft hat nicht funktioniert.");
     });
   });
 

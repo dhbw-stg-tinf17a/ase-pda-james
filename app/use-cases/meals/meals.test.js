@@ -1,22 +1,22 @@
 let meals;
 let ctx;
 const DB_KEY_LAST_FOOD = "meals_last_food";
-const mockSet = jest.fn((key, data) => {
-  return new Promise((resolve, reject) => {
+const mockSet = jest.fn(() => {
+  return new Promise((resolve) => {
     resolve();
   });
 });
 
-const mockGet = jest.fn((key, data) => {
-  return new Promise((resolve, reject) => {
+const mockGet = jest.fn(() => {
+  return new Promise((resolve) => {
     resolve("data");
   });
 });
 
-const mockReply = jest.fn((msg, param) => {
+const mockReply = jest.fn(() => {
 });
 
-const mockCallback = jest.fn((x) => {
+const mockCallback = jest.fn(() => {
 });
 
 let preferences;
@@ -25,9 +25,9 @@ let preferences;
 const spyNumber = jest.fn(() => 42);
 
 jest.doMock("../../services/api/gcalendar/gcalendar", () => {
-  return jest.fn((preferences) => {
+  return jest.fn(() => {
     this.getTimeUntilNextEvent = () => {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         resolve(spyNumber());
       });
     };
@@ -54,7 +54,7 @@ describe("meals", () => {
   });
 
   test("replyMealsStart(...)", async () => {
-    const promise = new Promise(((resolve, reject) => {
+    const promise = new Promise(((resolve) => {
       resolve({
         start: "17",
       });
@@ -76,12 +76,12 @@ describe("meals", () => {
   });
 
   test("replyMealsStart(...) preferences not set", async () => {
-    const promise = new Promise(((resolve, reject) => {
+    const promise = new Promise(((resolve) => {
       resolve("17");
     }));
 
-    const replyMealsStartGet = jest.fn((key, data) => {
-      return new Promise((resolve, reject) => {
+    const replyMealsStartGet = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve(null);
       });
     });

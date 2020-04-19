@@ -11,6 +11,7 @@
      "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
      "linebreak-style":0,
      "guard-for-in":0,
+     "prefer-promise-reject-errors": 0,
      "no-whitespace-before-property": "error",
      "space-before-function-paren": ["error",
        {"anonymous": "always", "named": "never", "asyncArrow": "always"}
@@ -20,7 +21,6 @@
      "spaced-comment": "error",
      "object-curly-spacing": ["error", "always"],
      "func-call-spacing": ["error", "never"],
-     "max-params": ["error", 3],
      "prefer-arrow-callback": "error",
      "arrow-spacing": "error",
      "prefer-template": "error",

@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const e = require("./mailerErrors");
+const e = require("./mailer.error");
 module.exports = function () {
   this.sendMail = (mail) => {
     return new Promise((resolve, reject) => {

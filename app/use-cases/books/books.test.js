@@ -1,6 +1,6 @@
-const springerResponse = require("../../__fixtures__/springerResponse");
-const getPlacesResponse = require("../../__fixtures__/gplacesResponse");
-const getPlaceByIdResponse = require("../../__fixtures__/gplacesIdResponse");
+const springerResponse = require("../../../test/__fixtures__/springerResponse");
+const getPlacesResponse = require("../../../test/__fixtures__/gplacesResponse");
+const getPlaceByIdResponse = require("../../../test/__fixtures__/gplacesIdResponse");
 
 describe("onUpdate", () => {
   let onUpdate;
@@ -14,22 +14,22 @@ describe("onUpdate", () => {
     jest.resetModules();
     jest.resetAllMocks();
 
-    jest.doMock("../services/gplaces", () => {
+    jest.doMock("../../services/api/gplaces/gplaces", () => {
       return () => ({
         getPlaces: jest.fn().mockResolvedValue(getPlacesResponse),
         getPlaceById: jest.fn().mockResolvedValue(getPlaceByIdResponse),
       });
     });
 
-    jest.doMock("../services/springer", () => {
+    jest.doMock("../../services/api/springer/springer", () => {
       return {
         getByKeyword: jest.fn().mockResolvedValue(springerResponse),
       };
     });
 
     replyWithAudioFn = jest.fn();
-    jest.doMock("../services/watsonSpeech", () => {
-      return function() {
+    jest.doMock("../../modules/watson-speech/watsonSpeech", () => {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFn,
         };
@@ -60,7 +60,7 @@ describe("onUpdate", () => {
   test("switches to welcome", async () => {
     const waRes = {
       generic: [
-        {text: "book_welcome"},
+        { text: "book_welcome" },
       ],
     };
 
@@ -72,7 +72,7 @@ describe("onUpdate", () => {
   test("switches to which-day", async () => {
     const waRes = {
       generic: [
-        {text: "book_which-day"},
+        { text: "book_which-day" },
       ],
     };
 
@@ -84,7 +84,7 @@ describe("onUpdate", () => {
   test("switches to slots", async () => {
     const waRes = {
       generic: [
-        {text: "book_slots"},
+        { text: "book_slots" },
       ],
       context: {
         keyword: "test",
@@ -107,7 +107,7 @@ describe("onUpdate", () => {
   test("switches to default", async () => {
     const waRes = {
       generic: [
-        {text: "book_somerandomstuff"},
+        { text: "book_somerandomstuff" },
       ],
     };
 
@@ -129,13 +129,13 @@ describe("onCallbackQuery", () => {
     jest.resetModules();
     jest.resetAllMocks();
 
-    jest.doMock("../services/mailer", () => {
+    jest.doMock("../../services/mailer/mailer", () => {
       return () => ({
         sendMail: jest.fn(),
       });
     });
 
-    jest.doMock("../utils/bookHelpers", () => {
+    jest.doMock("./books.util", () => {
       return {
         createEmailText: jest.fn(),
         createEmailOptions: jest.fn(),
@@ -153,8 +153,8 @@ describe("onCallbackQuery", () => {
     };
 
     replyWithAudioFn = jest.fn();
-    jest.doMock("../services/watsonSpeech", () => {
-      return function() {
+    jest.doMock("../../modules/watson-speech/watsonSpeech", () => {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFn,
         };
@@ -173,7 +173,7 @@ describe("onCallbackQuery", () => {
     const ctx = {
       reply: replyFn,
       replyWithHTML: replyWithHtmlFn,
-      callbackQuery: {data: "book_yes"},
+      callbackQuery: { data: "book_yes" },
     };
 
     await onCallbackQuery(ctx);
@@ -188,7 +188,7 @@ describe("onCallbackQuery", () => {
     const ctx = {
       reply: replyFn,
       replyWithHTML: replyWithHtmlFn,
-      callbackQuery: {data: "book_no"},
+      callbackQuery: { data: "book_no" },
     };
 
     await onCallbackQuery(ctx);
@@ -206,7 +206,7 @@ describe("formatLibraryInfo", () => {
   });
 
   test("creates the right string with parameters", () => {
-    const text = formatLibraryInfo({name: "Bibliothek", address: "Bei mir zu Hause"});
+    const text = formatLibraryInfo({ name: "Bibliothek", address: "Bei mir zu Hause" });
 
     expect(text).toBe(`
       Die nächste Bibliothek von dir zu Hause ist die "<b>Bibliothek</b>".\nDie Adresse lautet: Bei mir zu Hause.
@@ -225,8 +225,8 @@ describe("formatArticleResults", () => {
 
   test("creates the right string with parameters", () => {
     const articles = [
-      {url: [{value: "xyz"}], title: "Test article"},
-      {url: [{value: "abc"}], title: "Test article 2"},
+      { url: [{ value: "xyz" }], title: "Test article" },
+      { url: [{ value: "abc" }], title: "Test article 2" },
     ];
 
     const text = formatArticleResults(articles);

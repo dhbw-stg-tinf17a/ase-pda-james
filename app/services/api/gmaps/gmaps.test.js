@@ -89,13 +89,6 @@ describe("gmaps test cases", () => {
 });
 
 describe("gmaps helper functions", () => {
-  let gmaps;
-
-  beforeEach(() => {
-    gmaps = require("./gmaps");
-  });
-
-
   test("gmaps.getGoogleMapsRedirectionURL has content", () => {
     const config = {
       origin: "Stuttgart Hauptbahnhof",

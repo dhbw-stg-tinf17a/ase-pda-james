@@ -1,23 +1,20 @@
-const axios = require("axios");
-// const getTodosResponse = require("../../__fixtures__/todo/getTodos");
-
-const findOne = jest.fn((searchParams) => new Promise((resolve, reject) => {
+const findOne = jest.fn(() => new Promise((resolve) => {
   resolve({
     answerToUniverseAndEverything: 42,
   });
 }));
 
-const count = jest.fn((searchParams) => new Promise((resolve, reject) => {
+const count = jest.fn(() => new Promise((resolve) => {
   resolve(1);
 }));
 
-const updateOne = jest.fn((searchParams, update) =>
-  new Promise((resolve, reject) => {
+const updateOne = jest.fn(() =>
+  new Promise((resolve) => {
     resolve();
   }));
 
 const db = {
-  collection: jest.fn((colName) => {
+  collection: jest.fn(() => {
     return {
       findOne,
       count,

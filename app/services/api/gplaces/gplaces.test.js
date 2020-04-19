@@ -132,7 +132,8 @@ describe("gplaces isPlaceOpen", () => {
 
   test("if addresses get formatted", () => {
     axios.get.mockResolvedValue({ data: searchIdResponse });
-    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", { maxTime: "2020-04-07T17:30:00+02:00", minTime: "2020-04-07T15:30:00+02:00" })
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7",
+        { maxTime: "2020-04-07T17:30:00+02:00", minTime: "2020-04-07T15:30:00+02:00" })
         .then((data) => {
           expect(gplaces.minTimeDay).toEqual(2);
           expect(gplaces.minTimeHour).toEqual(1530);
@@ -145,7 +146,8 @@ describe("gplaces isPlaceOpen", () => {
 
   test("if addresses get formatted", () => {
     axios.get.mockResolvedValue({ data: searchIdResponse });
-    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", { maxTime: "2020-04-07T17:35:00+02:00", minTime: "2020-04-07T15:30:00+02:00" })
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7",
+        { maxTime: "2020-04-07T17:35:00+02:00", minTime: "2020-04-07T15:30:00+02:00" })
         .then(() => {
           throw new Error("Should be closed");
         })
@@ -156,7 +158,8 @@ describe("gplaces isPlaceOpen", () => {
 
   test("if addresses get formatted", () => {
     axios.get.mockResolvedValue({ data: searchIdResponse });
-    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", { maxTime: "2020-04-05T17:30:00+02:00", minTime: "2020-04-05T15:30:00+02:00" })
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7",
+        { maxTime: "2020-04-05T17:30:00+02:00", minTime: "2020-04-05T15:30:00+02:00" })
         .then(() => {
           throw new Error("Should be closed");
         })
@@ -167,7 +170,8 @@ describe("gplaces isPlaceOpen", () => {
 
   test("if addresses get formatted", () => {
     axios.get.mockResolvedValue({ data: searchIdResponse });
-    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7", { maxTime: "2020-04-08T17:30:00+02:00", minTime: "2020-04-07T15:30:00+02:00" })
+    return gplaces.isPlaceOpen("4f89212bf76dde31f092cfc14d7506555d85b5c7",
+        { maxTime: "2020-04-08T17:30:00+02:00", minTime: "2020-04-07T15:30:00+02:00" })
         .then(() => {
           throw new Error("Should be closed");
         })

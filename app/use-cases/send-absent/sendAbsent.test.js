@@ -471,7 +471,6 @@ describe("findPharmacy", () => {
   let getPlaceByIdFunction;
   let findPharmacy;
   let getFunction;
-  let preferences;
   const replyFunc = jest.fn((message) => message);
 
   beforeEach(() => {
