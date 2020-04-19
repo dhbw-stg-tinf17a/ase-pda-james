@@ -1,113 +1,132 @@
-const moment = require("moment"); // date manipulation library
 const watsonSpeech = require("../services/watsonSpeech")(); // voice I/O handling
-const speak = require("../../app/waResponses.js").uniNotifier(); // constant answers for voice assistant
 
+const dialog = require("./uniNotifier.resp.js")(); // constant answers for voice assistant
+const util = require("./uniNotifier.util.js")();
+
+const moment = require("moment"); // date manipulation library
+moment.locale("de"); // set dates to German standard
 
 module.exports = (preferences, oAuth2Client) => {
-  // const prefs = require("../services/preferences.js")(db);
   const vvs = require("../services/vvs/vvs.js")();
   const maps = require("../services/gmaps.js");
   const cal = require("../services/gcalendar.js")(preferences, oAuth2Client);
-  moment.locale("de");
 
-  // ==== TEMPORARY: getting and setting preferences ===================================================================
-  let homeAddr;
-  let uniAddr;
-  let commutePref;
-  let lectureCal;
-
-  preferences.get("home_address").then((res) => {
-    homeAddr = res;
-  });
-  preferences.get("uni_address").then((res) => {
-    uniAddr = res;
-  });
-  preferences.get("commute").then((res) => {
-    commutePref = res;
-  });
-  preferences.get("lecture_cal_id").then((res) => {
-    lectureCal = res;
-  });
   // ===================================================================================================================
-
+  // WATSON ASSISTANT DIALOG HANDLING
+  // ===================================================================================================================
   this.onUpdate = async function(ctx, waRes) {
     // check if WA intent corresponds
     if (waRes.generic[0].text !== "uniNotifier_welcome") {
       return new Error("Unknown intent.");
     }
 
-    watsonSpeech.replyWithAudio(ctx, speak.firstResponse);
+    ctx.replyWithHTML(dialog.firstResponse);
 
+    const commutePref = await preferences.get("commute");
     const validCommutePrefs = ["driving", "walking", "bicycling", "vvs"];
     if (!validCommutePrefs.includes(commutePref)) {
       return new Error("Invalid preference.");
     }
 
+    const lectureCal = await preferences.get("lecture_cal_id");
     const nextLectures = await cal.getNextEvents(lectureCal);
+
+    if (nextLectures.length === 0) {
+      ctx.replyWithHTML(dialog.calEmpty);
+      return new Error("Lecture Calendar is empty.");
+    }
+
     const nextLecture = nextLectures[0]; // first API response element always returns next or current lecture
 
     const timeParams = {
-      currentTime: moment(),
+      currentTime: moment().toISOString(true),
       lectureStart: moment(nextLecture.start.dateTime),
-      buffer: 10,
+      lectureEnd: moment(nextLecture.end.dateTime),
+      arrBuffer: 10,
+      commuteDuration: null, // to be filled after API call
     };
 
     // ==== TRANSIT CASE ===============================================================================================
     if (commutePref === "vvs") {
-      const origin = await vvs.getStopByKeyword(homeAddr);
-      const destination = await vvs.getStopByKeyword(uniAddr);
+      const origin = await preferences.get("home_stop_id");
+      const destination = await preferences.get("uni_stop_id");
+      let trip;
 
       const tripParams = {
-        originId: origin.stopID,
-        destinationId: destination.stopID,
-        date: moment(timeParams.lectureStart.subtract(timeParams.buffer, "minutes")),
+        originId: origin,
+        destinationId: destination,
+        date: moment(timeParams.lectureStart.subtract(timeParams.arrBuffer, "minutes")),
         isArrTime: true,
       };
 
+      const transitTimeParams = {
+        depTime: null, // to be filled after API call
+        arrTime: null, // to be filled after API call
+        depBuffer: 10,
+        lateDepBuffer: 3,
+      };
+
       vvs.getTrip(tripParams).then((res) => {
-        const trip = res[2]; // third API response element always returns closest arrival to desired arrival
+        trip = res;
+        const legs = trip.legs;
+        const legAmt = legs.length;
+        const lastLeg = legs[legAmt - 1];
+
+        // receive departure and arrival information
+        transitTimeParams.depTime = moment(legs[0].start.date);
+        transitTimeParams.arrTime = moment(lastLeg.end.date);
         timeParams.commuteDuration = trip.duration;
 
-        if (late(timeParams)) {
-          watsonSpeech.replyWithAudio(ctx, speak.transitLate);
-        } else if (early(timeParams)) {
-          watsonSpeech.replyWithAudio(ctx, speak.early);
-        } else /* if on time */ {
-          const legs = trip.legs;
-          const legAmt = legs.length;
-          const lastLeg = legs[legAmt - 1];
-          const depTime = legs[0].start.date;
-          const arrTime = lastLeg.end.date;
+        if (util.transitLate(transitTimeParams)) {
+          // set new departure time to now incl. short buffer to reach first stop
+          tripParams.date = moment(timeParams.currentTime).add(transitTimeParams.lateDepBuffer, "minutes");
+          tripParams.isArrTime = false; // API calculates departures at the given time
 
+          vvs.getTrip(tripParams).then((res) => {
+            trip = res;
+            const legs = trip.legs;
+            const legAmt = legs.length;
+            const lastLeg = legs[legAmt - 1];
+
+            // update departure and arrival information
+            transitTimeParams.depTime = moment(legs[0].start.date);
+            transitTimeParams.arrTime = moment(lastLeg.end.date);
+            timeParams.commuteDuration = trip.duration;
+
+            if (util.lectureEndsOnArrival(timeParams)) {
+              return watsonSpeech.replyWithAudio(ctx, dialog.lectureEndsBeforeArrival);
+            }
+
+            // calculate full minutes until the first connection leaves the stop
+            const timeToLeave = util.timeToLeave(transitTimeParams.depTime, timeParams.currentTime);
+            // calculate the minutes the user is approx. going to be late for class
+            const minutesLate = util.minutesLate(transitTimeParams.arrTime, timeParams.lectureStart);
+
+            watsonSpeech.replyWithAudio(ctx, dialog.transitLate(timeToLeave)).then(() => {
+              ctx.replyWithHTML(dialog.minutesLate(minutesLate));
+              ctx.replyWithHTML(util.printItinerary(trip));
+            });
+          });
+        } else if (util.early(timeParams)) {
+          watsonSpeech.replyWithAudio(ctx, dialog.early);
+        } else /* if on time */ {
           let interchanges = legAmt - 1;
           if (interchanges === 1) interchanges = "ein";
 
-          const speakableTime = getSpeakableTimes(depTime, arrTime);
+          const speakableTime = util.getSpeakableTimes(transitTimeParams.depTime, transitTimeParams.arrTime);
 
-          watsonSpeech.replyWithAudio(ctx, speak.transitOnTime(
+          watsonSpeech.replyWithAudio(ctx, dialog.transitOnTime(
               speakableTime.dep, legs[0].start.stopName, speakableTime.arr,
               lastLeg.end.stopName, timeParams.commuteDuration, interchanges,
-          ));
-          // TODO: Formatted summary of transit itinerary.
+          )).then(() => ctx.replyWithHTML(util.printItinerary(trip)));
         }
       }).catch((err) => {
         switch (err.name) {
-          case "VvsMultiplePointsError":
-            ctx.reply(
-                "Eine oder mehrere Adresse(n) innerhalb Deiner Präferenzen sorgen für mehrdeutige Ergebnisse." +
-                "Die Adresse(n) müssen genauer in den Präferenzen angegeben werden",
-            );
-            break;
-          case "VvsUnresolvableKeywordError":
-            ctx.reply(
-                "Eine oder mehrere Adresse(n) innerhalb Deiner Präferenzen sorgen für keine Ergebnisse." +
-                "Bitte überprüfe Deine Adresse(n) in Präferenzen auf mögliche Tippfehler",
-            );
-            break;
           case "VvsInvalidParametersError":
-            ctx.reply(
-                "Die Suchparameter sind nicht gültig. Das ist ein internes Problem der Anwendung.",
-            );
+            ctx.reply(`
+                Die Suchparameter sind nicht gültig. Das ist ein internes Problem der Anwendung und erfordert\ 
+                    vermutlich eine Neukonfiguration mithilfe der Eingabe von <b>/start<b></b>.
+           `);
             break;
           default:
             ctx.reply("Beim VVS-Service ist etwas schiefgelaufen. Versuche es nochmal.");
@@ -116,29 +135,42 @@ module.exports = (preferences, oAuth2Client) => {
       });
     // ==== NON-TRANSIT CASE ===========================================================================================
     } else {
+      const homeAddr = await preferences.get("home_address");
+      const uniAddr = await preferences.get("uni_address");
+
       const tripParams = {
         origin: homeAddr,
         destination: uniAddr,
         travelMode: commutePref,
-        arrivalTime: timeParams.lectureStart - timeParams.buffer,
+        arrivalTime: moment(timeParams.lectureStart).subtract(timeParams.buffer, "minutes"),
       };
 
       maps.getDirections(tripParams).then((res) => {
-        timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]);
-        const speakableDeparture = getSpeakableDeparture(timeParams);
+        // convert duration string to integer
+        timeParams.commuteDuration = parseInt(res.duration.split(" ")[0]); // TODO: Fix splitting with hours
+        const speakableDeparture = util.getSpeakableDeparture(timeParams);
         const routeUrl = maps.getGoogleMapsRedirectionURL(uniAddr);
 
-        if (late(timeParams)) {
-          watsonSpeech(ctx, speak.nonTransitLate);
-        } else if (early(timeParams)) {
-          watsonSpeech.replyWithAudio(ctx, speak.early);
-        } else /* if on time */ {
-          watsonSpeech.replyWithAudio(ctx, speak.nonTransitOnTime(speakableDeparture));
-          console.log(maps.getGoogleMapsRedirectionURL(uniAddr));
-        }
+        const estimatedArrival = moment(timeParams.currentTime)
+            .add(timeParams.commuteDuration, "minutes")
+            .add(timeParams.arrBuffer, "minutes");
+        const lateTime = util.minutesLate(estimatedArrival, timeParams.lectureStart);
 
-        watsonSpeech.replyWithAudio(ctx, speak.googleMapsUrl);
-        ctx.reply(routeUrl);
+        if (util.nonTransitLate(timeParams)) {
+          if (util.lectureEndsOnArrival(timeParams)) {
+            return watsonSpeech.replyWithAudio(ctx, dialog.lectureEndsBeforeArrival);
+          }
+          watsonSpeech.replyWithAudio(ctx, dialog.nonTransitLate(lateTime)).then(() => {
+            ctx.replyWithHTML(dialog.minutesLate(lateTime));
+            ctx.replyWithHTML(dialog.googleMapsUrl(routeUrl));
+          });
+        } else if (util.early(timeParams)) {
+          watsonSpeech.replyWithAudio(ctx, dialog.early);
+        } else /* if on time */ {
+          watsonSpeech.replyWithAudio(ctx, dialog.nonTransitOnTime(speakableDeparture)).then(() => {
+            ctx.replyWithHTML(dialog.googleMapsUrl(routeUrl));
+          });
+        }
       }).catch(() => {
         return ctx.reply("Beim Google-Maps-Service ist etwas schiefgelaufen. Versuche es nochmal.");
       });
@@ -146,44 +178,3 @@ module.exports = (preferences, oAuth2Client) => {
   };
   return this;
 };
-
-// checks if lecture start (incl. buffer) has already taken place
-function late(timeParams) {
-  return timeParams.lectureStart
-      .subtract(timeParams.buffer, "minutes")
-      .isSameOrBefore(moment(timeParams.currentTime)
-          .add(timeParams.commuteDuration, "minutes"));
-}
-
-// checks if lecture start occurs later than in six days (next weekday speakable)
-function early(timeParams) {
-  return timeParams.lectureStart.
-      isAfter(moment(timeParams.currentTime)
-          .add(6, "days")
-          .endOf("day"));
-}
-
-// returns speakable departure and arrival times for transit
-function getSpeakableTimes(depTime, arrTime) {
-  return {
-    dep: moment(depTime).calendar(moment(), {
-      sameDay: "[um] HH [Uhr] m",
-      nextWeek: "[am] dddd [um] HH [Uhr] m",
-      nextDay: "[morgen um] HH [Uhr] m"}),
-    arr: moment(arrTime).calendar(moment(), {
-      sameDay: "[um] HH [Uhr] m",
-      nextWeek: "[am] dddd [um] HH [Uhr] m",
-      nextDay: "[um] HH [Uhr] m"}),
-  };
-}
-
-// returns speakable departure time for non-transit
-function getSpeakableDeparture(timeParams) {
-  return moment(timeParams.lectureStart)
-      .subtract((timeParams.buffer + timeParams.commuteDuration), "minutes")
-      .calendar(timeParams.currentTime, {
-        sameDay: "[um] HH [Uhr] m",
-        nextWeek: "[am] dddd [um] HH [Uhr] m",
-        nextDay: "[um] HH [Uhr] m"},
-      );
-}

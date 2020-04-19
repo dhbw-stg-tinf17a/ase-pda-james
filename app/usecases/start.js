@@ -32,8 +32,9 @@ module.exports = (preferences, oAuth2Client) => {
     ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
   };
 
-  // ==== INTERNAL WRAPPER FUNCTIONS FOR SERVICE RETURN HANDLING
-  // =======================================================
+  // ===================================================================================================================
+  // INTERNAL WRAPPER FUNCTIONS FOR SERVICE RETURN HANDLING
+  // ===================================================================================================================
 
   // Process service function to obtain and save home address (3)
   this._setHomeAddress = (promise, ctx) => {
@@ -224,8 +225,8 @@ module.exports = (preferences, oAuth2Client) => {
   // ===================================================================================================================
 
   // ===================================================================================================================
-  // DIALOG CALLBACK HANDLING Disclaimer: Switch case indicators are brief since Telegraf buttons can only hold 64
-  // bytes
+  // DIALOG CALLBACK HANDLING
+  // Disclaimer: Switch case indicators are brief since Telegraf buttons can only hold 64 bytes
   // ===================================================================================================================
   this.onCallbackQuery = (ctx) => {
     // remove "start_" prefix
@@ -249,8 +250,8 @@ module.exports = (preferences, oAuth2Client) => {
 
         break;
 
-        // Choose preferred travel method from list and process home stop (4 II) => (4ab) OR
-        // Choose preferred travel method from list and ask for university name (4 II) => (5)
+      // Choose preferred travel method from list and process home stop (4 II) => (4ab) OR
+      // Choose preferred travel method from list and ask for university name (4 II) => (5)
       case "tid":
         preferences.set("commute", data).catch((error) => {
           console.log(error);
@@ -265,7 +266,7 @@ module.exports = (preferences, oAuth2Client) => {
 
         break;
 
-        // OPTIONAL: Choose home stop from list and ask for university address (4a II) => (5)
+      // OPTIONAL: Choose home stop from list and ask for university address (4a II) => (5)
       case "sid":
         preferences.set("home_stop_id", data).catch((error) => {
           console.log(error);
@@ -275,8 +276,8 @@ module.exports = (preferences, oAuth2Client) => {
 
         break;
 
-        // OPTIONAL: Choose uni address from list and process uni stop (5a II) => (5cd)
-        // OPTIONAL: Choose uni address from list and ask for uni secretary email address (5a II) => (6)
+      // OPTIONAL: Choose uni address from list and process uni stop (5a II) => (5cd)
+      // OPTIONAL: Choose uni address from list and ask for uni secretary email address (5a II) => (6)
       case "uid":
         const uniAddress = this._uniAddresses[data].address;
         preferences.set("uni_address", uniAddress).catch((error) => {
@@ -291,7 +292,7 @@ module.exports = (preferences, oAuth2Client) => {
 
         break;
 
-        // OPTIONAL: Choose uni stop from list and ask for uni secretary address (5c II) => (6)
+      // OPTIONAL: Choose uni stop from list and ask for uni secretary address (5c II) => (6)
       case "usid":
         preferences.set("uni_stop_id", data).catch((error) => {
           console.log(error);
@@ -301,7 +302,7 @@ module.exports = (preferences, oAuth2Client) => {
 
         break;
 
-        // Save lecture calendar ID (8 II) => done!
+      // Save lecture calendar ID (8 II) => done!
       case "cid":
         preferences.set("lecture_cal_id", data).catch((error) => {
           console.log(error);
