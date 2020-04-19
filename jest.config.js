@@ -1,3 +1,4 @@
+/* eslint-disable */
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
@@ -27,7 +28,7 @@ module.exports = {
   // collectCoverageFrom: undefined,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "./docs/coverage",
+  coverageDirectory: "./docs/test-coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
@@ -197,10 +198,11 @@ module.exports = {
   ],
   coveragePathIgnorePatterns: [
     "/node_modules/",
-    "/coverage/",
+    "/docs/test-coverage/",
     "/jest.config.js",
     "__fixtures__",
     "__mocks__",
+    "./index.js",
   ],
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],

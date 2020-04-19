@@ -1,5 +1,4 @@
 const axios = require("axios");
-const gplaces = require("../../services/api/gplaces/gplaces")();
 
 module.exports = function (app, preferences, ctx, oAuth2Client) {
   const todo = require("../../services/api/todo/todo")(preferences);
@@ -60,11 +59,5 @@ module.exports = function (app, preferences, ctx, oAuth2Client) {
         console.error(err);
       }
     });
-  });
-  app.get("/places", (req, res) => {
-    gplaces.getPlaces({ location: "52.5200066,13.404954" }).then((result) => {
-      res.send(result);
-    },
-    ).catch((err) => res.status(500).send(err));
   });
 };

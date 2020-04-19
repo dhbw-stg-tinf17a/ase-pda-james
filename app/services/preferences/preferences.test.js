@@ -4,7 +4,7 @@ const findOne = jest.fn(() => new Promise((resolve) => {
   });
 }));
 
-const count = jest.fn(() => new Promise((resolve) => {
+const countDocuments = jest.fn(() => new Promise((resolve) => {
   resolve(1);
 }));
 
@@ -17,7 +17,7 @@ const db = {
   collection: jest.fn(() => {
     return {
       findOne,
-      count,
+      countDocuments,
       updateOne,
     };
   }),

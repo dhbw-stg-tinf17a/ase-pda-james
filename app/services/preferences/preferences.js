@@ -19,7 +19,7 @@ module.exports = function (db) {
 
   this.set = (key, value) => {
     return new Promise((resolve, reject) => {
-      db.collection("preferences").count({}).then((count) => {
+      db.collection("preferences").countDocuments({}).then((count) => {
         if (count === 0) {
           db.collection("preferences").insertOne({ [key]: value }).then(() => {
             resolve();

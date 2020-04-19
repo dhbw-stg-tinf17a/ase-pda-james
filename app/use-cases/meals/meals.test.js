@@ -93,7 +93,7 @@ describe("meals", () => {
   test("onUpdate(...) default", () => {
     const waRes = { generic: [{ text: "abc" }] };
     meals.onUpdate(ctx, waRes);
-    expect(mockReply).toHaveBeenCalledWith("Ups, da ist etwas schiefgelaufen...");
+    expect(mockReply).toHaveBeenCalledWith("Sorry, jetzt ist etwas schiefgelaufen!");
   });
 
   test("onUpdate(...) meals_start_with_food catch", () => {
@@ -106,12 +106,12 @@ describe("meals", () => {
   });
 
 
-  test("onUpdate(...) meals_food_only", () => {
+  test("onUpdate(...) meals_food_only", async () => {
     const waRes = { generic: [{ text: "meals_food_only" }], entities: [{ value: "Test" }] };
     meals._replyPlaces = mockCallback;
-    meals.onUpdate(ctx, waRes);
-    expect(mockCallback).toHaveBeenCalled();
-    expect(mockCallback).toHaveBeenCalledWith(ctx, "Test", preferences);
+    await meals.onUpdate(ctx, waRes);
+    expect(meals._replyPlaces).toBeCalled();
+    expect(meals._replyPlaces).toHaveBeenCalledWith(ctx, "Test", preferences);
   });
 
   test("onUpdate(...) meals_food_only catch", () => {
