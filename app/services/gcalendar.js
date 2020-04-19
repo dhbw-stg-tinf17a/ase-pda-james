@@ -2,7 +2,17 @@ const {google} = require("googleapis");
 const {busyToFree, calculateTimeUntilEvent} = require("../utils/calendarHelpers");
 const moment = require("moment");
 
+/**
+ * @typedef {Object} Timeslot
+ * @property {string} start
+ * @property {string} end
+ */
+
 module.exports = function(preferences, oAuth2Client) {
+  /**
+   * Gets credentials from preferences and puts them into the oAuth2Client
+   * @return {Promise<Object>}
+   */
   this.addCredentialsToClient = async () => {
     try {
       const credentials = await preferences.get("google_auth_tokens");
@@ -14,6 +24,10 @@ module.exports = function(preferences, oAuth2Client) {
     }
   };
 
+  /**
+   * Creates a link for users to give access to their Google Account
+   * @param {Object} ctx
+   */
   this.authenticateUser = (ctx) => {
     preferences.set("chat_id_google_auth", ctx.chat.id).then(() => {
       const url = oAuth2Client.generateAuthUrl({
@@ -21,7 +35,6 @@ module.exports = function(preferences, oAuth2Client) {
         scope: "https://www.googleapis.com/auth/calendar",
       });
 
-      // ctx.reply(url);
       ctx.replyWithHTML(`<a href='${ url }'>Google Authentifizierung</a>`);
     }).catch((err) => {
       console.error(err);
@@ -29,11 +42,17 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
+  /**
+   * Returns time until the next event from the specified calendar
+   * @param {string} calendarId
+   * @return {Promise<number>}
+   */
   this.getTimeUntilNextEvent = (calendarId) => {
     return new Promise((resolve, reject) => {
       this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
+        // get next event plus fallback (if event is already happening)
         return calendar.events.list({
           calendarId,
           timeMin: moment().toISOString(),
@@ -53,6 +72,11 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
+  /**
+   * Get next 15 events
+   * @param {string} calendarId
+   * @return {Promise<Object[]>}
+   */
   this.getNextEvents = (calendarId) => {
     return new Promise((resolve, reject) => {
       this.addCredentialsToClient().then((client) => {
@@ -74,6 +98,13 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
+  /**
+   * Get busy timeslots between timeMin and timeMax from specified calendar
+   * @param {string} timeMin
+   * @param {string} timeMax
+   * @param {string} calendarId
+   * @return {Promise<Timeslot[]>}
+   */
   this.getBusySlotsByCalendarId = (
       timeMin = moment().toISOString(),
       timeMax = moment().add(1, "d").toISOString(),
@@ -99,6 +130,13 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
+  /**
+   * Returns starting time of first event
+   * @param {string} timeMin
+   * @param {string} timeMax
+   * @param {string} lectureCalendarId
+   * @return {Promise<string>}
+   */
   this.getStartOfFirstEvent = (timeMin = moment().toISOString(),
       timeMax = moment().add(1, "d").toISOString(),
       lectureCalendarId) => {
@@ -106,6 +144,7 @@ module.exports = function(preferences, oAuth2Client) {
       this.addCredentialsToClient().then((client) => {
         const calendar = google.calendar({version: "v3", auth: client});
 
+        // get busy timeslots for primary and lecture calendar
         return calendar.freebusy.query({
           requestBody: {
             timeMin,
@@ -135,10 +174,7 @@ module.exports = function(preferences, oAuth2Client) {
         // sort slots by start
         allSlots.sort(sortSlots);
 
-        console.log(allSlots);
-
         const startOfFirst = allSlots.length > 0 ? new Date(allSlots[0].start) : null;
-
         resolve(startOfFirst);
       }).catch((err) => {
         console.error(err);
@@ -147,6 +183,10 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
+  /**
+   * Retrieves a list of all the user's calendars
+   * @return {Promise<Object[]>}
+   */
   this.getCalendars = () => {
     return new Promise((resolve, reject) => {
       return this.addCredentialsToClient().then((client) => {
@@ -162,6 +202,12 @@ module.exports = function(preferences, oAuth2Client) {
     });
   };
 
+  /**
+   * Returns free slots in given calendar
+   * @param {string} lectureCalendarId
+   * @param {string} date
+   * @return {Promise<Timeslot[]>}
+   */
   this.getFreeSlots = (lectureCalendarId, date) => {
     return new Promise((resolve, reject) => {
       if (!lectureCalendarId || !date) {
