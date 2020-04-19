@@ -131,59 +131,6 @@ module.exports = function (preferences, oAuth2Client) {
   };
 
   /**
-   * Returns starting time of first event
-   * @param {string} timeMin
-   * @param {string} timeMax
-   * @param {string} lectureCalendarId
-   * @return {Promise<string>}
-   */
-  this.getStartOfFirstEvent = (timeMin = moment().toISOString(),
-      timeMax = moment().add(1, "d").toISOString(),
-      lectureCalendarId) => {
-    return new Promise((resolve, reject) => {
-      this.addCredentialsToClient().then((client) => {
-        const calendar = google.calendar({ version: "v3", auth: client });
-
-        // get busy timeslots for primary and lecture calendar
-        return calendar.freebusy.query({
-          requestBody: {
-            timeMin,
-            timeMax,
-            items: [
-              { id: "primary" },
-              { id: lectureCalendarId },
-            ],
-          },
-        });
-      }).then((res) => {
-        // merge busy slots from all calendars into one array
-        const calendarKeys = Object.keys(res.data.calendars);
-        const allSlots = calendarKeys.map((key) => [...res.data.calendars[key].busy]).flat();
-
-        // custom sort function
-        const sortSlots = (a, b) => {
-          if ((new Date(a.start)).getTime() > (new Date(b.start)).getTime()) {
-            return 1;
-          } else if ((new Date(a.start)).getTime() < (new Date(b.start)).getTime()) {
-            return -1;
-          } else {
-            return 0;
-          }
-        };
-
-        // sort slots by start
-        allSlots.sort(sortSlots);
-
-        const startOfFirst = allSlots.length > 0 ? new Date(allSlots[0].start) : null;
-        resolve(startOfFirst);
-      }).catch((err) => {
-        console.error(err);
-        reject(err);
-      });
-    });
-  };
-
-  /**
    * Retrieves a list of all the user's calendars
    * @return {Promise<Object[]>}
    */

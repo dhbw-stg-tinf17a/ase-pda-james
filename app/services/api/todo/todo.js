@@ -54,7 +54,7 @@ module.exports = function (preferences) {
             taskId
           }')`, {
             headers: { "Authorization": `Bearer ${token}` },
-          }).then((res) => {
+          }).then(() => {
             resolve();
           }).catch((err) => {
             if (err.response.status == 401) {
@@ -86,7 +86,7 @@ module.exports = function (preferences) {
         ).then((tokenRes) => {
           const authToken = tokenRes.data.access_token;
           preferences.set("ms_todo_token", authToken).then(() => {
-            preferences.get("chat_id_ms_todo").then((chatId) => {
+            preferences.get("chat_id_ms_todo").then(() => {
               resolve(authToken);
             }).catch((err) => {
               reject(err);
@@ -104,14 +104,15 @@ module.exports = function (preferences) {
   };
 
   this.authorizeUser = (ctx) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       preferences.set("chat_id_ms_todo", ctx.chat.id).then(() => {
         const base = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
         const client = `?client_id=${process.env.MS_TODO_CLIENT_ID}`;
         const scope = "&scope=https%3A%2F%2Foutlook.office.com%2Ftasks.readwrite%20offline_access";
         const responseType = "&response_type=code";
         const redirectUri = "&redirect_uri=http://localhost:8080/mstodo";
-        ctx.reply(`Bitte melde dich bei Microsoft Todo an:\n${ base }${client }${scope }${responseType }${redirectUri}`);
+        ctx.reply(`Bitte melde dich bei Microsoft Todo an:
+        \n${ base }${client }${scope }${responseType }${redirectUri}`);
         resolve();
       }).catch((err) => {
         ctx.reply("Tut mir Leid, da hat etwas nicht funktioniert");
@@ -121,7 +122,7 @@ module.exports = function (preferences) {
   };
 
   this.chooseFolder = (ctx, chatId) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       preferences.get("ms_todo_token").then((token) => {
         axios.get("https://outlook.office.com/api/v2.0/me/taskfolders", {
           headers: { "Authorization": `Bearer ${token}` },
@@ -158,12 +159,10 @@ module.exports = function (preferences) {
         axios.get("https://outlook.office.com/api/v2.0/me/taskfolders", {
           headers: { "Authorization": `Bearer ${token}` },
         }).then((res) => {
-          let i = 0;
-          res.data.value.forEach((folder) => {
-            if (i == index) {
+          res.data.value.forEach((folder, i) => {
+            if (i === index) {
               resolve(folder.Id);
             }
-            i++;
           });
         }).catch((err) => {
           reject(err);

@@ -96,7 +96,7 @@ module.exports = function () {
         assistantId: process.env.WATSON_ASSISSTANT_KEY,
         sessionId: this.sessionId,
       })
-          .then((res) => {
+          .then(() => {
             this.sessionId = "";
             resolve("success");
           })

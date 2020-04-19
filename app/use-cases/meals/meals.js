@@ -67,12 +67,11 @@ module.exports = (preferences, oAuth2Client) => {
       case "meals_start":
         try {
           this._replyMealsStart(cal.getTimeUntilNextEvent(), ctx, preferences);
-          break;
         } catch (error) {
           console.error(error);
           ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
         }
-
+        break;
         // "PIZZA"
       case "meals_food_only":
         this._replyPlaces(ctx, waRes.entities[0].value, preferences);

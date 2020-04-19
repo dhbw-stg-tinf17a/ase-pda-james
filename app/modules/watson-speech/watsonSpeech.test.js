@@ -1,7 +1,6 @@
 // const getTodosResponse = require("../../__fixtures__/todo/getTodos");
 const TextToSpeechV1 = require("ibm-watson/text-to-speech/v1");
 const SpeechToTextV1 = require("ibm-watson/speech-to-text/v1");
-const { IamAuthenticator } = require("ibm-watson/auth");
 const axios = require("axios");
 
 jest.mock("ibm-watson/auth");
@@ -16,15 +15,12 @@ describe("Watson Speech", () => {
   });
   test("t2s synthesize method gets called", () => {
     const t2sMock = {
-      synthesize: jest.fn().mockResolvedValue(() => {
-        result: {
-          "streamTest";
-        }
-      }) };
+      synthesize: jest.fn().mockResolvedValue({ result: "streamTest" }),
+    };
     TextToSpeechV1.mockImplementation(() => {
       return t2sMock;
     });
-    return watsonSpeech.t2s("hallo").then((res) => {
+    return watsonSpeech.t2s("hallo").then(() => {
       expect(t2sMock.synthesize).toHaveBeenCalled();
     }).catch(fail);
   });
@@ -41,7 +37,7 @@ describe("Watson Speech", () => {
       },
     };
     axios.get.mockResolvedValue({ data: {
-      pipe: jest.fn((stream) => {
+      pipe: jest.fn(() => {
 
       }),
     } });
@@ -49,7 +45,7 @@ describe("Watson Speech", () => {
       recognizeUsingWebSocket: jest.fn(() => {
         return {
           on: jest.fn((eventType, callback) => {
-            if (eventType == "data") {
+            if (eventType === "data") {
               callback({ toString: () => "hi" });
             }
           }),

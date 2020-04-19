@@ -1,5 +1,3 @@
-
-
 describe("setAbsentTimes", () => {
   const allTime = require("../../../test/__fixtures__/sendAbsentHelpers/allTimes");
   const noTime = require("../../../test/__fixtures__/sendAbsentHelpers/noTime");
@@ -7,6 +5,7 @@ describe("setAbsentTimes", () => {
   const onlyStartTimeAndDay = require("../../../test/__fixtures__/sendAbsentHelpers/onlyStartTimeAndDay");
   const onlyTimeDays = require("../../../test/__fixtures__/sendAbsentHelpers/onlyTimeDays");
 
+  let setAbsentTimes;
 
   beforeEach(() => {
     jest.resetModules();
@@ -56,6 +55,8 @@ describe("setAbsentTimes", () => {
 describe("createEmailOptions", () => {
   let getFunction;
   let preferences;
+  let createEmailOptions;
+
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
@@ -76,6 +77,8 @@ describe("createEmailOptions", () => {
 describe("createEmailText", () => {
   let getFunction;
   let preferences;
+  let createEmailText;
+
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();

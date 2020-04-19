@@ -47,8 +47,8 @@ const setAbsentTimes = (waRes) => {
   } else if (startAbsentTime !== null && endAbsentTime == null) {
     endAbsentTime = "22:30:00";
   }
-  startAbsent = `${startAbsentDay }T${ startAbsentTime }+02:00`;
-  endAbsent = `${endAbsentDay }T${ endAbsentTime }+02:00`;
+  const startAbsent = `${startAbsentDay }T${ startAbsentTime }+02:00`;
+  const endAbsent = `${endAbsentDay }T${ endAbsentTime }+02:00`;
   watsonAssisstant.setContext({
     startAbsentDay: null,
     endAbsentDay: null,

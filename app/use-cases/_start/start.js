@@ -7,13 +7,13 @@ const Markup = require("telegraf/markup"); // Telegram answer button handling
 module.exports = (preferences, oAuth2Client) => {
   const cal = require("../../services/api/gcalendar/gcalendar")(preferences, oAuth2Client); // for Google authentication
 
-  this._homeAddress;
-  this._commutePreference;
-  this._uniAddress;
+  this._homeAddress = null;
+  this._commutePreference = null;
+  this._uniAddress = null;
 
   // required helper variables for handling callback button options for addresses
-  this._homeAddresses;
-  this._uniAddresses;
+  this._homeAddresses = [];
+  this._uniAddresses = [];
 
   // Function to set preferred travel method (4 II)
   this._chooseTravelMethod = (ctx) => {
@@ -40,7 +40,6 @@ module.exports = (preferences, oAuth2Client) => {
   this._setHomeAddress = (promise, ctx) => {
     promise.then((data) => {
       if (data.results.length > 1) { // (3a I)
-        this._homeAddresses = [];
         const addressButtons = data.results.map((result) => {
           // drop ", Germany"
           const address = result.formatted_address.split(", ").slice(0, -1).join(", ");
@@ -118,7 +117,6 @@ module.exports = (preferences, oAuth2Client) => {
       const location = data.results;
 
       if (location.length > 1) { // (5a I)
-        this._uniAddresses = [];
         const uniButtons = location.map((uni) => {
           // drop ", Germany" from address string
           const address = uni.formatted_address.split(", ").slice(0, -1).join(", ");
@@ -277,13 +275,13 @@ module.exports = (preferences, oAuth2Client) => {
       // OPTIONAL: Choose uni address from list and process uni stop (5a II) => (5cd)
       // OPTIONAL: Choose uni address from list and ask for uni secretary email address (5a II) => (6)
       case "uid":
-        const uniAddress = this._uniAddresses[data].address;
-        preferences.set("uni_address", uniAddress).catch((error) => {
+        this._uniAddress = this._uniAddresses[data].address;
+        preferences.set("uni_address", this._uniAddress).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Uni-Adresse nicht speichern...");
         });
         if (this._commutePreference === "vvs") { // (5cd)
-          this._setStop(vvs.getStopByKeyword(uniAddress), ctx, "usid");
+          this._setStop(vvs.getStopByKeyword(this._uniAddress), ctx, "usid");
         } else { // (6)
           ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats"); // (6)
         }

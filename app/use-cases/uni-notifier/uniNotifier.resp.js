@@ -22,8 +22,8 @@ module.exports = () => {
   this.googleMapsUrl = (url) => `Hier hast Du eine <b><a href="${url}">Routenbeschreibung</a> von Google Maps</b>. 🗺`;
   this.lectureEndsBeforeArrival = "Du schaffst es heute leider nicht mehr zur Vorlesung. " +
       "Versuche es beim nächsten man erneut.";
-  this.calEmpty = "<b>Dein Vorlesungskalender hat keine anstehenden Vorlesungen eingetragen.</b> Trage Deine \
-Vorlesungen in den verlinkten Google Kalender oder ändere Deinen Vorlesungskalender, \
-indem Du <b>/start</b> ausführst.";
+  this.calEmpty = "<b>Dein Vorlesungskalender hat keine anstehenden Vorlesungen eingetragen.</b> " +
+      "Trage Deine Vorlesungen in den verlinkten Google Kalender oder ändere Deinen Vorlesungskalender, " +
+      "indem Du <b>/start</b> ausführst.";
   return this;
 };

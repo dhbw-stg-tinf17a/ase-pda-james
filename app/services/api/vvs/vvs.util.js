@@ -1,6 +1,6 @@
 const moment = require("moment");
 
-function resDateConverter(date, time) {
+const resDateConverter = (date, time) => {
   const dateComps = date.split(".");
   const timeComps = time.split(":");
 
@@ -18,6 +18,6 @@ function resDateConverter(date, time) {
     hours: hours,
     minutes: minutes,
   }).toISOString(true);
-}
+};
 
 module.exports = { resDateConverter };

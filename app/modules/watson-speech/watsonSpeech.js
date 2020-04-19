@@ -1,7 +1,6 @@
 const TextToSpeechV1 = require("ibm-watson/text-to-speech/v1");
 const SpeechToTextV1 = require("ibm-watson/speech-to-text/v1");
 const { IamAuthenticator } = require("ibm-watson/auth");
-const fs = require("fs");
 const axios = require("axios");
 
 module.exports = function () {
@@ -39,7 +38,7 @@ module.exports = function () {
 
   // returns a promise that resolves to a text
   this.s2t = (ctx) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const speechToText = new SpeechToTextV1({
         authenticator: new IamAuthenticator({
           apikey: process.env.WATSON_S2T,

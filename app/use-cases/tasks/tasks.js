@@ -11,7 +11,7 @@ module.exports = function (preferences, oAuth2Client) {
           // show tasks to user
           let inlineKeyboardMarkup = { inline_keyboard: [[]] };
           let toSend = "Du hast folgende Aufgaben offen:\n";
-          if (todos.length != 0) {
+          if (todos.length !== 0) {
             todos.forEach((todo) => {
               toSend += `- ${todo.Subject}\n`;
             });
@@ -60,9 +60,9 @@ module.exports = function (preferences, oAuth2Client) {
             ctx.reply(toSend, { reply_markup: inlineKeyboardMarkup });
           }
         }).catch((err) => {
-          if (err.message == "ms_todo_token is not saved") {
+          if (err.message === "ms_todo_token is not saved") {
             msTodo.authorizeUser(ctx);
-          } else if (err.message == "ms_todo_folder_id is not saved") {
+          } else if (err.message === "ms_todo_folder_id is not saved") {
             msTodo.chooseFolder(ctx, ctx.message.chat.id);
           } else {
             console.error(err);
@@ -98,7 +98,7 @@ module.exports = function (preferences, oAuth2Client) {
           }
           break;
         case "exercise":
-          if (details == "done") {
+          if (details === "done") {
             preferences.get("ms_task_id").then((taskId) => {
               msTodo.deleteTodo(taskId).then(() => {
                 ctx.reply("Super! Ich habe die Aufgabe aus deiner ToDo Liste entfernt ✅");

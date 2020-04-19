@@ -20,7 +20,7 @@ module.exports = (preferences, oAuth2Client) => {
       return new Error("Unknown intent.");
     }
 
-    ctx.replyWithHTML(dialog.firstResponse);
+    await ctx.replyWithHTML(dialog.firstResponse);
 
     const commutePref = await preferences.get("commute");
     const validCommutePrefs = ["driving", "walking", "bicycling", "vvs"];
@@ -32,7 +32,7 @@ module.exports = (preferences, oAuth2Client) => {
     const nextLectures = await cal.getNextEvents(lectureCal);
 
     if (nextLectures.length === 0) {
-      ctx.replyWithHTML(dialog.calEmpty);
+      await ctx.replyWithHTML(dialog.calEmpty);
       return new Error("Lecture Calendar is empty.");
     }
 
@@ -68,9 +68,9 @@ module.exports = (preferences, oAuth2Client) => {
 
       vvs.getTrip(tripParams).then((res) => {
         trip = res;
-        const legs = trip.legs;
-        const legAmt = legs.length;
-        const lastLeg = legs[legAmt - 1];
+        let legs = trip.legs;
+        let legAmt = legs.length;
+        let lastLeg = legs[legAmt - 1];
 
         // receive departure and arrival information
         transitTimeParams.depTime = moment(legs[0].start.date);
@@ -84,9 +84,9 @@ module.exports = (preferences, oAuth2Client) => {
 
           vvs.getTrip(tripParams).then((res) => {
             trip = res;
-            const legs = trip.legs;
-            const legAmt = legs.length;
-            const lastLeg = legs[legAmt - 1];
+            legs = trip.legs;
+            legAmt = legs.length;
+            lastLeg = legs[legAmt - 1];
 
             // update departure and arrival information
             transitTimeParams.depTime = moment(legs[0].start.date);

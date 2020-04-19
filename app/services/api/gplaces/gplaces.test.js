@@ -39,31 +39,6 @@ describe("gplaces getPlaces", () => {
   });
 });
 
-describe("gplaces getFormattedAddress", () => {
-  beforeEach(() => {
-    gplaces = require("./gplaces")();
-  });
-  test("if addresses get formatted", () => {
-    axios.get.mockResolvedValue({ data: searchResponse });
-    return gplaces.getFormattedAddress({ query: "DHBW" })
-        .then((data) => expect(data).toEqual([
-          {
-            street: "Im Wiesengrund 40",
-            postalCode: "70794",
-            city: "Filderstadt",
-            name: "Im Wiesengrund 40" },
-          {
-            street: "Im Wiesengrund 40",
-            postalCode: "70806",
-            city: "Kornwestheim",
-            name: "Im Wiesengrund 40" },
-        ]))
-        .catch(() => {
-          throw new Error("Fehlgeschlagen");
-        });
-  });
-});
-
 describe("gplaces getPlaceById", () => {
   beforeEach(() => {
     gplaces = require("./gplaces")();

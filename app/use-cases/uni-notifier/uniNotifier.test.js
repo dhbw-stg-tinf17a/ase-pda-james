@@ -81,7 +81,7 @@ describe("onUpdate(...) Function Tests (transit, late, attendance possible)", ()
     };
     mockPrefs = {
       get: jest.fn((key) => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           if (key === "commute") resolve("vvs");
           if (key === "lecture_cal_id") resolve("sample_cal_id");
           resolve();
@@ -110,7 +110,7 @@ describe("onUpdate(...) Function Tests (transit, late, attendance possible)", ()
 
     const mockData = require("../../../test/__fixtures__/uniNotifier/getTripRespose");
     getTripFn = jest.fn(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         resolve(mockData);
       });
     });
@@ -122,8 +122,8 @@ describe("onUpdate(...) Function Tests (transit, late, attendance possible)", ()
       };
     });
 
-    replyWithAudioFn = jest.fn((msg) => {
-      return new Promise((resolve, reject) => {
+    replyWithAudioFn = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve();
       });
     });
@@ -211,7 +211,7 @@ describe("onUpdate(...) Function Tests (driving, late, attendance possible)", ()
     };
     mockPrefs = {
       get: jest.fn((key) => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           if (key === "commute") resolve("driving");
           if (key === "lecture_cal_id") resolve("sample_cal_id");
           resolve();
@@ -237,8 +237,8 @@ describe("onUpdate(...) Function Tests (driving, late, attendance possible)", ()
       };
     });
 
-    getDirectionsFn = jest.fn((query) => {
-      return new Promise((resolve, reject) => {
+    getDirectionsFn = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve({
           duration: "10 Minuten",
         });
@@ -251,8 +251,8 @@ describe("onUpdate(...) Function Tests (driving, late, attendance possible)", ()
       };
     });
 
-    replyWithAudioFn = jest.fn((msg) => {
-      return new Promise((resolve, reject) => {
+    replyWithAudioFn = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve();
       });
     });
@@ -321,8 +321,6 @@ describe("onUpdate(...) Function Tests (driving, late, attendance possible)", ()
 
 describe("onUpdate(...) Function Tests (edge case branches)", () => {
   let uniNotifier;
-  let dialog;
-
   let mockCtx;
   let mockPrefs;
   let mockWaRes;
@@ -333,7 +331,6 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
   beforeAll(async () => {
     jest.resetAllMocks();
     jest.resetModules();
-    dialog = require("./uniNotifier.resp")();
 
     mockCtx = {
       reply: jest.fn((msg) => msg),
@@ -341,7 +338,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     };
     mockPrefs = {
       get: jest.fn((key) => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           if (key === "commute") resolve("driving");
           if (key === "lecture_cal_id") resolve("sample_cal_id");
           resolve();
@@ -367,8 +364,8 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
       };
     });
 
-    getDirectionsFn = jest.fn((query) => {
-      return new Promise((resolve, reject) => {
+    getDirectionsFn = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve({
           duration: "10 Minuten",
         });
@@ -381,8 +378,8 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
       };
     });
 
-    replyWithAudioFn = jest.fn((msg) => {
-      return new Promise((resolve, reject) => {
+    replyWithAudioFn = jest.fn(() => {
+      return new Promise((resolve) => {
         resolve();
       });
     });
@@ -439,7 +436,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     // override preferences to return invalid commute method
     mockPrefs = {
       get: jest.fn((key) => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           if (key === "commute") resolve("swimming");
           resolve();
         });
@@ -460,7 +457,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     // restore preferences to resolve valid commute method
     mockPrefs = {
       get: jest.fn((key) => {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           if (key === "commute") resolve("driving");
           resolve();
         });
