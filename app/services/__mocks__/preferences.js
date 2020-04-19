@@ -1,9 +1,9 @@
 module.exports = (db) => {
   return {
-    get: jest.fn((key)=>new Promise((resolve, reject)=>{
+    get: jest.fn((key) => new Promise((resolve, reject) => {
       resolve("test_value");
     })),
-    set: jest.fn((key, value)=> new Promise((resolve, reject)=>{
+    set: jest.fn((key, value) => new Promise((resolve, reject) => {
       resolve();
     })),
   };

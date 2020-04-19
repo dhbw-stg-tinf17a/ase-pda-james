@@ -20,4 +20,4 @@ function resDateConverter(date, time) {
   }).toISOString(true);
 }
 
-module.exports = {resDateConverter};
+module.exports = { resDateConverter };

@@ -8,8 +8,8 @@ const calendar = jest.fn((params) => ({
       return Promise.resolve({
         data: {
           items: [
-            {id: "123", summary: "456"},
-            {id: "234", summary: "567"},
+            { id: "123", summary: "456" },
+            { id: "234", summary: "567" },
           ],
         },
       });
@@ -33,7 +33,7 @@ const calendar = jest.fn((params) => ({
         });
       }
     },
-    list: ({calendarId}) => {
+    list: ({ calendarId }) => {
       if (!calendarId) {
         return Promise.reject(new Error());
       } else {

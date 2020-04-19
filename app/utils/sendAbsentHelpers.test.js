@@ -11,9 +11,9 @@ describe("setAbsentTimes", () => {
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
-    jest.mock("moment", () => () => ({format: () => "2020-04-01"}));
+    jest.mock("moment", () => () => ({ format: () => "2020-04-01" }));
     jest.doMock("../services/watsonAssistant", () => {
-      return function() {
+      return function () {
         return {
           setContext: jest.fn().mockRejectedValue("Expected Test Error"),
         };
@@ -60,7 +60,7 @@ describe("createEmailOptions", () => {
     jest.resetModules();
     jest.resetAllMocks();
     getFunction = jest.fn();
-    preferences = {get: getFunction};
+    preferences = { get: getFunction };
     createEmailOptions = require("./sendAbsentHelpers").createEmailOptions;
   });
 
@@ -80,7 +80,7 @@ describe("createEmailText", () => {
     jest.resetModules();
     jest.resetAllMocks();
     getFunction = jest.fn();
-    preferences = {get: getFunction};
+    preferences = { get: getFunction };
     createEmailText = require("./sendAbsentHelpers").createEmailText;
   });
 

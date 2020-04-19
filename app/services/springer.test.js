@@ -9,7 +9,7 @@ describe("Springer service", () => {
   beforeEach(() => springer = require("./springer"));
 
   test("fetches results from Springer API", () => {
-    axios.get.mockResolvedValue({data: searchResponse});
+    axios.get.mockResolvedValue({ data: searchResponse });
 
     return springer.getByKeyword("user experience").then((data) => {
       expect(data).toBeDefined();

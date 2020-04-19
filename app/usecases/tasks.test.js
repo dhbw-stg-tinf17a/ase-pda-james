@@ -9,7 +9,7 @@ jest.mock("../services/preferences");
 jest.mock("../services/todo");
 
 const deleteTodo = jest.fn().mockResolvedValue({});
-msTodo.mockImplementation(()=>{
+msTodo.mockImplementation(() => {
   return {
     getTodos: jest.fn().mockResolvedValue([{
       Subject: "test",
@@ -30,16 +30,16 @@ describe("Tasks Test", () => {
   test("onUpdate calls ctx.reply", () => {
     const waRes = {
       generic: [
-        {text: "tasks_show"},
+        { text: "tasks_show" },
       ],
     };
 
     ctx = {
-      reply: jest .fn(),
+      reply: jest.fn(),
       replyWithHTML: jest.fn(),
     };
 
-    return tasks.onUpdate(ctx, waRes).then(()=>{
+    return tasks.onUpdate(ctx, waRes).then(() => {
       expect(ctx.reply).toHaveBeenCalled();
     });
   });
@@ -53,7 +53,7 @@ describe("Tasks Test", () => {
       editMessageReplyMarkup: jest.fn(),
     };
 
-    return tasks.onCallbackQuery(ctx).then(()=>{
+    return tasks.onCallbackQuery(ctx).then(() => {
       expect(deleteTodo).toHaveBeenCalled();
     });
   });

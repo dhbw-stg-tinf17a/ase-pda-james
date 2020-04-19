@@ -14,7 +14,7 @@ module.exports = (preferences, oAuth2Client) => {
   // ===================================================================================================================
   // WATSON ASSISTANT DIALOG HANDLING
   // ===================================================================================================================
-  this.onUpdate = async function(ctx, waRes) {
+  this.onUpdate = async function (ctx, waRes) {
     // check if WA intent corresponds
     if (waRes.generic[0].text !== "uniNotifier_welcome") {
       return new Error("Unknown intent.");

@@ -20,4 +20,4 @@ const getByKeyword = (title = "user experience") => {
   });
 };
 
-module.exports = {getByKeyword};
+module.exports = { getByKeyword };

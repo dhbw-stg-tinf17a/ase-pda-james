@@ -45,7 +45,7 @@ const busyToFree = (busySlots) => {
       break;
     default:
       pairwise(busySlots, (current, next) => {
-        freeSlots.push({start: current.end, end: next.start});
+        freeSlots.push({ start: current.end, end: next.start });
       });
   }
 
@@ -70,4 +70,4 @@ const calculateTimeUntilEvent = (event, fallbackEvent, now = moment()) => {
   }
 };
 
-module.exports = {busyToFree, pairwise, freeAroundEvent, calculateTimeUntilEvent};
+module.exports = { busyToFree, pairwise, freeAroundEvent, calculateTimeUntilEvent };

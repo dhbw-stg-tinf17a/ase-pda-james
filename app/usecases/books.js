@@ -2,7 +2,7 @@ const watsonSpeech = require("../services/watsonSpeech")();
 const springer = require("../services/springer");
 const mailer = require("../services/mailer")();
 const gPlaces = require("../services/gplaces")();
-const {createEmailText, createEmailOptions} = require("../utils/bookHelpers");
+const { createEmailText, createEmailOptions } = require("../utils/bookHelpers");
 const Markup = require("telegraf/markup"); // Telegram answer button handling
 
 module.exports = (preferences) => {
@@ -15,7 +15,7 @@ module.exports = (preferences) => {
   };
   this.springerRecords = null;
 
-  this.formatLibraryInfo = ({name, address}) => {
+  this.formatLibraryInfo = ({ name, address }) => {
     if (!name && !address) {
       throw new Error("Falsche Parameter");
     }

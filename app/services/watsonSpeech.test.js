@@ -1,7 +1,7 @@
 // const getTodosResponse = require("../../__fixtures__/todo/getTodos");
 const TextToSpeechV1 = require("ibm-watson/text-to-speech/v1");
 const SpeechToTextV1 = require("ibm-watson/speech-to-text/v1");
-const {IamAuthenticator} = require("ibm-watson/auth");
+const { IamAuthenticator } = require("ibm-watson/auth");
 const axios = require("axios");
 
 jest.mock("ibm-watson/auth");
@@ -11,20 +11,20 @@ jest.mock("axios");
 
 describe("Watson Speech", () => {
   let watsonSpeech;
-  beforeAll(()=>{
+  beforeAll(() => {
     watsonSpeech = require("./watsonSpeech")();
   });
   test("t2s synthesize method gets called", () => {
     const t2sMock = {
-      synthesize: jest.fn().mockResolvedValue(()=>{
+      synthesize: jest.fn().mockResolvedValue(() => {
         result: {
           "streamTest";
         }
-      })};
-    TextToSpeechV1.mockImplementation(()=>{
+      }) };
+    TextToSpeechV1.mockImplementation(() => {
       return t2sMock;
     });
-    return watsonSpeech.t2s("hallo").then((res)=>{
+    return watsonSpeech.t2s("hallo").then((res) => {
       expect(t2sMock.synthesize).toHaveBeenCalled();
     }).catch(fail);
   });
@@ -32,7 +32,7 @@ describe("Watson Speech", () => {
   test("s2t resolves to text", () => {
     const ctxMock = {
       telegram: {
-        getFileLink: jest.fn().mockResolvedValue(()=>""),
+        getFileLink: jest.fn().mockResolvedValue(() => ""),
       },
       message: {
         voice: {
@@ -40,27 +40,27 @@ describe("Watson Speech", () => {
         },
       },
     };
-    axios.get.mockResolvedValue({data: {
-      pipe: jest.fn((stream)=>{
+    axios.get.mockResolvedValue({ data: {
+      pipe: jest.fn((stream) => {
 
       }),
-    }});
+    } });
     const s2tMock = {
-      recognizeUsingWebSocket: jest.fn(()=>{
+      recognizeUsingWebSocket: jest.fn(() => {
         return {
-          on: jest.fn((eventType, callback)=>{
-            if (eventType=="data") {
-              callback({toString: ()=>"hi"});
+          on: jest.fn((eventType, callback) => {
+            if (eventType == "data") {
+              callback({ toString: () => "hi" });
             }
           }),
         };
       }),
     };
 
-    SpeechToTextV1.mockImplementation(()=>{
+    SpeechToTextV1.mockImplementation(() => {
       return s2tMock;
     });
-    return watsonSpeech.s2t(ctxMock).then((res)=>{
+    return watsonSpeech.s2t(ctxMock).then((res) => {
       expect(res).toBe("hi");
     }).catch(fail);
   });

@@ -1,8 +1,8 @@
-const {google} = require("googleapis");
-const {busyToFree, calculateTimeUntilEvent} = require("../utils/calendarHelpers");
+const { google } = require("googleapis");
+const { busyToFree, calculateTimeUntilEvent } = require("../utils/calendarHelpers");
 const moment = require("moment");
 
-module.exports = function(preferences, oAuth2Client) {
+module.exports = function (preferences, oAuth2Client) {
   this.addCredentialsToClient = async () => {
     try {
       const credentials = await preferences.get("google_auth_tokens");
@@ -32,7 +32,7 @@ module.exports = function(preferences, oAuth2Client) {
   this.getTimeUntilNextEvent = (calendarId) => {
     return new Promise((resolve, reject) => {
       this.addCredentialsToClient().then((client) => {
-        const calendar = google.calendar({version: "v3", auth: client});
+        const calendar = google.calendar({ version: "v3", auth: client });
 
         return calendar.events.list({
           calendarId,
@@ -56,7 +56,7 @@ module.exports = function(preferences, oAuth2Client) {
   this.getNextEvents = (calendarId) => {
     return new Promise((resolve, reject) => {
       this.addCredentialsToClient().then((client) => {
-        const calendar = google.calendar({version: "v3", auth: client});
+        const calendar = google.calendar({ version: "v3", auth: client });
 
         calendar.events.list({
           calendarId,
@@ -65,7 +65,7 @@ module.exports = function(preferences, oAuth2Client) {
           singleEvents: true,
           orderBy: "startTime",
         }).then((res) => {
-          const items = res.data.items.map(({summary, start, end}) => ({title: summary, start, end})) || [];
+          const items = res.data.items.map(({ summary, start, end }) => ({ title: summary, start, end })) || [];
           resolve(items);
         }).catch((error) => {
           reject(error);
@@ -80,14 +80,14 @@ module.exports = function(preferences, oAuth2Client) {
       calendarId) => {
     return new Promise((resolve, reject) => {
       this.addCredentialsToClient().then((client) => {
-        const calendar = google.calendar({version: "v3", auth: client});
+        const calendar = google.calendar({ version: "v3", auth: client });
 
         return calendar.freebusy.query({
           requestBody: {
             timeMin,
             timeMax,
             items: [
-              {id: calendarId},
+              { id: calendarId },
             ],
           },
         });
@@ -104,15 +104,15 @@ module.exports = function(preferences, oAuth2Client) {
       lectureCalendarId) => {
     return new Promise((resolve, reject) => {
       this.addCredentialsToClient().then((client) => {
-        const calendar = google.calendar({version: "v3", auth: client});
+        const calendar = google.calendar({ version: "v3", auth: client });
 
         return calendar.freebusy.query({
           requestBody: {
             timeMin,
             timeMax,
             items: [
-              {id: "primary"},
-              {id: lectureCalendarId},
+              { id: "primary" },
+              { id: lectureCalendarId },
             ],
           },
         });
@@ -150,12 +150,12 @@ module.exports = function(preferences, oAuth2Client) {
   this.getCalendars = () => {
     return new Promise((resolve, reject) => {
       return this.addCredentialsToClient().then((client) => {
-        const calendar = google.calendar({version: "v3", auth: client});
+        const calendar = google.calendar({ version: "v3", auth: client });
 
-        return calendar.calendarList.list({showHidden: true});
+        return calendar.calendarList.list({ showHidden: true });
       }).then((res) => {
         const items = res.data.items.map((item) => {
-          return {id: item.id, summary: item.summaryOverride || item.summary};
+          return { id: item.id, summary: item.summaryOverride || item.summary };
         }) || [];
         resolve(items);
       }).catch((err) => reject(err));
@@ -169,14 +169,14 @@ module.exports = function(preferences, oAuth2Client) {
       }
 
       this.addCredentialsToClient().then((client) => {
-        const calendar = google.calendar({version: "v3", auth: client});
+        const calendar = google.calendar({ version: "v3", auth: client });
 
         return calendar.freebusy.query({
           requestBody: {
             timeMin: moment(date).format(),
             timeMax: moment(date).endOf("day").format(),
             items: [
-              {id: lectureCalendarId},
+              { id: lectureCalendarId },
             ],
           },
         });

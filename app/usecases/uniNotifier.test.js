@@ -91,17 +91,17 @@ describe("onUpdate(...) Function Tests (transit, late, attendance possible)", ()
 
     mockWaRes = {
       generic: [
-        {text: "uniNotifier_welcome"},
+        { text: "uniNotifier_welcome" },
       ],
     };
 
     getNextEventsFn = jest.fn(() => [{
       title: "Sample Title",
-      start: {dateTime: new Date(2020, 1, 1, 10 )},
-      end: {dateTime: new Date(2020, 1, 1, 11)},
+      start: { dateTime: new Date(2020, 1, 1, 10) },
+      end: { dateTime: new Date(2020, 1, 1, 11) },
     }]);
     jest.doMock("../services/gcalendar", () => {
-      return function() {
+      return function () {
         return {
           getNextEvents: getNextEventsFn,
         };
@@ -115,7 +115,7 @@ describe("onUpdate(...) Function Tests (transit, late, attendance possible)", ()
       });
     });
     jest.doMock("../services/vvs/vvs", () => {
-      return function() {
+      return function () {
         return {
           getTrip: getTripFn,
         };
@@ -128,7 +128,7 @@ describe("onUpdate(...) Function Tests (transit, late, attendance possible)", ()
       });
     });
     jest.doMock("../services/watsonSpeech.js", () => {
-      return function() {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFn,
         };
@@ -136,7 +136,7 @@ describe("onUpdate(...) Function Tests (transit, late, attendance possible)", ()
     });
 
     jest.doMock("./uniNotifier.util", () => {
-      return function() {
+      return function () {
         return {
           lectureEndsOnArrival: () => false,
           transitLate: () => true,
@@ -220,17 +220,17 @@ describe("onUpdate(...) Function Tests (driving, late, attendance possible)", ()
     };
     mockWaRes = {
       generic: [
-        {text: "uniNotifier_welcome"},
+        { text: "uniNotifier_welcome" },
       ],
     };
 
     getNextEventsFn = jest.fn(() => [{
       title: "Sample Title",
-      start: {dateTime: new Date(2020, 1, 1, 10 )},
-      end: {dateTime: new Date(2020, 1, 1, 11)},
+      start: { dateTime: new Date(2020, 1, 1, 10) },
+      end: { dateTime: new Date(2020, 1, 1, 11) },
     }]);
     jest.doMock("../services/gcalendar", () => {
-      return function() {
+      return function () {
         return {
           getNextEvents: getNextEventsFn,
         };
@@ -258,7 +258,7 @@ describe("onUpdate(...) Function Tests (driving, late, attendance possible)", ()
     });
 
     jest.doMock("../services/watsonSpeech.js", () => {
-      return function() {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFn,
         };
@@ -266,7 +266,7 @@ describe("onUpdate(...) Function Tests (driving, late, attendance possible)", ()
     });
 
     jest.doMock("./uniNotifier.util", () => {
-      return function() {
+      return function () {
         return {
           lectureEndsOnArrival: () => false,
           nonTransitLate: () => true,
@@ -350,17 +350,17 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     };
     mockWaRes = {
       generic: [
-        {text: "uniNotifier_welcome"},
+        { text: "uniNotifier_welcome" },
       ],
     };
 
     getNextEventsFn = jest.fn(() => [{
       title: "Sample Title",
-      start: {dateTime: new Date(2020, 1, 1, 10 )},
-      end: {dateTime: new Date(2020, 1, 1, 11)},
+      start: { dateTime: new Date(2020, 1, 1, 10) },
+      end: { dateTime: new Date(2020, 1, 1, 11) },
     }]);
     jest.doMock("../services/gcalendar", () => {
-      return function() {
+      return function () {
         return {
           getNextEvents: getNextEventsFn,
         };
@@ -388,7 +388,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     });
 
     jest.doMock("../services/watsonSpeech.js", () => {
-      return function() {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFn,
         };
@@ -396,7 +396,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     });
 
     jest.doMock("./uniNotifier.util", () => {
-      return function() {
+      return function () {
         return {
           lectureEndsOnArrival: () => false,
           nonTransitLate: () => true,
@@ -417,7 +417,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     // override with invalid Watson Assistant intent
     mockWaRes = {
       generic: [
-        {text: "sth_else"},
+        { text: "sth_else" },
       ],
     };
 
@@ -432,7 +432,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     // restore correct Watson Assistant Intent
     mockWaRes = {
       generic: [
-        {text: "uniNotifier_welcome"},
+        { text: "uniNotifier_welcome" },
       ],
     };
 
@@ -470,7 +470,7 @@ describe("onUpdate(...) Function Tests (edge case branches)", () => {
     // override Google Calender function to return empty lecture array
     getNextEventsFn = jest.fn(() => []);
     jest.doMock("../services/gcalendar", () => {
-      return function() {
+      return function () {
         return {
           getNextEvents: getNextEventsFn,
         };

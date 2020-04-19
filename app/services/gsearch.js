@@ -17,10 +17,10 @@ module.exports.getSearchResults = (query) => {
           // return first 3 search results
           // TODO: adapt to future service structure - may return formatted HTML String or JSON
           resolve(response.data.items.slice(0, 3).map((item) => {
-            return item.title + "\n" + item.link;
+            return `${item.title }\n${ item.link}`;
           }).join("\n\n"));
         })
-        .catch(function(error) {
+        .catch((error) => {
           // handle error
           reject(error);
         });

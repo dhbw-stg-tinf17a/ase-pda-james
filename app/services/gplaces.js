@@ -6,9 +6,9 @@ const gPlacesNearbySearchEndpoint = "https://maps.googleapis.com/maps/api/place/
 const e = require("./gplacesErrors");
 
 
-module.exports = function() {
-  this.getPlaceById = (id)=>{
-    return new Promise((resolve, reject)=>{
+module.exports = function () {
+  this.getPlaceById = (id) => {
+    return new Promise((resolve, reject) => {
       axios.get(gPlacesDetailEndpoint, {
         params: {
           place_id: id,
@@ -31,13 +31,13 @@ module.exports = function() {
       })
           .catch((err) => {
             console.error(err);
-            reject(new Error("Axios Error" + err));
+            reject(new Error(`Axios Error${ err}`));
           });
     });
   };
 
-  this.getPlaces = (params)=>{
-    return new Promise((resolve, reject)=>{
+  this.getPlaces = (params) => {
+    return new Promise((resolve, reject) => {
       if ("location" in params && params.location) {
         this.getPlacesNearby(params)
             .then((res) => {
@@ -57,12 +57,12 @@ module.exports = function() {
       }
     });
   };
-  this.getFormattedAddress = (params)=>{
-    return new Promise((resolve, reject)=>{
+  this.getFormattedAddress = (params) => {
+    return new Promise((resolve, reject) => {
       this.getPlacesByText(params)
           .then((res) => {
-            const streetRegEx= new RegExp(/([A-zßäüö.]+[\s-]*[A-zßäüö.]+)+\s\d+/);
-            const cityRegEx= new RegExp(/(\d{5})\s((?:[A-zßäüö.]+[\s-]*[A-zßäüö.]+)*),/);
+            const streetRegEx = new RegExp(/([A-zßäüö.]+[\s-]*[A-zßäüö.]+)+\s\d+/);
+            const cityRegEx = new RegExp(/(\d{5})\s((?:[A-zßäüö.]+[\s-]*[A-zßäüö.]+)*),/);
             let streetRegExRes;
             let cityRegExRes;
             let address = {};
@@ -70,7 +70,7 @@ module.exports = function() {
 
             res.results.forEach((result) => {
               address = {};
-              streetRegExRes= streetRegEx.exec(result.formatted_address);
+              streetRegExRes = streetRegEx.exec(result.formatted_address);
               if (streetRegExRes) {
                 address.street = streetRegExRes[0];
               } else {
@@ -79,8 +79,8 @@ module.exports = function() {
               }
               cityRegExRes = cityRegEx.exec(result.formatted_address);
               address.postalCode = cityRegExRes[1];
-              address.city= cityRegExRes[2];
-              address.name=result.name;
+              address.city = cityRegExRes[2];
+              address.name = result.name;
 
               formattedAddress.push(
                   address,
@@ -94,8 +94,8 @@ module.exports = function() {
     });
   };
 
-  this.isPlaceOpen = (id, time)=>{
-    return new Promise((resolve, reject)=>{
+  this.isPlaceOpen = (id, time) => {
+    return new Promise((resolve, reject) => {
       this.getPlaceById(id)
           .then((res) => {
             this.minTimeDay = moment(time.minTime).isoWeekday();
@@ -123,13 +123,13 @@ module.exports = function() {
     });
   };
   this.getPlacesNearby = (params) => {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       params.key = process.env.GOOGLE_API_KEY;
       if ("query" in params) {
         params.keyword = params.query;
         delete params.query;
       }
-      axios.get(gPlacesNearbySearchEndpoint, {params})
+      axios.get(gPlacesNearbySearchEndpoint, { params })
           .then((res) => {
             if (res.data.status === "OK") {
               resolve(res.data);
@@ -146,16 +146,16 @@ module.exports = function() {
             }
           })
           .catch((err) => {
-            console.error("Axios Error" + err);
-            reject(new Error("Axios Error" + err));
+            console.error(`Axios Error${ err}`);
+            reject(new Error(`Axios Error${ err}`));
           });
     });
   };
 
   this.getPlacesByText = (params) => {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       params.key = process.env.GOOGLE_API_KEY;
-      axios.get(gPlacesTextSearchEndpoint, {params})
+      axios.get(gPlacesTextSearchEndpoint, { params })
           .then((res) => {
             if (res.data.status === "OK") {
               resolve(res.data);
@@ -172,8 +172,8 @@ module.exports = function() {
             }
           })
           .catch((err) => {
-            console.error("Axios Error" + err);
-            reject(new Error("Axios Error" + err));
+            console.error(`Axios Error${ err}`);
+            reject(new Error(`Axios Error${ err}`));
           });
     });
   };

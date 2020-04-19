@@ -18,4 +18,4 @@ function VvsInvalidParametersError(message, params) {
   return error;
 }
 
-module.exports = {VvsInvalidParametersError, VvsMultiplePointsError, VvsUnresolvableKeywordError};
+module.exports = { VvsInvalidParametersError, VvsMultiplePointsError, VvsUnresolvableKeywordError };

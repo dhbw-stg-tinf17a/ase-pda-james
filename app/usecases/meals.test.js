@@ -38,9 +38,9 @@ jest.doMock("../services/gcalendar", () => {
 describe("meals", () => {
   beforeEach(() => {
     jest.resetModules();
-    ctx = {reply: mockReply};
+    ctx = { reply: mockReply };
     meals = require("./meals")(preferences, null);
-    preferences = {set: mockSet, get: mockGet};
+    preferences = { set: mockSet, get: mockGet };
 
     // disable watson speech for tests
     meals._replyTextAndSpeech = mockReply;
@@ -86,18 +86,18 @@ describe("meals", () => {
       });
     });
 
-    await meals._replyMealsStart(promise, ctx, {set: mockSet, get: replyMealsStartGet});
+    await meals._replyMealsStart(promise, ctx, { set: mockSet, get: replyMealsStartGet });
     expect(mockReply).toHaveBeenCalled();
   });
 
   test("onUpdate(...) default", () => {
-    const waRes = {generic: [{text: "abc"}]};
+    const waRes = { generic: [{ text: "abc" }] };
     meals.onUpdate(ctx, waRes);
     expect(mockReply).toHaveBeenCalledWith("Ups, da ist etwas schiefgelaufen...");
   });
 
   test("onUpdate(...) meals_start_with_food catch", () => {
-    const waRes = {generic: [{text: "meals_start_with_food"}]};
+    const waRes = { generic: [{ text: "meals_start_with_food" }] };
     try {
       meals.onUpdate(ctx, waRes);
     } catch (e) {
@@ -107,7 +107,7 @@ describe("meals", () => {
 
 
   test("onUpdate(...) meals_food_only", () => {
-    const waRes = {generic: [{text: "meals_food_only"}], entities: [{value: "Test"}]};
+    const waRes = { generic: [{ text: "meals_food_only" }], entities: [{ value: "Test" }] };
     meals._replyPlaces = mockCallback;
     meals.onUpdate(ctx, waRes);
     expect(mockCallback).toHaveBeenCalled();
@@ -115,7 +115,7 @@ describe("meals", () => {
   });
 
   test("onUpdate(...) meals_food_only catch", () => {
-    const waRes = {generic: [{text: "meals_food_only"}], entities: null};
+    const waRes = { generic: [{ text: "meals_food_only" }], entities: null };
 
     try {
       meals.onUpdate(ctx, waRes);
@@ -125,7 +125,7 @@ describe("meals", () => {
   });
 
   test("onUpdate(...) meals_start", () => {
-    const waRes = {generic: [{text: "meals_start"}]};
+    const waRes = { generic: [{ text: "meals_start" }] };
     meals._replyMealsStart = mockCallback;
     meals.onUpdate(ctx, waRes);
     expect(mockCallback).toHaveBeenCalled();

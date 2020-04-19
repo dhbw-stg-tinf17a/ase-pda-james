@@ -1,5 +1,5 @@
 const AssistantV2 = require("ibm-watson/assistant/v2");
-const {IamAuthenticator} = require("ibm-watson/auth");
+const { IamAuthenticator } = require("ibm-watson/auth");
 const assistant = new AssistantV2({
   version: "2019-02-28",
   authenticator: new IamAuthenticator({
@@ -7,9 +7,9 @@ const assistant = new AssistantV2({
   }),
   url: "https://api.eu-de.assistant.watson.cloud.ibm.com/instances/0a89d17c-0872-409f-bf4d-8dca04742177",
 });
-module.exports = function() {
-  this.sendInput = (userInput)=>{
-    return new Promise((resolve, reject)=>{
+module.exports = function () {
+  this.sendInput = (userInput) => {
+    return new Promise((resolve, reject) => {
       if (!this.sessionId) {
         this.createSession()
             .then(() => {
@@ -51,8 +51,8 @@ module.exports = function() {
   };
 
 
-  this.createSession = ()=>{
-    return new Promise((resolve, reject)=>{
+  this.createSession = () => {
+    return new Promise((resolve, reject) => {
       assistant.createSession({
         assistantId: process.env.WATSON_ASSISSTANT_ID,
       })
@@ -66,8 +66,8 @@ module.exports = function() {
           });
     });
   };
-  this.message = (userInput)=>{
-    return new Promise((resolve, reject)=>{
+  this.message = (userInput) => {
+    return new Promise((resolve, reject) => {
       assistant.message({
         "assistantId": process.env.WATSON_ASSISSTANT_ID,
         "sessionId": this.sessionId,
@@ -90,14 +90,14 @@ module.exports = function() {
           });
     });
   };
-  this.deleteSession = ()=>{
-    return new Promise((resolve, reject)=>{
+  this.deleteSession = () => {
+    return new Promise((resolve, reject) => {
       assistant.deleteSession({
         assistantId: process.env.WATSON_ASSISSTANT_KEY,
         sessionId: this.sessionId,
       })
           .then((res) => {
-            this.sessionId="";
+            this.sessionId = "";
             resolve("success");
           })
           .catch((err) => {
@@ -107,8 +107,8 @@ module.exports = function() {
     });
   };
 
-  this.setContext = (context)=>{
-    return new Promise((resolve, reject)=>{
+  this.setContext = (context) => {
+    return new Promise((resolve, reject) => {
       assistant.message({
         "assistantId": process.env.WATSON_ASSISSTANT_ID,
         "sessionId": this.sessionId,

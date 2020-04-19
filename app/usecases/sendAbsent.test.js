@@ -15,14 +15,14 @@ describe("onUpdate", () => {
 
     replyWithAudioFunction = jest.fn();
     jest.doMock("../services/watsonSpeech", () => {
-      return function() {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFunction,
         };
       };
     });
-    getFunction=jest.fn().mockResolvedValue();
-    const preferences = {get: getFunction};
+    getFunction = jest.fn().mockResolvedValue();
+    const preferences = { get: getFunction };
     sendAbsentModule = require("./sendabsent")(preferences, null);
     hasUniFunction = jest.fn();
     sendMailFunction = jest.fn().mockRejectedValue("Expected Test Error");
@@ -38,7 +38,7 @@ describe("onUpdate", () => {
   test("switches to welcome watsonSpeech success", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
     };
@@ -53,7 +53,7 @@ describe("onUpdate", () => {
   test("switches to welcome watsonSpeech fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
     };
@@ -66,7 +66,7 @@ describe("onUpdate", () => {
   test("switches to reason_else watsonSpeech succes", async () => {
     const waRes = {
       generic: [
-        {text: "absent_reason_else"},
+        { text: "absent_reason_else" },
       ],
       entities: [],
     };
@@ -81,7 +81,7 @@ describe("onUpdate", () => {
   test("switches to reason_else watsonSpeech fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_reason_else"},
+        { text: "absent_reason_else" },
       ],
       entities: [],
     };
@@ -94,7 +94,7 @@ describe("onUpdate", () => {
   test("switches to reason_sick watsonSpeech success", async () => {
     const waRes = {
       generic: [
-        {text: "absent_reason_sick"},
+        { text: "absent_reason_sick" },
       ],
       entities: [],
     };
@@ -111,7 +111,7 @@ describe("onUpdate", () => {
   test("switches to reason_sick watsonSpeech fail hasUni success", async () => {
     const waRes = {
       generic: [
-        {text: "absent_reason_sick"},
+        { text: "absent_reason_sick" },
       ],
       entities: [],
     };
@@ -124,7 +124,7 @@ describe("onUpdate", () => {
   test("switches to reason_sick watsonSpeech fail hasUni fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_reason_sick"},
+        { text: "absent_reason_sick" },
       ],
       entities: [],
     };
@@ -137,10 +137,10 @@ describe("onUpdate", () => {
   test("switches to time with absent_reason sick watsonSpeech success", async () => {
     const waRes = {
       generic: [
-        {text: "absent_time"},
+        { text: "absent_time" },
       ],
       entities: [],
-      context: {absentReason: "Krankheit"},
+      context: { absentReason: "Krankheit" },
     };
     replyWithAudioFunction.mockResolvedValue();
     hasUniFunction.mockRejectedValue("Expected Test Error");
@@ -155,10 +155,10 @@ describe("onUpdate", () => {
   test("switches to time with absent_reason interview watsonSpeech success", async () => {
     const waRes = {
       generic: [
-        {text: "absent_time"},
+        { text: "absent_time" },
       ],
       entities: [],
-      context: {absentReason: "Interviews"},
+      context: { absentReason: "Interviews" },
     };
     replyWithAudioFunction.mockResolvedValue();
     hasUniFunction.mockRejectedValue("Expected Test Error");
@@ -174,10 +174,10 @@ describe("onUpdate", () => {
   test("switches to time with absent_reason sick watsonSpeech fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_time"},
+        { text: "absent_time" },
       ],
       entities: [],
-      context: {absentReason: "Krankheit"},
+      context: { absentReason: "Krankheit" },
     };
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
     hasUniFunction.mockRejectedValue("Expected Test Error");
@@ -189,10 +189,10 @@ describe("onUpdate", () => {
   test("switches to time with absent_reason interview watsonSpeech fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_time"},
+        { text: "absent_time" },
       ],
       entities: [],
-      context: {absentReason: "Interviews"},
+      context: { absentReason: "Interviews" },
     };
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
     hasUniFunction.mockRejectedValue("Expected Test Error");
@@ -205,10 +205,10 @@ describe("onUpdate", () => {
   test("switches to time with absent_reason interview watsonSpeech fail hasUni success", async () => {
     const waRes = {
       generic: [
-        {text: "absent_time"},
+        { text: "absent_time" },
       ],
       entities: [],
-      context: {absentReason: "Interviews"},
+      context: { absentReason: "Interviews" },
     };
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
     hasUniFunction.mockResolvedValue();
@@ -227,7 +227,7 @@ describe("hasUni", () => {
 
     getBusySlotsByCalendarIdFunction = jest.fn();
     jest.doMock("../services/gcalendar", () => {
-      return function() {
+      return function () {
         return {
           getBusySlotsByCalendarId: getBusySlotsByCalendarIdFunction,
         };
@@ -258,15 +258,15 @@ describe("hasUni", () => {
         }),
       };
     });
-    getFunction=jest.fn().mockResolvedValue("id");
-    const preferences = {get: getFunction};
+    getFunction = jest.fn().mockResolvedValue("id");
+    const preferences = { get: getFunction };
     hasUni = require("./sendAbsent")(preferences, null).hasUni;
   });
 
   test("if rejects when no events get fetched from gcal", () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
       context: {},
@@ -280,7 +280,7 @@ describe("hasUni", () => {
   test("if resolves if gcal request fails", () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
       context: {},
@@ -294,7 +294,7 @@ describe("hasUni", () => {
   test("if resolves if events get fteched by gcal", () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
       context: {},
@@ -323,7 +323,7 @@ describe("sendMail", () => {
 
     replyWithAudioFunction = jest.fn();
     jest.doMock("../services/watsonSpeech", () => {
-      return function() {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFunction,
         };
@@ -332,7 +332,7 @@ describe("sendMail", () => {
 
     sendMailFunction = jest.fn();
     jest.doMock("../services/mailer", () => {
-      return function() {
+      return function () {
         return {
           sendMail: sendMailFunction,
         };
@@ -364,8 +364,8 @@ describe("sendMail", () => {
         }),
       };
     });
-    getFunction=jest.fn().mockResolvedValue();
-    const preferences = {get: getFunction};
+    getFunction = jest.fn().mockResolvedValue();
+    const preferences = { get: getFunction };
     sendMail = require("./sendAbsent")(preferences, null).sendMail;
     ctx = {
       reply: replyFunc,
@@ -375,25 +375,25 @@ describe("sendMail", () => {
   test("if sendMail works if absent reason is sick", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
-      context: {absentReason: "Krankheit"},
+      context: { absentReason: "Krankheit" },
     };
     sendMailFunction.mockResolvedValue();
     replyWithAudioFunction.mockResolvedValue();
     await sendMail(ctx, waRes);
-    expect(replyWithAudioFunction).toHaveBeenCalledWith({reply: replyFunc},
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({ reply: replyFunc },
         "Ich habe nun eine Mail an das Sekretariat geschickt. Ich hoffe es geht dir bald besser");
   });
 
   test("if sendMail works if absent reason is sick watsonSpeech fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
-      context: {absentReason: "Krankheit"},
+      context: { absentReason: "Krankheit" },
     };
     sendMailFunction.mockResolvedValue();
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
@@ -405,24 +405,24 @@ describe("sendMail", () => {
   test("if sendMail works if absent reason is interview", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
-      context: {absentReason: "Interviews"},
+      context: { absentReason: "Interviews" },
     };
     sendMailFunction.mockResolvedValue();
     replyWithAudioFunction.mockResolvedValue();
     await sendMail(ctx, waRes);
-    expect(replyWithAudioFunction).toHaveBeenCalledWith({reply: replyFunc},
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({ reply: replyFunc },
         "Ich habe nun eine Mail an das Sekretariat geschickt. Ich wünsche dir viel Erfolg");
   });
   test("if sendMail works if absent reason is interview watsonSpeech fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
-      context: {absentReason: "Interviews"},
+      context: { absentReason: "Interviews" },
     };
     sendMailFunction.mockResolvedValue();
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
@@ -434,26 +434,26 @@ describe("sendMail", () => {
   test("if sendMail send right answer if mail can't be send", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
-      context: {absentReason: "Interviews"},
+      context: { absentReason: "Interviews" },
     };
 
     sendMailFunction.mockRejectedValue("Expected Test Error");
     replyWithAudioFunction.mockResolvedValue();
     await sendMail(ctx, waRes);
-    expect(replyWithAudioFunction).toHaveBeenCalledWith({reply: replyFunc},
+    expect(replyWithAudioFunction).toHaveBeenCalledWith({ reply: replyFunc },
         "Ich konnte dem Sekretariat leider keine Mail schicken. Versuche es bitte erneut");
   });
 
   test("if sendMail send right answer if mail can't be send watsonSpeech fail", async () => {
     const waRes = {
       generic: [
-        {text: "absent_welcome"},
+        { text: "absent_welcome" },
       ],
       entities: [],
-      context: {absentReason: "Interviews"},
+      context: { absentReason: "Interviews" },
     };
 
     sendMailFunction.mockRejectedValue("Expected Test Error");
@@ -480,7 +480,7 @@ describe("findPharmacy", () => {
 
     replyWithAudioFunction = jest.fn();
     jest.doMock("../services/watsonSpeech", () => {
-      return function() {
+      return function () {
         return {
           replyWithAudio: replyWithAudioFunction,
         };
@@ -490,15 +490,15 @@ describe("findPharmacy", () => {
     getPlacesFunction = jest.fn();
     getPlaceByIdFunction = jest.fn();
     jest.doMock("../services/gplaces", () => {
-      return function() {
+      return function () {
         return {
           getPlaces: getPlacesFunction,
           getPlaceById: getPlaceByIdFunction,
         };
       };
     });
-    getFunction=jest.fn().mockResolvedValue("4000,4000");
-    const preferences = {get: getFunction};
+    getFunction = jest.fn().mockResolvedValue("4000,4000");
+    const preferences = { get: getFunction };
     findPharmacy = require("./sendAbsent")(preferences, null).findPharmacy;
     ctx = {
       reply: replyFunc,
@@ -515,14 +515,14 @@ describe("findPharmacy", () => {
     });
     getPlaceByIdFunction.mockResolvedValue({
       "result":
-        {"url": "URL"},
+        { "url": "URL" },
     });
     replyWithAudioFunction.mockResolvedValue();
     await findPharmacy(ctx);
     expect(replyWithAudioFunction).toHaveBeenCalledWith({
       reply: replyFunc,
     },
-    "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:" );
+    "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:");
   });
 
   test("if pharmacy gets requested  getPlaces success, getPlaceById success, watsonSpeech fail", async () => {
@@ -535,12 +535,12 @@ describe("findPharmacy", () => {
     });
     getPlaceByIdFunction.mockResolvedValue({
       "result":
-          {"url": "URL"},
+          { "url": "URL" },
     });
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
     await findPharmacy(ctx);
     expect(replyFunc).toHaveBeenCalledWith(
-        "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:" );
+        "Wenn du Medizin brauchst kannst du zu dieser Apotheke in deiner Nähe gehen:");
   });
 
   test("if pharmacy gets requested  getPlaces success, getPlaceById fail, watsonSpeech success", async () => {
@@ -555,7 +555,7 @@ describe("findPharmacy", () => {
     replyWithAudioFunction.mockResolvedValue();
     await findPharmacy(ctx);
     expect(replyFunc).toHaveBeenCalledWith(
-        "Apotheke" );
+        "Apotheke");
   });
 
   test("if pharmacy gets requested getPlaces success, getPlaceById fail, watsonSpeech fail", async () => {
@@ -570,7 +570,7 @@ describe("findPharmacy", () => {
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
     await findPharmacy(ctx);
     expect(replyFunc).toHaveBeenCalledWith(
-        "Apotheke" );
+        "Apotheke");
   });
 
   test("if pharmacy gets requested getPlaces fail, getPlaceById fail, watsonSpeech fail", async () => {
@@ -579,7 +579,7 @@ describe("findPharmacy", () => {
     replyWithAudioFunction.mockRejectedValue("Expected Test Error");
     await findPharmacy(ctx);
     expect(replyFunc).toHaveBeenCalledWith(
-        "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser" );
+        "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser");
   });
   test("if pharmacy gets requested  getPlaces fail, getPlaceById fail, watsonSpeech success", async () => {
     getPlacesFunction.mockRejectedValue("Expected Test Error");
@@ -589,6 +589,6 @@ describe("findPharmacy", () => {
     expect(replyWithAudioFunction).toHaveBeenCalledWith({
       reply: replyFunc,
     },
-    "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser" );
+    "Ich konnte leider keine Apotheke finden. Ich hoffe dir geht es trotzdem bald besser");
   });
 });

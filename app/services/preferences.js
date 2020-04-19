@@ -1,9 +1,9 @@
-module.exports = function(db) {
-  this.get = (key)=>{
-    return new Promise((resolve, reject)=>{
-      db.collection("preferences").findOne({}).then((prefs)=>{
+module.exports = function (db) {
+  this.get = (key) => {
+    return new Promise((resolve, reject) => {
+      db.collection("preferences").findOne({}).then((prefs) => {
         if (!prefs) {
-          db.collection("preferences").insertOne({}, function(err, res) {
+          db.collection("preferences").insertOne({}, function (err, res) {
             if (err) {
               reject(err);
             } else {
@@ -17,15 +17,15 @@ module.exports = function(db) {
     });
   };
 
-  this.set = (key, value)=>{
-    return new Promise((resolve, reject)=>{
-      db.collection("preferences").count({}).then((count)=>{
+  this.set = (key, value) => {
+    return new Promise((resolve, reject) => {
+      db.collection("preferences").count({}).then((count) => {
         if (count === 0) {
-          db.collection("preferences").insertOne({[key]: value}).then(()=>{
+          db.collection("preferences").insertOne({ [key]: value }).then(() => {
             resolve();
           }).catch(reject);
         } else {
-          db.collection("preferences").updateOne({}, {$set: {[key]: value}}).then(()=>{
+          db.collection("preferences").updateOne({}, { $set: { [key]: value } }).then(() => {
             resolve();
           }).catch(reject);
         }

@@ -7,4 +7,4 @@ function MailerApiError(message, errorObject) {
 }
 
 
-module.exports = {MailerApiError};
+module.exports = { MailerApiError };

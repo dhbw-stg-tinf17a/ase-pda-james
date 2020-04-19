@@ -8,9 +8,9 @@ describe("watsonAssistant createSession ", () => {
   });
   test("if can create Session and set sessionId", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
-          createSession: jest.fn(() => Promise.resolve({result: {session_id: "12345"}})),
+          createSession: jest.fn(() => Promise.resolve({ result: { session_id: "12345" } })),
         };
       };
     });
@@ -24,7 +24,7 @@ describe("watsonAssistant createSession ", () => {
 
   test("if rejection from api can be handled", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           createSession: jest.fn(() => Promise.reject(new Error("Could not create session"))),
         };
@@ -44,7 +44,7 @@ describe("watsonAssistant message ", () => {
   });
   test("if message can be send to api and get result", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           message: jest.fn(() => Promise.resolve(searchResponse)),
         };
@@ -59,7 +59,7 @@ describe("watsonAssistant message ", () => {
 
   test("if rejection from api can be handled", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           message: jest.fn(() => Promise.reject(new Error("Couldn't send message"))),
         };
@@ -79,7 +79,7 @@ describe("watsonAssistant deleteSession ", () => {
   });
   test("if session can be deleted and sessionId set to emtpy string", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           deleteSession: jest.fn(() => Promise.resolve("sessionId deleted")),
         };
@@ -87,7 +87,7 @@ describe("watsonAssistant deleteSession ", () => {
     });
 
     watsonAssistant = require("./watsonAssistant")();
-    watsonAssistant.sessionId="12346";
+    watsonAssistant.sessionId = "12346";
     expect(watsonAssistant.sessionId).toBe("12346");
     return watsonAssistant.deleteSession().then((res) => {
       expect(res).toBe("success");
@@ -96,7 +96,7 @@ describe("watsonAssistant deleteSession ", () => {
   });
   test("if rejection from api can be handled", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           deleteSession: jest.fn(() => Promise.reject(new Error("Couldn't delete sessionId"))),
         };
@@ -104,7 +104,7 @@ describe("watsonAssistant deleteSession ", () => {
     });
 
     watsonAssistant = require("./watsonAssistant")();
-    watsonAssistant.sessionId="12346";
+    watsonAssistant.sessionId = "12346";
     expect(watsonAssistant.sessionId).toBe("12346");
     return watsonAssistant.deleteSession().catch((err) => {
       expect(err.message).toBe("Couldn't delete sessionId");
@@ -119,11 +119,11 @@ describe("watsonAssistant sendInput ", () => {
   });
   test("if sendInput works if sessionId is not set", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           message: jest.fn(() => Promise.resolve(searchResponse)),
           deleteSession: jest.fn(() => Promise.resolve("")),
-          createSession: jest.fn(() => Promise.resolve({result: {session_id: "12345"}})),
+          createSession: jest.fn(() => Promise.resolve({ result: { session_id: "12345" } })),
         };
       };
     });
@@ -139,9 +139,9 @@ describe("watsonAssistant sendInput ", () => {
 
   test("if sendInput works if sessionId is set and does not create a new sessionId", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
-          createSession: jest.fn(() => Promise.resolve({result: {session_id: "12345"}})),
+          createSession: jest.fn(() => Promise.resolve({ result: { session_id: "12345" } })),
           deleteSession: jest.fn(() => Promise.resolve("sessionId deleted")),
           message: jest.fn(() => Promise.resolve(searchResponse)),
         };
@@ -159,9 +159,9 @@ describe("watsonAssistant sendInput ", () => {
 
   test("if a new sessionId gets created if sessionId is invalid", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
-          createSession: jest.fn(() => Promise.resolve({result: {session_id: "12345"}})),
+          createSession: jest.fn(() => Promise.resolve({ result: { session_id: "12345" } })),
           deleteSession: jest.fn(() => Promise.resolve("sessionId deleted")),
           message: jest.fn(() => Promise.reject(new Error("Invalid Session"))),
         };
@@ -184,7 +184,7 @@ describe("watsonAssistant setContext ", () => {
   });
   test("if context can be set", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           message: jest.fn(() => Promise.resolve(searchResponse)),
         };
@@ -199,7 +199,7 @@ describe("watsonAssistant setContext ", () => {
 
   test("if rejection from api can be handled", () => {
     jest.doMock("ibm-watson/assistant/v2", () => {
-      return function() {
+      return function () {
         return {
           message: jest.fn(() => Promise.reject(new Error("Couldn't send message"))),
         };

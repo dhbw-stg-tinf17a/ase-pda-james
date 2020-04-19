@@ -13,4 +13,4 @@ function GPlacesInvalidParametersError(message, params) {
 }
 
 
-module.exports = {GPlacesApiError, GPlacesInvalidParametersError};
+module.exports = { GPlacesApiError, GPlacesInvalidParametersError };

@@ -1,8 +1,8 @@
 const nodemailer = require("nodemailer");
 const e = require("./mailerErrors");
-module.exports = function() {
-  this.sendMail = (mail) =>{
-    return new Promise((resolve, reject)=>{
+module.exports = function () {
+  this.sendMail = (mail) => {
+    return new Promise((resolve, reject) => {
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 465,

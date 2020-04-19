@@ -53,8 +53,6 @@ module.exports = () => {
           stopRes.sort((a, b) => {
             return a.distance - b.distance;
           });
-
-          // resolve(stopRes[0]);
         }
         resolve(stopRes);
       });

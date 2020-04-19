@@ -91,7 +91,7 @@ describe("freeAroundEvent", () => {
   });
 
   test("works if event is before 10:00", () => {
-    const freeSlots = freeAroundEvent({start: "2020-04-07T07:00:00+02:00", end: "2020-04-07T08:00:00+02:00"}, now);
+    const freeSlots = freeAroundEvent({ start: "2020-04-07T07:00:00+02:00", end: "2020-04-07T08:00:00+02:00" }, now);
 
     expect(freeSlots).toHaveLength(1);
     expect(freeSlots[0]).toHaveProperty("start");
@@ -101,7 +101,7 @@ describe("freeAroundEvent", () => {
   });
 
   test("works if event is at 10:00", () => {
-    const freeSlots = freeAroundEvent({start: "2020-04-07T10:00:00+02:00", end: "2020-04-07T11:00:00+02:00"}, now);
+    const freeSlots = freeAroundEvent({ start: "2020-04-07T10:00:00+02:00", end: "2020-04-07T11:00:00+02:00" }, now);
 
     expect(freeSlots).toHaveLength(2);
 
@@ -117,7 +117,7 @@ describe("freeAroundEvent", () => {
   });
 
   test("works if event is after 10:00", () => {
-    const freeSlots = freeAroundEvent({start: "2020-04-07T10:05:00+02:00", end: "2020-04-07T11:00:00+02:00"}, now);
+    const freeSlots = freeAroundEvent({ start: "2020-04-07T10:05:00+02:00", end: "2020-04-07T11:00:00+02:00" }, now);
 
     expect(freeSlots).toHaveLength(2);
 

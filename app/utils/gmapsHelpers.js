@@ -19,4 +19,4 @@ const buildURL = (config) => {
   console.log("buildURL", url + params);
   return url + params;
 };
-module.exports = {buildURL};
+module.exports = { buildURL };

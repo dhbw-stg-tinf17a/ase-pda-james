@@ -5,7 +5,7 @@ const cron = require("node-cron");
 
 module.exports = class Manager {
   constructor(db) {
-    this.cronHasBeenStarted=false;
+    this.cronHasBeenStarted = false;
     this.db = db;
   }
 
@@ -13,7 +13,7 @@ module.exports = class Manager {
   start(preferences, oAuth2Client) {
     this.bot = new Telegraf(process.env.BOT_TOKEN);
     this.usecases = {};
-    
+
     // const preferences = require("./services/preferences")(db);
     this.usecases.start = require("./usecases/start.js")(preferences, oAuth2Client);
     this.usecases.absent = require("./usecases/sendAbsent.js")(preferences, oAuth2Client);
@@ -60,7 +60,7 @@ module.exports = class Manager {
 
     // mock waRes.generic[0].text
     // so use case gets triggered regularly
-    const waRes={generic: [{text: "meals_cron"}]};
+    const waRes = { generic: [{ text: "meals_cron" }] };
 
     /**
          * Schedule cron job

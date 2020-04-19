@@ -19,7 +19,7 @@ describe("createResearchLinks", () => {
   beforeEach(() => createResearchLinks = require("./bookHelpers").createResearchLinks);
 
   test("works if transformed records are provided", () => {
-    const transformedResults = [{title: "Test", url: "test"}];
+    const transformedResults = [{ title: "Test", url: "test" }];
 
     expect(createResearchLinks(transformedResults)).toBe("<p><a href=\"test\">Test</a></p>");
   });

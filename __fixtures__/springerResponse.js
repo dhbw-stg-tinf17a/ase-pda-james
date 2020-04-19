@@ -2,13 +2,13 @@ module.exports = {
   "apiMessage": "This JSON was provided by Springer Nature",
   "query": "user experience",
   "apiKey": "72176eeb5c4422a35299b07dfb9bf04e",
-  "result": [{"total": "566851", "start": "1", "pageLength": "10", "recordsDisplayed": "10"}],
+  "result": [{ "total": "566851", "start": "1", "pageLength": "10", "recordsDisplayed": "10" }],
   "records": [{
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-3-319-01904-8_6-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-01904-8_6-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-01904-8_6-1" }],
     "title": "Human-Centered Design and Smart Homes: How to Study and Design for the Home Experience?",
-    "creators": [{"creator": "Eggen, Berry"}, {"creator": "Hoven, Elise"}, {"creator": "Terken, Jacques"}],
+    "creators": [{ "creator": "Eggen, Berry" }, { "creator": "Hoven, Elise" }, { "creator": "Terken, Jacques" }],
     "publicationName": "Handbook of Smart Homes, Health Care and Well-Being",
     "openaccess": "false",
     "doi": "10.1007/978-3-319-01904-8_6-1",
@@ -24,9 +24,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-94-007-6994-6_15-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_15-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_15-1" }],
     "title": "Design for the Value of Inclusiveness",
-    "creators": [{"creator": "Keates, Simeon"}],
+    "creators": [{ "creator": "Keates, Simeon" }],
     "publicationName": "Handbook of Ethics, Values, and Technological Design",
     "openaccess": "false",
     "doi": "10.1007/978-94-007-6994-6_15-1",
@@ -42,9 +42,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-94-007-6994-6_10-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_10-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_10-1" }],
     "title": "Design Methods in Design for Values",
-    "creators": [{"creator": "Vermaas, Pieter E."}, {"creator": "Hekkert, Paul"}, {"creator": "Manders-Huits, Noëmi"}, {"creator": "Tromp, Nynke"}],
+    "creators": [{ "creator": "Vermaas, Pieter E." }, { "creator": "Hekkert, Paul" }, { "creator": "Manders-Huits, Noëmi" }, { "creator": "Tromp, Nynke" }],
     "publicationName": "Handbook of Ethics, Values, and Technological Design",
     "openaccess": "false",
     "doi": "10.1007/978-94-007-6994-6_10-1",
@@ -60,9 +60,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-94-007-6994-6_14-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_14-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_14-1" }],
     "title": "Design for the Value of Human Well-Being",
-    "creators": [{"creator": "Brey, Philip"}],
+    "creators": [{ "creator": "Brey, Philip" }],
     "publicationName": "Handbook of Ethics, Values, and Technological Design",
     "openaccess": "false",
     "doi": "10.1007/978-94-007-6994-6_14-1",
@@ -78,9 +78,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-94-007-6994-6_6-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_6-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_6-1" }],
     "title": "Emotions in Design for Values",
-    "creators": [{"creator": "Desmet, Pieter M. A."}, {"creator": "Roeser, Sabine"}],
+    "creators": [{ "creator": "Desmet, Pieter M. A." }, { "creator": "Roeser, Sabine" }],
     "publicationName": "Handbook of Ethics, Values, and Technological Design",
     "openaccess": "false",
     "doi": "10.1007/978-94-007-6994-6_6-1",
@@ -96,9 +96,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-3-319-02847-7_32-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-02847-7_32-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-02847-7_32-1" }],
     "title": "Dashboard Display of Solar Weather",
-    "creators": [{"creator": "Tan, Su-Yin"}],
+    "creators": [{ "creator": "Tan, Su-Yin" }],
     "publicationName": "Handbook of Cosmic Hazards and Planetary Defense",
     "openaccess": "false",
     "doi": "10.1007/978-3-319-02847-7_32-1",
@@ -114,9 +114,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-3-319-01904-8_34-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-01904-8_34-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-01904-8_34-1" }],
     "title": "Technology Acceptance by Patients: Empowerment and Stigma",
-    "creators": [{"creator": "Ziefle, Martina"}, {"creator": "Schaar, Anne Kathrin"}],
+    "creators": [{ "creator": "Ziefle, Martina" }, { "creator": "Schaar, Anne Kathrin" }],
     "publicationName": "Handbook of Smart Homes, Health Care and Well-Being",
     "openaccess": "false",
     "doi": "10.1007/978-3-319-01904-8_34-1",
@@ -132,9 +132,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-94-007-6994-6_33-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_33-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_33-1" }],
     "title": "Participatory Design and Design for Values",
-    "creators": [{"creator": "Velden, Maja"}, {"creator": "Mörtberg, Christina"}],
+    "creators": [{ "creator": "Velden, Maja" }, { "creator": "Mörtberg, Christina" }],
     "publicationName": "Handbook of Ethics, Values, and Technological Design",
     "openaccess": "false",
     "doi": "10.1007/978-94-007-6994-6_33-1",
@@ -150,9 +150,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-3-319-01904-8_3-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-01904-8_3-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-3-319-01904-8_3-1" }],
     "title": "A Framework for the Acceptance of Gerontechnology in Relation to Smart Living",
-    "creators": [{"creator": "Bouwhuis, Don G."}],
+    "creators": [{ "creator": "Bouwhuis, Don G." }],
     "publicationName": "Handbook of Smart Homes, Health Care and Well-Being",
     "openaccess": "false",
     "doi": "10.1007/978-3-319-01904-8_3-1",
@@ -168,9 +168,9 @@ module.exports = {
   }, {
     "contentType": "Chapter",
     "identifier": "doi:10.1007/978-94-007-6994-6_9-1",
-    "url": [{"format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_9-1"}],
+    "url": [{ "format": "", "platform": "", "value": "http://dx.doi.org/10.1007/978-94-007-6994-6_9-1" }],
     "title": "Mediation in Design for Values",
-    "creators": [{"creator": "Spahn, A."}],
+    "creators": [{ "creator": "Spahn, A." }],
     "publicationName": "Handbook of Ethics, Values, and Technological Design",
     "openaccess": "false",
     "doi": "10.1007/978-94-007-6994-6_9-1",
@@ -186,16 +186,16 @@ module.exports = {
   }],
   "facets": [{
     "name": "subject",
-    "values": [{"value": "Medicine & Public Health", "count": "150937"}, {
+    "values": [{ "value": "Medicine & Public Health", "count": "150937" }, {
       "value": "Computer Science",
       "count": "93829",
-    }, {"value": "Engineering", "count": "51985"}, {
+    }, { "value": "Engineering", "count": "51985" }, {
       "value": "User Interfaces and Human Computer Interaction",
       "count": "42023",
-    }, {"value": "Life Sciences", "count": "40146"}, {
+    }, { "value": "Life Sciences", "count": "40146" }, {
       "value": "Public Health",
       "count": "39655",
-    }, {"value": "Biomedicine", "count": "39186"}, {
+    }, { "value": "Biomedicine", "count": "39186" }, {
       "value": "Medicine/Public Health, general",
       "count": "39158",
     }, {
@@ -204,13 +204,13 @@ module.exports = {
     }, {
       "value": "Artificial Intelligence (incl. Robotics)",
       "count": "32685",
-    }, {"value": "Computer Communication Networks", "count": "30214"}, {
+    }, { "value": "Computer Communication Networks", "count": "30214" }, {
       "value": "Internal Medicine",
       "count": "24995",
-    }, {"value": "Business and Management", "count": "24032"}, {
+    }, { "value": "Business and Management", "count": "24032" }, {
       "value": "Oncology",
       "count": "20588",
-    }, {"value": "Neurosciences", "count": "19416"}, {
+    }, { "value": "Neurosciences", "count": "19416" }, {
       "value": "Education",
       "count": "18405",
     }, {
@@ -219,108 +219,108 @@ module.exports = {
     }, {
       "value": "Science, Humanities and Social Sciences, multidisciplinary",
       "count": "17624",
-    }, {"value": "Psychiatry", "count": "17588"}, {"value": "Information Storage and Retrieval", "count": "17551"}],
+    }, { "value": "Psychiatry", "count": "17588" }, { "value": "Information Storage and Retrieval", "count": "17551" }],
   }, {
     "name": "keyword",
-    "values": [{"value": "Quality of life", "count": "2707"}, {
+    "values": [{ "value": "Quality of life", "count": "2707" }, {
       "value": "Climate change",
       "count": "2679",
-    }, {"value": "Depression", "count": "2654"}, {"value": "HIV", "count": "2378"}, {
+    }, { "value": "Depression", "count": "2654" }, { "value": "HIV", "count": "2378" }, {
       "value": "Children",
       "count": "2167",
-    }, {"value": "Education", "count": "2153"}, {
+    }, { "value": "Education", "count": "2153" }, {
       "value": "Machine learning",
       "count": "2109",
-    }, {"value": "Systematic review", "count": "2009"}, {
+    }, { "value": "Systematic review", "count": "2009" }, {
       "value": "Social media",
       "count": "2001",
-    }, {"value": "Breast cancer", "count": "1966"}, {
+    }, { "value": "Breast cancer", "count": "1966" }, {
       "value": "Virtual reality",
       "count": "1819",
-    }, {"value": "Mental health", "count": "1775"}, {
+    }, { "value": "Mental health", "count": "1775" }, {
       "value": "Cloud computing",
       "count": "1693",
-    }, {"value": "Sustainability", "count": "1643"}, {
+    }, { "value": "Sustainability", "count": "1643" }, {
       "value": "Meta-analysis",
       "count": "1640",
-    }, {"value": "Epidemiology", "count": "1522"}, {"value": "Cancer", "count": "1504"}, {
+    }, { "value": "Epidemiology", "count": "1522" }, { "value": "Cancer", "count": "1504" }, {
       "value": "Obesity",
       "count": "1471",
-    }, {"value": "Adolescents", "count": "1446"}, {"value": "Big data", "count": "1432"}],
+    }, { "value": "Adolescents", "count": "1446" }, { "value": "Big data", "count": "1432" }],
   }, {
     "name": "pub",
-    "values": [{"value": "Scientific Reports", "count": "10620"}, {
+    "values": [{ "value": "Scientific Reports", "count": "10620" }, {
       "value": "BMC Public Health",
       "count": "6492",
-    }, {"value": "BMC Health Services Research", "count": "4771"}, {
+    }, { "value": "BMC Health Services Research", "count": "4771" }, {
       "value": "Trials",
       "count": "3258",
-    }, {"value": "Nature Communications", "count": "2922"}, {
+    }, { "value": "Nature Communications", "count": "2922" }, {
       "value": "Nature",
       "count": "2714",
-    }, {"value": "BMC Cancer", "count": "2635"}, {
+    }, { "value": "BMC Cancer", "count": "2635" }, {
       "value": "Multimedia Tools and Applications",
       "count": "2358",
-    }, {"value": "BMC Infectious Diseases", "count": "2097"}, {
+    }, { "value": "BMC Infectious Diseases", "count": "2097" }, {
       "value": "BMC Psychiatry",
       "count": "1986",
-    }, {"value": "AIDS and Behavior", "count": "1969"}, {
+    }, { "value": "AIDS and Behavior", "count": "1969" }, {
       "value": "Malaria Journal",
       "count": "1904",
-    }, {"value": "Wireless Personal Communications", "count": "1807"}, {
+    }, { "value": "Wireless Personal Communications", "count": "1807" }, {
       "value": "BMC Musculoskeletal Disorders",
       "count": "1780",
-    }, {"value": "BMC Genomics", "count": "1707"}, {
+    }, { "value": "BMC Genomics", "count": "1707" }, {
       "value": "BMC Research Notes",
       "count": "1644",
-    }, {"value": "Neuropsychopharmacology", "count": "1574"}, {
+    }, { "value": "Neuropsychopharmacology", "count": "1574" }, {
       "value": "BMC Pregnancy and Childbirth",
       "count": "1546",
-    }, {"value": "BMC Medical Education", "count": "1545"}, {"value": "BMC Bioinformatics", "count": "1506"}],
+    }, { "value": "BMC Medical Education", "count": "1545" }, { "value": "BMC Bioinformatics", "count": "1506" }],
   }, {
     "name": "year",
-    "values": [{"value": "2021", "count": "203"}, {"value": "2020", "count": "26286"}, {
+    "values": [{ "value": "2021", "count": "203" }, { "value": "2020", "count": "26286" }, {
       "value": "2019",
       "count": "78922",
-    }, {"value": "2018", "count": "66798"}, {"value": "2017", "count": "61732"}, {
+    }, { "value": "2018", "count": "66798" }, { "value": "2017", "count": "61732" }, {
       "value": "2016",
       "count": "58249",
-    }, {"value": "2015", "count": "46535"}, {"value": "2014", "count": "46434"}, {
+    }, { "value": "2015", "count": "46535" }, { "value": "2014", "count": "46434" }, {
       "value": "2013",
       "count": "38493",
-    }, {"value": "2012", "count": "28194"}, {"value": "2011", "count": "24444"}, {
+    }, { "value": "2012", "count": "28194" }, { "value": "2011", "count": "24444" }, {
       "value": "2010",
       "count": "19290",
-    }, {"value": "2009", "count": "15423"}, {"value": "2008", "count": "12165"}, {
+    }, { "value": "2009", "count": "15423" }, { "value": "2008", "count": "12165" }, {
       "value": "2007",
       "count": "9477",
-    }, {"value": "2006", "count": "7171"}, {"value": "2005", "count": "5149"}, {
+    }, { "value": "2006", "count": "7171" }, { "value": "2005", "count": "5149" }, {
       "value": "2004",
       "count": "4081",
-    }, {"value": "2003", "count": "2979"}, {"value": "2002", "count": "2058"}],
+    }, { "value": "2003", "count": "2979" }, { "value": "2002", "count": "2058" }],
   }, {
     "name": "country",
-    "values": [{"value": "United States", "count": "165151"}, {
+    "values": [{ "value": "United States", "count": "165151" }, {
       "value": "United Kingdom",
       "count": "68010",
-    }, {"value": "Germany", "count": "53556"}, {"value": "China", "count": "43848"}, {
+    }, { "value": "Germany", "count": "53556" }, { "value": "China", "count": "43848" }, {
       "value": "Canada",
       "count": "32983",
-    }, {"value": "Australia", "count": "32493"}, {"value": "Italy", "count": "30225"}, {
+    }, { "value": "Australia", "count": "32493" }, { "value": "Italy", "count": "30225" }, {
       "value": "Netherlands",
       "count": "25664",
-    }, {"value": "France", "count": "23582"}, {"value": "Spain", "count": "20123"}, {
+    }, { "value": "France", "count": "23582" }, { "value": "Spain", "count": "20123" }, {
       "value": "India",
       "count": "19301",
-    }, {"value": "Japan", "count": "18428"}, {"value": "Switzerland", "count": "15845"}, {
+    }, { "value": "Japan", "count": "18428" }, { "value": "Switzerland", "count": "15845" }, {
       "value": "Sweden",
       "count": "14815",
-    }, {"value": "Brazil", "count": "10513"}, {"value": "Belgium", "count": "10197"}, {
+    }, { "value": "Brazil", "count": "10513" }, { "value": "Belgium", "count": "10197" }, {
       "value": "South Korea",
       "count": "10191",
-    }, {"value": "Denmark", "count": "9607"}, {"value": "Norway", "count": "9361"}, {
+    }, { "value": "Denmark", "count": "9607" }, { "value": "Norway", "count": "9361" }, {
       "value": "Austria",
       "count": "9271",
     }],
-  }, {"name": "type", "values": [{"value": "Journal", "count": "349895"}, {"value": "Book", "count": "216955"}]}],
+  }, { "name": "type", "values": [{ "value": "Journal", "count": "349895" }, { "value": "Book", "count": "216955" }] }],
 };

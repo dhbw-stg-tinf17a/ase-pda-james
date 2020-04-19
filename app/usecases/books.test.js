@@ -50,7 +50,7 @@ describe("onUpdate", () => {
   test("switches to welcome", async () => {
     const waRes = {
       generic: [
-        {text: "book_welcome"},
+        { text: "book_welcome" },
       ],
     };
 
@@ -61,7 +61,7 @@ describe("onUpdate", () => {
   test("switches to which-day", async () => {
     const waRes = {
       generic: [
-        {text: "book_which-day"},
+        { text: "book_which-day" },
       ],
     };
 
@@ -73,7 +73,7 @@ describe("onUpdate", () => {
     // jest.setTimeout(12000);
     const waRes = {
       generic: [
-        {text: "book_slots"},
+        { text: "book_slots" },
       ],
       context: {
         keyword: "test",
@@ -134,7 +134,7 @@ describe("onCallbackQuery", () => {
       replyWithHTML: jest.fn(() => {
         return new Promise((resolve) => resolve());
       }),
-      callbackQuery: {data: "book_yes"},
+      callbackQuery: { data: "book_yes" },
     };
 
     await onCallbackQuery(ctx);
@@ -149,7 +149,7 @@ describe("onCallbackQuery", () => {
       replyWithHTML: jest.fn(() => {
         return new Promise((resolve) => resolve());
       }),
-      callbackQuery: {data: "book_no"},
+      callbackQuery: { data: "book_no" },
     };
 
     await onCallbackQuery(ctx);
@@ -165,7 +165,7 @@ describe("formatLibraryInfo", () => {
   });
 
   test("creates the right string with parameters", () => {
-    const text = formatLibraryInfo({name: "Bibliothek", address: "Bei mir zu Hause"});
+    const text = formatLibraryInfo({ name: "Bibliothek", address: "Bei mir zu Hause" });
 
     expect(text).toBe(`
       Die nächste Bibliothek von dir zu Hause ist die "<b>Bibliothek</b>".\nDie Adresse lautet: Bei mir zu Hause.
@@ -184,8 +184,8 @@ describe("formatArticleResults", () => {
 
   test("creates the right string with parameters", () => {
     const articles = [
-      {url: [{value: "xyz"}], title: "Test article"},
-      {url: [{value: "abc"}], title: "Test article 2"},
+      { url: [{ value: "xyz" }], title: "Test article" },
+      { url: [{ value: "abc" }], title: "Test article 2" },
     ];
 
     const text = formatArticleResults(articles);

@@ -96,7 +96,7 @@ describe("getFreeSlots", () => {
         google: {
           calendar: jest.fn(() => ({
             freebusy: {
-              query: ({requestBody}) => {
+              query: ({ requestBody }) => {
                 if (!requestBody.items[0].id) {
                   return Promise.reject(new Error());
                 } else {
@@ -152,7 +152,7 @@ describe("getBusySlotsByCalendarId", () => {
         google: {
           calendar: jest.fn(() => ({
             freebusy: {
-              query: ({requestBody}) => {
+              query: ({ requestBody }) => {
                 if (!requestBody.items[0].id) {
                   return Promise.reject(new Error());
                 } else {
@@ -212,7 +212,7 @@ describe("getNextEvents", () => {
         google: {
           calendar: jest.fn(() => ({
             events: {
-              list: ({calendarId}) => {
+              list: ({ calendarId }) => {
                 if (!calendarId) {
                   return Promise.reject(new Error());
                 } else {
@@ -274,7 +274,7 @@ describe("getTimeUntilNextEvent", () => {
         google: {
           calendar: jest.fn(() => ({
             events: {
-              list: ({calendarId}) => {
+              list: ({ calendarId }) => {
                 if (!calendarId) {
                   return Promise.reject(new Error());
                 } else {

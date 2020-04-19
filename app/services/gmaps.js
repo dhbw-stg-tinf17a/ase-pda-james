@@ -1,7 +1,7 @@
 const axios = require("axios");
 const htmlToText = require("html-to-text");
-require("dotenv").config({path: __dirname + "./../../.env"});
-const {buildURL} = require("../utils/gmapsHelpers");
+require("dotenv").config({ path: `${__dirname }./../../.env` });
+const { buildURL } = require("../utils/gmapsHelpers");
 
 /*
  * config: {
@@ -28,9 +28,9 @@ module.exports.getDirections = (config) => {
             return htmlToText.fromString(htmlText);
           });
 
-          resolve({distance: distance, duration: duration, value: durationValue, steps: steps});
+          resolve({ distance: distance, duration: duration, value: durationValue, steps: steps });
         })
-        .catch(function(error) {
+        .catch((error) => {
           // handle error
           console.error(error);
           reject(error);
@@ -46,7 +46,7 @@ module.exports.getGoogleMapsRedirectionURL = (destination, placeId = null) => {
     query: destination,
   };
   if (placeId) {
-    paramsObject.query_place_id=placeId;
+    paramsObject.query_place_id = placeId;
   }
 
   const params = new URLSearchParams(paramsObject);

@@ -35,11 +35,11 @@ module.exports = () => {
       dep: moment(depTime).calendar(moment(), {
         sameDay: "[um] HH [Uhr] m",
         nextWeek: "[am] dddd [um] HH [Uhr] m",
-        nextDay: "[morgen um] HH [Uhr] m"}),
+        nextDay: "[morgen um] HH [Uhr] m" }),
       arr: moment(arrTime).calendar(moment(), {
         sameDay: "[um] HH [Uhr] m",
         nextWeek: "[am] dddd [um] HH [Uhr] m",
-        nextDay: "[um] HH [Uhr] m"}),
+        nextDay: "[um] HH [Uhr] m" }),
     };
   };
 
@@ -51,7 +51,7 @@ module.exports = () => {
         .calendar(timeParams.currentTime, {
           sameDay: "[um] HH [Uhr] m",
           nextWeek: "[am] dddd [um] HH [Uhr] m",
-          nextDay: "[um] HH [Uhr] m"},
+          nextDay: "[um] HH [Uhr] m" },
         );
   };
 

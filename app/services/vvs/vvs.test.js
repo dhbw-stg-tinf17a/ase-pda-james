@@ -11,7 +11,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getStopByKeyword(...) resolves promise", () => {
     const mockRes = require("../../../__fixtures__/vvs/getStopByKeywordResponse");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const key = "Rotebühlplatz 41, Stuttgart";
     return expect(vvs.getStopByKeyword(key)).resolves.toBeDefined();
@@ -19,7 +19,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getStopByKeyword(...) rejects error due to unresolvable keyword", () => {
     const mockRes = require("../../../__fixtures__/vvs/getStopByKeywordUnresolvableReject");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const key = "xxx";
     return expect(vvs.getStopByKeyword(key)).rejects.toBeDefined();
@@ -27,7 +27,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getStopByKeyword(...) rejects error due to ambivalent keyword", () => {
     const mockRes = require("../../../__fixtures__/vvs/getStopByKeywordAmbivalentReject");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const key = "Im Wiesengrund 40";
     expect(vvs.getStopByKeyword(key)).rejects.toBeDefined();
@@ -43,7 +43,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getTrip(...) resolves promise", () => {
     const mockRes = require("../../../__fixtures__/vvs/getTripResolve");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const tripParams = {
       originId: 5000355,
@@ -54,7 +54,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getTrip(...) returns object that contains certain properties", () => {
     const mockRes = require("../../../__fixtures__/vvs/getTripResolve");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const tripParams = {
       originId: 5000355,
@@ -72,7 +72,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getTrip(...) rejects error due to invalid query parameters", () => {
     const mockRes = require("../../../__fixtures__/vvs/getTripInvalidParametersReject");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const tripParams = {
       originId: "foo",
@@ -84,7 +84,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getTrip(...) sets date to current when no specific date is provided", () => {
     const mockRes = require("../../../__fixtures__/vvs/getTripResolve");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const tripParams = {
       originId: 5000355,
@@ -99,7 +99,7 @@ describe("VVS Service: getStopByKeyword(...)", () => {
 
   test("getTrip(...) sets date to specific date when provided", () => {
     const mockRes = require("../../../__fixtures__/vvs/getTripResolve");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const tripParams = {
       originId: 5000355,
@@ -121,7 +121,7 @@ describe("VVS Service: Errors", () => {
   });
   test("VvsUnresolvableKeywordError is thrown when query parameters yield no valid stop ID", () => {
     const mockRes = require("../../../__fixtures__/vvs/getStopByKeywordUnresolvableReject");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const key = "xxx";
     return vvs.getStopByKeyword(key).catch((err) => {
@@ -132,7 +132,7 @@ describe("VVS Service: Errors", () => {
 
   test("VvsMultiplePointsError is thrown when query parameters yield more than one valid stop ID", () => {
     const mockRes = require("../../../__fixtures__/vvs/getStopByKeywordAmbivalentReject");
-    axios.get.mockResolvedValue({data: mockRes});
+    axios.get.mockResolvedValue({ data: mockRes });
 
     const key = "Im Wiesengrund 40";
     return vvs.getStopByKeyword(key).catch((err) => {

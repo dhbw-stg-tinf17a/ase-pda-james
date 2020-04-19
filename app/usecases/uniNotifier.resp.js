@@ -2,7 +2,7 @@ module.exports = () => {
   this.firstResponse = "Ich schaue mal nach, wann Du los musst 😊";
   this.early = "Du hast die nächste Woche über keine Vorlesungen. Genieß' die Freiheit!";
 
-  this.transitLate = (ttl) =>`Du bist spät dran. Die nächste Bahn zur Uni fährt in ${ttl} Minuten! Beeil dich!`;
+  this.transitLate = (ttl) => `Du bist spät dran. Die nächste Bahn zur Uni fährt in ${ttl} Minuten! Beeil dich!`;
   this.minutesLate = (mins) => `❗️ Du kommst voraussichtlich ca. <b>${mins} Minuten zu spät</b>.`;
   this.transitOnTime = (dep, start, arr, stop, duration, interchanges) => {
     return (
@@ -22,8 +22,8 @@ module.exports = () => {
   this.googleMapsUrl = (url) => `Hier hast Du eine <b><a href="${url}">Routenbeschreibung</a> von Google Maps</b>. 🗺`;
   this.lectureEndsBeforeArrival = "Du schaffst es heute leider nicht mehr zur Vorlesung. " +
       "Versuche es beim nächsten man erneut.";
-  this.calEmpty =`<b>Dein Vorlesungskalender hat keine anstehenden Vorlesungen eingetragen.</b> Trage Deine \
+  this.calEmpty = "<b>Dein Vorlesungskalender hat keine anstehenden Vorlesungen eingetragen.</b> Trage Deine \
 Vorlesungen in den verlinkten Google Kalender oder ändere Deinen Vorlesungskalender, \
-indem Du <b>/start</b> ausführst.`;
+indem Du <b>/start</b> ausführst.";
   return this;
 };

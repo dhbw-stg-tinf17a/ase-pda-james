@@ -1,35 +1,35 @@
 const axios = require("axios");
 const gplaces = require("./services/gplaces")();
 
-module.exports = function(app, preferences, ctx, oAuth2Client) {
+module.exports = function (app, preferences, ctx, oAuth2Client) {
   const todo = require("./services/todo")(preferences);
 
   // const preferences = require("./services/preferences")(db);
   app.get("/mstodo", (req, res) => {
     const code = req.query.code;
-    const queryParams = "client_id=" + process.env.MS_TODO_CLIENT_ID +
-        "&code=" + code + "&client_secret=" + process.env.MS_TODO_CLIENT_SECRET +
-        "&grant_type=authorization_code" + `&redirect_uri=${process.env.BACKEND_URL}/mstodo`;
+    const queryParams = `client_id=${ process.env.MS_TODO_CLIENT_ID
+    }&code=${ code }&client_secret=${ process.env.MS_TODO_CLIENT_SECRET
+    }&grant_type=authorization_code` + `&redirect_uri=${process.env.BACKEND_URL}/mstodo`;
     axios.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", queryParams,
-    ).then((tokenRes)=>{
+    ).then((tokenRes) => {
       const authToken = tokenRes.data.access_token;
       const refreshToken = tokenRes.data.refresh_token;
-      preferences.set("ms_todo_token", authToken).then(()=>{
-        preferences.set("ms_todo_refresh_token", refreshToken).then(()=>{
-          preferences.get("chat_id_ms_todo").then((chatId)=>{
+      preferences.set("ms_todo_token", authToken).then(() => {
+        preferences.set("ms_todo_refresh_token", refreshToken).then(() => {
+          preferences.get("chat_id_ms_todo").then((chatId) => {
             res.send("Danke, bitte kehre zurück zu Telegram.");
             todo.chooseFolder(ctx, chatId);
-          }).catch((err)=>{
+          }).catch((err) => {
             res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
           });
-        }).catch((err)=>{
+        }).catch((err) => {
           res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
         });
-      }).catch((err)=>{
+      }).catch((err) => {
         console.error(err);
         res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
       });
-    }).catch((err)=>{
+    }).catch((err) => {
       console.error(err);
       res.status(500).send("Entschuldige, die authentifizierung über Microsoft hat nicht funktioniert.");
     });
@@ -50,8 +50,8 @@ module.exports = function(app, preferences, ctx, oAuth2Client) {
 
       // mock ctx to trigger use case
       const start = require("./usecases/start.js")(preferences, oAuth2Client);
-      const waRes = {generic: [{text: "start_is_authenticated"}]};
-      const mockCtx = {reply: (msg, param)=>ctx.telegram.sendMessage(chatId, msg, param)};
+      const waRes = { generic: [{ text: "start_is_authenticated" }] };
+      const mockCtx = { reply: (msg, param) => ctx.telegram.sendMessage(chatId, msg, param) };
       start.onUpdate(mockCtx, waRes);
     }).catch((err) => {
       if (err) {
@@ -60,9 +60,9 @@ module.exports = function(app, preferences, ctx, oAuth2Client) {
     });
   });
   app.get("/places", (req, res) => {
-    gplaces.getPlaces({location: "52.5200066,13.404954"}).then((result)=> {
+    gplaces.getPlaces({ location: "52.5200066,13.404954" }).then((result) => {
       res.send(result);
     },
-    ).catch((err)=>res.status(500).send(err));
+    ).catch((err) => res.status(500).send(err));
   });
 };

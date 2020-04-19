@@ -1,4 +1,4 @@
-module.exports={
+module.exports = {
   "generic": [
     {
       "response_type": "text",

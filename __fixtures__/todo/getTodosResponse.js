@@ -1,4 +1,4 @@
-module.exports = [{"@odata.id":
+module.exports = [{ "@odata.id":
      "https://outlook.office.com/api/v2.0/Users('0006bffd-b3bf-761a-0000-000000000000@84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa')/Tasks('AQMkADAwATZiZmYAZC1iM2JmLTc2MWEtMDACLTAwCgBGAAADE305-QmRdkquT3Z4IzAbugcAMV9q7_5hlEmU8x3l7KEh0gADp1VpUgAAADFfau-uYZRJlPMd5eyhIdIAA6dWGegAAAA=')",
 "@odata.etag": "W/\"MV9q7+5hlEmU8x3l7KEh0gADtTsRfA==\"",
 "Id":
@@ -17,13 +17,13 @@ module.exports = [{"@odata.id":
 "Sensitivity": "Normal",
 "Status": "NotStarted",
 "Subject": "Datenbanken Projekt",
-"Body": {ContentType: "Text", Content: ""},
+"Body": { ContentType: "Text", Content: "" },
 "CompletedDateTime": null,
-"DueDateTime": {DateTime: "2020-04-05T22:00:00.0000000", TimeZone: "UTC"},
+"DueDateTime": { DateTime: "2020-04-05T22:00:00.0000000", TimeZone: "UTC" },
 "Recurrence": null,
 "ReminderDateTime": null,
-"StartDateTime": null},
-{"@odata.id":
+"StartDateTime": null },
+{ "@odata.id":
      "https://outlook.office.com/api/v2.0/Users('0006bffd-b3bf-761a-0000-000000000000@84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa')/Tasks('AQMkADAwATZiZmYAZC1iM2JmLTc2MWEtMDACLTAwCgBGAAADE305-QmRdkquT3Z4IzAbugcAMV9q7_5hlEmU8x3l7KEh0gADp1VpUgAAADFfau-uYZRJlPMd5eyhIdIAA6dWGecAAAA=')",
 "@odata.etag": "W/\"MV9q7+5hlEmU8x3l7KEh0gADtTsP+g==\"",
 "Id":
@@ -42,13 +42,13 @@ module.exports = [{"@odata.id":
 "Sensitivity": "Normal",
 "Status": "NotStarted",
 "Subject": "XYZ machen",
-"Body": {ContentType: "Text", Content: ""},
+"Body": { ContentType: "Text", Content: "" },
 "CompletedDateTime": null,
-"DueDateTime": {DateTime: "2020-04-02T22:00:00.0000000", TimeZone: "UTC"},
+"DueDateTime": { DateTime: "2020-04-02T22:00:00.0000000", TimeZone: "UTC" },
 "Recurrence": null,
 "ReminderDateTime": null,
-"StartDateTime": null},
-{"@odata.id":
+"StartDateTime": null },
+{ "@odata.id":
      "https://outlook.office.com/api/v2.0/Users('0006bffd-b3bf-761a-0000-000000000000@84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa')/Tasks('AQMkADAwATZiZmYAZC1iM2JmLTc2MWEtMDACLTAwCgBGAAADE305-QmRdkquT3Z4IzAbugcAMV9q7_5hlEmU8x3l7KEh0gADp1VpUgAAADFfau-uYZRJlPMd5eyhIdIAA6dWGeYAAAA=')",
 "@odata.etag": "W/\"MV9q7+5hlEmU8x3l7KEh0gADuntUzg==\"",
 "Id":
@@ -67,9 +67,9 @@ module.exports = [{"@odata.id":
 "Sensitivity": "Normal",
 "Status": "NotStarted",
 "Subject": "Geometrische Reihe Referat ",
-"Body": {ContentType: "Text", Content: ""},
+"Body": { ContentType: "Text", Content: "" },
 "CompletedDateTime": null,
-"DueDateTime": {DateTime: "2020-04-01T22:00:00.0000000", TimeZone: "UTC"},
+"DueDateTime": { DateTime: "2020-04-01T22:00:00.0000000", TimeZone: "UTC" },
 "Recurrence": null,
 "ReminderDateTime": null,
-"StartDateTime": null}];
+"StartDateTime": null }];

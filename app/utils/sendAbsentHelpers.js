@@ -45,17 +45,17 @@ const setAbsentTimes = (waRes) => {
     startAbsentTime = "06:00:00";
     endAbsentTime = "22:30:00";
   } else if (startAbsentTime !== null && endAbsentTime == null) {
-    endAbsentTime="22:30:00";
+    endAbsentTime = "22:30:00";
   }
-  startAbsent = startAbsentDay + "T" + startAbsentTime + "+02:00";
-  endAbsent = endAbsentDay + "T" + endAbsentTime + "+02:00";
+  startAbsent = `${startAbsentDay }T${ startAbsentTime }+02:00`;
+  endAbsent = `${endAbsentDay }T${ endAbsentTime }+02:00`;
   watsonAssisstant.setContext({
     startAbsentDay: null,
     endAbsentDay: null,
     startAbsentTime: null,
     endAbsentTime: null,
   }).catch((err) => console.error(err));
-  return {startAbsent, endAbsent, startAbsentDay, endAbsentDay, startAbsentTime, endAbsentTime};
+  return { startAbsent, endAbsent, startAbsentDay, endAbsentDay, startAbsentTime, endAbsentTime };
 };
 
 module.exports = {

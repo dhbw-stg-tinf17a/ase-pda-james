@@ -1,7 +1,7 @@
 const moment = require("moment");
 
 const transformResearchResult = (results) => {
-  return results.slice(0, 10).map((result) => ({title: result.title, url: result.url[0].value}));
+  return results.slice(0, 10).map((result) => ({ title: result.title, url: result.url[0].value }));
 };
 
 const createResearchLinks = (results) => {
@@ -32,7 +32,7 @@ const createOpeningHoursLines = (openingHours, date) => {
   return result;
 };
 
-const createEmailText = (keyword, records, {name, address, openingHours}, date) => {
+const createEmailText = (keyword, records, { name, address, openingHours }, date) => {
   const transformedRecords = transformResearchResult(records);
   const researchLinks = createResearchLinks(transformedRecords);
   const openingHoursLines = createOpeningHoursLines(openingHours, date);

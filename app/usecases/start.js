@@ -19,14 +19,14 @@ module.exports = (preferences, oAuth2Client) => {
   this._chooseTravelMethod = (ctx) => {
     // set travel method
     const travelMethods = [
-      {displayName: "Laufen", value: "walking"},
-      {displayName: "Auto", value: "driving"},
-      {displayName: "Fahrrad", value: "bicycling"},
-      {displayName: "ÖPNV", value: "vvs"}, // invokes (4ab) and (5cd)
+      { displayName: "Laufen", value: "walking" },
+      { displayName: "Auto", value: "driving" },
+      { displayName: "Fahrrad", value: "bicycling" },
+      { displayName: "ÖPNV", value: "vvs" }, // invokes (4ab) and (5cd)
     ];
 
     const travelMethodButtons = travelMethods.map((method) => {
-      return [Markup.callbackButton(method.displayName, "start_tid_" + method.value)];
+      return [Markup.callbackButton(method.displayName, `start_tid_${ method.value}`)];
     });
     // (4 II)
     ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
@@ -45,17 +45,17 @@ module.exports = (preferences, oAuth2Client) => {
           // drop ", Germany"
           const address = result.formatted_address.split(", ").slice(0, -1).join(", ");
           const location = result.geometry.location;
-          const coordinates = location.lat + ", " + location.lng;
+          const coordinates = `${location.lat }, ${ location.lng}`;
           // required for callback buttons that only can hold 64 bytes
-          this._homeAddresses[result.place_id] = {address: address, location: coordinates};
-          return [Markup.callbackButton(address, "start_addr_" + result.place_id)];
+          this._homeAddresses[result.place_id] = { address: address, location: coordinates };
+          return [Markup.callbackButton(address, `start_addr_${ result.place_id}`)];
         });
 
         ctx.reply("Wähle deine Adresse aus:", Markup.inlineKeyboard(addressButtons).extra()); // (3a II)
       } else { // (4)
         const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
         const location = data.results[0].geometry.location;
-        const coordinates = location.lat + ", " + location.lng;
+        const coordinates = `${location.lat }, ${ location.lng}`;
         this._homeAddress = address;
         try {
           preferences.set("home_address", address);
@@ -91,7 +91,7 @@ module.exports = (preferences, oAuth2Client) => {
     promise.then((data) => {
       if (Array.isArray(data)) { // (4a I) and (5c I)
         const stopButtons = data.map((stop) => {
-          return [Markup.callbackButton(stop.name, `start_${indicator}_` + stop.stopID)];
+          return [Markup.callbackButton(stop.name, `start_${indicator}_${ stop.stopID}`)];
         });
         ctx.reply(`Wähle deine ${stopString} aus:`, Markup.inlineKeyboard(stopButtons).extra()); // (4a II) and
         // (5c II)
@@ -99,9 +99,9 @@ module.exports = (preferences, oAuth2Client) => {
         preferences.set(`${stopType}_stop_id`, data.stopID).then(() => {
           const reply = `Ich habe deine ${stopString}: "${data.name}" gespeichert`;
           if (stopType === "home") { // (4b) => (5)
-            ctx.reply(reply + "\nAn welcher Uni/Hochschule bist du?");
+            ctx.reply(`${reply }\nAn welcher Uni/Hochschule bist du?`);
           } else { // (5d) => (6)
-            ctx.reply(reply + "\nJetzt sag mir noch die Email Adresse deines Sekretariats");
+            ctx.reply(`${reply }\nJetzt sag mir noch die Email Adresse deines Sekretariats`);
           }
         }).catch((error) => {
           console.log(error);
@@ -124,8 +124,8 @@ module.exports = (preferences, oAuth2Client) => {
           // drop ", Germany" from address string
           const address = uni.formatted_address.split(", ").slice(0, -1).join(", ");
           // required for callback buttons that only can hold 64 bytes
-          this._uniAddresses[uni.place_id] = {address: address};
-          return [Markup.callbackButton(address, "start_uid_" + uni.place_id)];
+          this._uniAddresses[uni.place_id] = { address: address };
+          return [Markup.callbackButton(address, `start_uid_${ uni.place_id}`)];
         });
         ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra()); // (5a II)
       } else { // (5b)
@@ -154,7 +154,7 @@ module.exports = (preferences, oAuth2Client) => {
   // Process service function to obtain and save lecture calendar. (8)
   this._setCalendar = (promise, ctx) => { // (8 I)
     promise.then((cals) => {
-      const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_cid_" + resCal.id)]);
+      const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, `start_cid_${ resCal.id}`)]);
       ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra()); // (8 II)
     }).catch((err) => {
       ctx.reply("Sorry, es gab einen Fehler!");
@@ -182,7 +182,7 @@ module.exports = (preferences, oAuth2Client) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deinen Namen nicht speichern...");
         });
-        ctx.reply("Hallo " + waRes.context.name + "\n" +
+        ctx.reply(`Hallo ${ waRes.context.name }\n` +
                     "Sag mir deine Email");
         break;
 
@@ -197,12 +197,12 @@ module.exports = (preferences, oAuth2Client) => {
 
         // Process home address (3) => (3a) or (4)
       case "start_address":
-        this._setHomeAddress(gplaces.getPlaces({query: waRes.context.address}), ctx); // (3)
+        this._setHomeAddress(gplaces.getPlaces({ query: waRes.context.address }), ctx); // (3)
         break;
 
         // Process university address (5) => (5a) or (5b) or (6)
       case "start_uni":
-        this._setUniAddress(gplaces.getPlaces({query: waRes.context.uni}), ctx); // (5)
+        this._setUniAddress(gplaces.getPlaces({ query: waRes.context.uni }), ctx); // (5)
         break;
 
         // Process university secretary email address and authenticate user for Google Calendar (6) => (7)

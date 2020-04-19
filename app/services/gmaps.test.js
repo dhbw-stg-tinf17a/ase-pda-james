@@ -2,7 +2,7 @@ const axios = require("axios");
 const searchResponse = require("../../__fixtures__/gmapsResponse");
 jest.mock("axios");
 
-const {buildURL} = require("../utils/gmapsHelpers");
+const { buildURL } = require("../utils/gmapsHelpers");
 
 
 describe("gmaps test cases", () => {
@@ -14,7 +14,7 @@ describe("gmaps test cases", () => {
 
 
   test("resolves promise", () => {
-    axios.get.mockResolvedValue({data: searchResponse});
+    axios.get.mockResolvedValue({ data: searchResponse });
     const config = {
       origin: "Stuttgart Hauptbahnhof",
       destination: "Frankfurt",
@@ -32,7 +32,7 @@ describe("gmaps test cases", () => {
   });
 
   test("fetches results from Google Maps API", () => {
-    axios.get.mockResolvedValue({data: searchResponse});
+    axios.get.mockResolvedValue({ data: searchResponse });
 
     return gmaps.getDirections("DHBW Stuttgart", "Frankfurt").then((data) => {
       expect(data).toBeDefined();
@@ -41,7 +41,7 @@ describe("gmaps test cases", () => {
 
 
   test("gmaps.getDirections returns something", () => {
-    axios.get.mockResolvedValue({data: searchResponse});
+    axios.get.mockResolvedValue({ data: searchResponse });
     const config = {
       origin: "Stuttgart Hauptbahnhof",
       destination: "Frankfurt",
@@ -52,7 +52,7 @@ describe("gmaps test cases", () => {
   });
 
   test("gmaps.getDirections response has required properties", () => {
-    axios.get.mockResolvedValue({data: searchResponse});
+    axios.get.mockResolvedValue({ data: searchResponse });
 
     const config = {
       origin: "Stuttgart Hauptbahnhof",
@@ -67,7 +67,7 @@ describe("gmaps test cases", () => {
   });
 
   test("gmaps.getDirections response has required properties", () => {
-    axios.get.mockResolvedValue({data: searchResponse});
+    axios.get.mockResolvedValue({ data: searchResponse });
 
     const config = {
       origin: "Stuttgart Hauptbahnhof",

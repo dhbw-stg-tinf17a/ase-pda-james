@@ -1,7 +1,7 @@
 const gplaces = require("../services/gplaces")();
 const mailer = require("../services/mailer")();
 const watsonSpeech = require("../services/watsonSpeech")();
-const {createEmailText, createEmailOptions, setAbsentTimes} = require("../utils/sendAbsentHelpers");
+const { createEmailText, createEmailOptions, setAbsentTimes } = require("../utils/sendAbsentHelpers");
 
 module.exports = (preferences, oAuthClient) => {
   const gcalendar = require("../services/gcalendar")(preferences, oAuthClient);
@@ -67,7 +67,7 @@ module.exports = (preferences, oAuthClient) => {
 
 
   this.hasUni = (waRes) => {
-    return new Promise( async (resolve, reject)=>{
+    return new Promise(async (resolve, reject) => {
       absentTimes = setAbsentTimes(waRes);
       const lectureCalId = await preferences.get("lecture_cal_id");
 

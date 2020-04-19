@@ -20,16 +20,16 @@ module.exports = (preferences, oAuth2Client) => {
         ctx.replyWithHTML(`<a href='${mapsURL}'>${answer.results[i].name}</a>`);
       }
     }).catch((err) => {
-      ctx.reply("Ups, da hat etwas nicht funktioniert..." + err);
+      ctx.reply(`Ups, da hat etwas nicht funktioniert...${ err}`);
       // console.log(`answer is ${err}`);
     });
   };
 
-  this._capitalize=(s)=> s && s[0].toUpperCase() + s.slice(1);
+  this._capitalize = (s) => s && s[0].toUpperCase() + s.slice(1);
 
 
   this._replyPlaces = (ctx, typeOfFood, prefs) => {
-    typeOfFood=this._capitalize(typeOfFood);
+    typeOfFood = this._capitalize(typeOfFood);
     // store food in preferences
     prefs.set(DB_KEY_LAST_FOOD, typeOfFood);
 
@@ -37,7 +37,7 @@ module.exports = (preferences, oAuth2Client) => {
     this._sendPlaces(ctx, typeOfFood);
   };
 
-  this._replyMealsStart=(promise, ctx, prefs)=> {
+  this._replyMealsStart = (promise, ctx, prefs) => {
     promise.then((start) => {
       prefs.get(DB_KEY_LAST_FOOD).then((data) => {
         let reply = `${start} Minuten zum nächsten Termin\nWas möchtest du essen?\n`;
@@ -49,13 +49,13 @@ module.exports = (preferences, oAuth2Client) => {
         ctx.reply(reply);
       },
       );
-    }).catch((error)=> {
+    }).catch((error) => {
       console.error(error);
       ctx.reply("Sorry, jetzt ist etwas schiefgelaufen!");
     });
   };
 
-  this._replyTextAndSpeech=(ctx, text)=>{
+  this._replyTextAndSpeech = (ctx, text) => {
     ctx.reply(text);
     return watsonSpeech.replyWithAudio(ctx, text).catch(
         (error) => console.error("Error in Watson.replyWithAudio", error),

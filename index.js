@@ -3,7 +3,7 @@ const mongoClient = require("mongodb").MongoClient;
 const express = require("express");
 const app = express();
 const path = require("path");
-const {google} = require("googleapis");
+const { google } = require("googleapis");
 const fs = require("fs");
 
 const Manager = require("./app/manager");
@@ -15,7 +15,7 @@ if (process.env.PROD) {
   mongoUrl = "mongodb://mongo:27017";
 }
 
-mongoClient.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true}, function(err, con) {
+mongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true }, (err, con) => {
   if (err) {
     console.log(err);
   } else {
@@ -27,7 +27,7 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true},
     // Google OAuth2
     const keyPath = path.resolve(__dirname, "gCredentials.json");
 
-    let keys = {redirect_uris: [""]};
+    let keys = { redirect_uris: [""] };
     if (fs.existsSync(keyPath)) {
       keys = require(keyPath).web;
     }
@@ -43,7 +43,7 @@ mongoClient.connect(mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true},
     });
 
     // REST-API
-    app.listen(8080, function() {
+    app.listen(8080, () => {
       console.log("API listening on port 8080!");
     });
 

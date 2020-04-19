@@ -8,7 +8,7 @@
      "max-len": ["error", { "code": 120 }],
      "quotes": ["error", "double"],
      "prefer-rest-params":0,
-     "no-unused-vars":0,
+     "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
      "linebreak-style":0,
      "guard-for-in":0,
      "no-whitespace-before-property": "error",
@@ -23,6 +23,7 @@
      "max-params": ["error", 3],
      "prefer-arrow-callback": "error",
      "arrow-spacing": "error",
-     "prefer-template": "error"
+     "prefer-template": "error",
+     "func-style": ["error", "expression"]
    }
 }

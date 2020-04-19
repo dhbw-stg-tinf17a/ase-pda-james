@@ -52,7 +52,7 @@ describe("send mail", () => {
             to: "",
             subject: "Subject",
             text: "Text",
-            html: "HTML Text"});
+            html: "HTML Text" });
           expect(err.message).toEqual("[Mailer Service Error] The API did not perform successfully.");
           expect(err.object.message).toEqual("No recipients defined");
         });
