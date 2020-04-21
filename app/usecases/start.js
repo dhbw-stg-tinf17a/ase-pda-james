@@ -10,10 +10,12 @@ module.exports = (preferences, oAuth2Client) => {
   this._homeAddress;
   this._commutePreference;
   this._uniAddress;
+  this._calendar;
 
   // required helper variables for handling callback button options for addresses
   this._homeAddresses;
   this._uniAddresses;
+  this._calendars;
 
   // Function to set preferred travel method (4 II)
   this._chooseTravelMethod = (ctx) => {
@@ -154,7 +156,11 @@ module.exports = (preferences, oAuth2Client) => {
   // Process service function to obtain and save lecture calendar. (8)
   this._setCalendar = (promise, ctx) => { // (8 I)
     promise.then((cals) => {
-      const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, "start_cid_" + resCal.id)]);
+      this._calendars=[];
+      const buttons = cals.map((resCal, index) => {
+        this._calendars[index]=resCal;
+        return [Markup.callbackButton(resCal.summary, "start_cid_" + index)];
+      });
       ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra()); // (8 II)
     }).catch((err) => {
       ctx.reply("Sorry, es gab einen Fehler!");
@@ -304,7 +310,9 @@ module.exports = (preferences, oAuth2Client) => {
 
       // Save lecture calendar ID (8 II) => done!
       case "cid":
-        preferences.set("lecture_cal_id", data).catch((error) => {
+        const calendarIndex = parseInt(data);
+        this._calendar = this._calendars[calendarIndex];
+        preferences.set("lecture_cal_id", this._calendar.id).catch((error) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deinen Kalender nicht speichern...");
         });
