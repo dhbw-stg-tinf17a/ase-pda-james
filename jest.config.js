@@ -199,6 +199,7 @@ module.exports = {
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "/docs/test-coverage/",
+    "/docs/coverage/",
     "/jest.config.js",
     "__fixtures__",
     "__mocks__",

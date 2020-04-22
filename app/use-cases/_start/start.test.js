@@ -1,5 +1,6 @@
 let start;
 let mockReply;
+let mockReplyWithHTML;
 let mockSet;
 
 describe("onCallback(...) tests", () => {
@@ -10,6 +11,7 @@ describe("onCallback(...) tests", () => {
       });
     });
     mockReply = jest.fn(() => {});
+    mockReplyWithHTML = jest.fn(() => {});
 
     const preferences = { set: mockSet, get: () => {} };
     start = require("./start")(preferences, null, null);
@@ -40,16 +42,16 @@ describe("onCallback(...) tests", () => {
 
   test("onCallbackQuery(...) sets previously obtained travel method", () => {
     const data = "start_tid_test";
-    const ctx = { reply: mockReply, callbackQuery: { data: data } };
+    const ctx = { replyWithHTML: mockReplyWithHTML, callbackQuery: { data: data } };
     start.onCallbackQuery(ctx);
     expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockSet).toHaveBeenCalledWith("commute", "test");
-    expect(mockReply.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
   });
 
   test("onCallbackQuery(...) catches error because of undefined or invalid travel method", () => {
     const data = "start_tid_test";
-    const ctx = { reply: mockReply, callbackQuery: { data: data } };
+    const ctx = { reply: mockReply, replyWithHTML: mockReplyWithHTML, callbackQuery: { data: data } };
     try {
       start.onCallbackQuery(ctx);
     } catch (error) {
@@ -60,17 +62,17 @@ describe("onCallback(...) tests", () => {
 
   test("onCallbackQuery(...) sets previously obtained home stop ID", () => {
     const data = "start_sid_test";
-    const ctx = { reply: mockReply, callbackQuery: { data: data } };
+    const ctx = { replyWithHTML: mockReplyWithHTML, callbackQuery: { data: data } };
     start.onCallbackQuery(ctx);
 
     expect(mockSet).toHaveBeenCalledWith("home_stop_id", "test");
     expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockReply.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
   });
 
   test("onCallbackQuery(...) sets previously obtained uni address", () => {
     const data = "start_uid_test";
-    const ctx = { reply: mockReply, callbackQuery: { data: data } };
+    const ctx = { replyWithHTML: mockReplyWithHTML, callbackQuery: { data: data } };
     start._uniAddresses = { test: {
       address: "Sample Street",
     } };
@@ -78,7 +80,7 @@ describe("onCallback(...) tests", () => {
 
     expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockSet).toHaveBeenCalledWith("uni_address", "Sample Street");
-    expect(mockReply.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
   });
 
   test("onCallbackQuery(...) catches error because of undefined uni address", () => {
@@ -93,22 +95,22 @@ describe("onCallback(...) tests", () => {
 
   test("onCallBackQuery(...) sets previously obtained uni stop ID", () => {
     const data = "start_usid_test";
-    const ctx = { reply: mockReply, callbackQuery: { data: data } };
+    const ctx = { replyWithHTML: mockReplyWithHTML, callbackQuery: { data: data } };
     start.onCallbackQuery(ctx);
 
     expect(mockSet).toHaveBeenCalledWith("uni_stop_id", "test");
     expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockReply.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
   });
 
   test("onCallbackQuery(...) sets previously obtained calendar ID", () => {
     const data = "start_cid_test";
-    const ctx = { reply: mockReply, callbackQuery: { data: data } };
+    const ctx = { replyWithHTML: mockReplyWithHTML, callbackQuery: { data: data } };
     start.onCallbackQuery(ctx);
 
     expect(mockSet).toHaveBeenCalledWith("lecture_cal_id", "test");
     expect(mockSet.mock.calls.length).toEqual(1);
-    expect(mockReply.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
   });
 });
 
@@ -120,6 +122,7 @@ describe("onUpdate(...) tests", () => {
       });
     });
     mockReply = jest.fn(() => {});
+    mockReplyWithHTML = jest.fn(() => {});
 
     const preferences = { get: () => "{}", set: mockSet };
     start = require("./start")(preferences, {});
@@ -127,28 +130,28 @@ describe("onUpdate(...) tests", () => {
 
   test("onUpdate(...) recognizes dialog start and replies", () => {
     const waRes = { generic: [{ text: "start" }] };
-    const ctx = { reply: mockReply };
+    const ctx = { replyWithHTML: mockReplyWithHTML };
     start.onUpdate(ctx, waRes);
-    expect(mockReply.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
   });
 
   test("onUpdate(...) recognizes and saves input name and replies accordingly", () => {
     const waRes = { generic: [{ text: "start_name" }], context: { name: "John" } };
-    const ctx = { reply: mockReply };
+    const ctx = { replyWithHTML: mockReplyWithHTML };
     start.onUpdate(ctx, waRes);
     expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockSet).toHaveBeenCalledWith("name", "John");
-    expect(mockReply.mock.calls.length).toEqual(1);
-    expect(mockReply.mock.calls[0][0]).toContain("John");
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls[0][0]).toContain("John");
   });
 
   test("onUpdate(...) recognizes and saves input email address and replies", () => {
     const waRes = { generic: [{ text: "start_email" }], context: { email: "john@test.com" } };
-    const ctx = { reply: mockReply };
+    const ctx = { replyWithHTML: mockReplyWithHTML };
     start.onUpdate(ctx, waRes);
     expect(mockSet.mock.calls.length).toEqual(1);
     expect(mockSet).toHaveBeenCalledWith("email", "john@test.com");
-    expect(mockReply.mock.calls.length).toEqual(1);
+    expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
   });
 
   test("onUpdate(...) catches error because of non-existing input address and replies", () => {
@@ -176,7 +179,7 @@ describe("onUpdate(...) tests", () => {
   test("onUpdate(...) recognizes and saves input secretary email and catches error because of " +
     "impossible Google authentication", () => {
     const waRes = { generic: [{ text: "start_uni_email" }], context: { uni_email: "sek@test.com" } };
-    const ctx = { reply: mockReply };
+    const ctx = { replyWithHTML: mockReplyWithHTML };
 
     try {
       start.onUpdate(ctx, waRes);
@@ -184,7 +187,7 @@ describe("onUpdate(...) tests", () => {
       expect(e).toBeDefined();
       expect(mockSet.mock.calls.length).toEqual(1);
       expect(mockSet).toHaveBeenCalledWith("uni_email", "sek@test.com");
-      expect(mockReply.mock.calls.length).toEqual(1);
+      expect(mockReplyWithHTML.mock.calls.length).toEqual(1);
     }
   });
 

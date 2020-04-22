@@ -1,3 +1,5 @@
+const dialog = require("./start.resp")();
+
 const vvs = require("../../services/api/vvs/vvs.js")(); // for setting implicit preferences for public transport
 const gplaces = require("../../services/api/gplaces/gplaces")(); // for setting implicit preferences for navigation
 
@@ -29,7 +31,8 @@ module.exports = (preferences, oAuth2Client) => {
       return [Markup.callbackButton(method.displayName, `start_tid_${ method.value}`)];
     });
     // (4 II)
-    ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus:", Markup.inlineKeyboard(travelMethodButtons).extra());
+    ctx.reply("Wähle deine bevorzugte Reisemöglichkeit aus: 🏃🏼‍♀️🚙🚴🏼‍♀️🚋", Markup.inlineKeyboard(travelMethodButtons)
+        .extra());
   };
 
   // ===================================================================================================================
@@ -50,7 +53,8 @@ module.exports = (preferences, oAuth2Client) => {
           return [Markup.callbackButton(address, `start_addr_${ result.place_id}`)];
         });
 
-        ctx.reply("Wähle deine Adresse aus:", Markup.inlineKeyboard(addressButtons).extra()); // (3a II)
+        ctx.reply("Ich habe mehrere Adressen dazu gefunden. Wähl eine aus! 😊", Markup.inlineKeyboard(addressButtons)
+            .extra()); // (3a II)
       } else { // (4)
         const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
         const location = data.results[0].geometry.location;
@@ -59,7 +63,7 @@ module.exports = (preferences, oAuth2Client) => {
         try {
           preferences.set("home_address", address);
           preferences.set("home_address_coordinates", coordinates).then(() => {
-            ctx.reply(`Ich habe ${address} als Heimatadresse gespeichert.`);
+            ctx.replyWithHTML(dialog.address(address));
             this._chooseTravelMethod(ctx); // (4)
           });
         } catch (err) {
@@ -91,18 +95,18 @@ module.exports = (preferences, oAuth2Client) => {
         const stopButtons = data.map((stop) => {
           return [Markup.callbackButton(stop.name, `start_${indicator}_${ stop.stopID}`)];
         });
-        ctx.reply(`Wähle deine ${stopString} aus:`, Markup.inlineKeyboard(stopButtons).extra()); // (4a II) and
+        ctx.reply(`Wähle Deine ${stopString} aus: 🚋`, Markup.inlineKeyboard(stopButtons).extra()); // (4a II) and
         // (5c II)
       } else { // (4b) and (5d)
         preferences.set(`${stopType}_stop_id`, data.stopID).then(() => {
-          const reply = `Ich habe deine ${stopString}: "${data.name}" gespeichert`;
+          const reply = `Ich habe deine ${stopString} <b>${data.name}</b> gespeichert`;
           if (stopType === "home") { // (4b) => (5)
-            ctx.reply(`${reply }\nAn welcher Uni/Hochschule bist du?`);
+            ctx.replyWithHTML(`${reply }\n` + dialog.uni);
           } else { // (5d) => (6)
-            ctx.reply(`${reply }\nJetzt sag mir noch die Email Adresse deines Sekretariats`);
+            ctx.replyWithHTML(`${reply }\n` + dialog.uniEmail);
           }
         }).catch(() => {
-          ctx.reply(`Sorry, ich konnte deine ${stopString} nicht speichern...`);
+          ctx.reply(`Sorry, ich konnte Deine ${stopString} nicht speichern...`);
         });
       }
     }).catch((err) => {
@@ -124,19 +128,20 @@ module.exports = (preferences, oAuth2Client) => {
           this._uniAddresses[uni.place_id] = { address: address };
           return [Markup.callbackButton(address, `start_uid_${ uni.place_id}`)];
         });
-        ctx.reply("Wähle deine Uni aus:", Markup.inlineKeyboard(uniButtons).extra()); // (5a II)
+        ctx.reply("Ich habe mehrere Adressen dazu gefunden. Wähl eine aus! 😊", Markup.inlineKeyboard(uniButtons)
+            .extra()); // (5a II)
       } else { // (5b)
         const address = data.results[0].formatted_address.split(", ").slice(0, -1).join(", ");
         this._uniAddress = address;
         preferences.set("uni_address", address).then(() => {
-          ctx.reply(`Ich habe ${address} als Adresse deiner Uni gespeichert.`);
+          ctx.replyWithHTML(dialog.uniAddress);
           if (this._commutePreference === "vvs") { // (5cd)
             this._setStop(vvs.getStopByKeyword(address), ctx, "usid");
           } else { // (6)
-            ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
+            ctx.replyWithHTML(dialog.uniEmail);
           }
         }).catch(() => {
-          ctx.reply("Sorry, ich konnte deine Uni-Adresse nicht speichern...");
+          ctx.reply("Sorry, ich konnte Deine Uni-Adresse nicht speichern...");
         });
       }
     }).catch((err) => {
@@ -151,7 +156,7 @@ module.exports = (preferences, oAuth2Client) => {
   this._setCalendar = (promise, ctx) => { // (8 I)
     promise.then((cals) => {
       const buttons = cals.map((resCal) => [Markup.callbackButton(resCal.summary, `start_cid_${ resCal.id}`)]);
-      ctx.reply("Wähle deinen Vorlesungskalender aus:", Markup.inlineKeyboard(buttons).extra()); // (8 II)
+      ctx.reply("Wähle deinen Vorlesungskalender aus: 📅", Markup.inlineKeyboard(buttons).extra()); // (8 II)
     }).catch((err) => {
       ctx.reply("Sorry, es gab einen Fehler!");
       console.log(err);
@@ -167,28 +172,27 @@ module.exports = (preferences, oAuth2Client) => {
     switch (waRes.generic[0].text) {
       // Beginning of dialog (automatically triggered) (0) => (1)
       case "start":
-        ctx.reply("Hallo, ich bin James! 🎩\n" +
-                    "Erzähl mir doch ein bisschen was über dich.\n" +
-                    "Wie heißt du?");
+        ctx.replyWithHTML(dialog.start);
         break;
 
         // Process name and ask for email address (1) => (2)
       case "start_name":
-        preferences.set("name", waRes.context.name).catch((error) => {
+        const name = waRes.context.name
+        preferences.set("name", name).catch((error) => {
           console.log(error);
-          ctx.reply("Sorry, ich konnte deinen Namen nicht speichern...");
+          ctx.reply("Sorry, ich konnte Deinen Namen nicht speichern...");
         });
-        ctx.reply(`Hallo ${ waRes.context.name }\n` +
-                    "Sag mir deine Email");
+        ctx.replyWithHTML(dialog.name(name));
         break;
 
         // Process email address and ask for home address (2) => (3)
       case "start_email":
-        preferences.set("email", waRes.context.email).catch((error) => {
+        const email = waRes.context.email
+        preferences.set("email", email).catch((error) => {
           console.log(error);
-          ctx.reply("Sorry, ich konnte deine Email-Adresse nicht speichern...");
+          ctx.reply("Sorry, ich konnte Deine Email-Adresse nicht speichern...");
         });
-        ctx.reply("Sag mir deine Adresse");
+        ctx.replyWithHTML(dialog.email(email));
         break;
 
         // Process home address (3) => (3a) or (4)
@@ -205,10 +209,10 @@ module.exports = (preferences, oAuth2Client) => {
       case "start_uni_email":
         preferences.set("uni_email", waRes.context.uni_email).catch((error) => {
           console.log(error);
-          ctx.reply("Sorry, ich konnte deine Uni-Email-Adresse nicht speichern...");
+          ctx.reply("Sorry, ich konnte die E-Mail-Adresse Deines Sekretariats nicht speichern...");
         });
 
-        ctx.reply("Jetzt richten wir deinen Kalender ein. Bitte authentifiziere dich mit diesem Link:");
+        ctx.replyWithHTML(dialog.cal);
         this._auth(cal.authenticateUser(ctx)); // (7)
         break;
 
@@ -257,7 +261,7 @@ module.exports = (preferences, oAuth2Client) => {
         if (this._commutePreference === "vvs") { // (4ab)
           this._setStop(vvs.getStopByKeyword(this._homeAddress), ctx, "sid");
         } else { // (5)
-          ctx.reply("An welcher Uni/Hochschule bist du?"); // (5)
+          ctx.replyWithHTML(dialog.uni); // (5)
         }
 
         break;
@@ -268,7 +272,7 @@ module.exports = (preferences, oAuth2Client) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Haltestelle zuhause nicht speichern...");
         });
-        ctx.reply("An welcher Uni/Hochschule bist du?"); // (5)
+        ctx.replyWithHTML(dialog.uni); // (5)
 
         break;
 
@@ -283,7 +287,7 @@ module.exports = (preferences, oAuth2Client) => {
         if (this._commutePreference === "vvs") { // (5cd)
           this._setStop(vvs.getStopByKeyword(this._uniAddress), ctx, "usid");
         } else { // (6)
-          ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats"); // (6)
+          ctx.replyWithHTML(dialog.uniEmail); // (6)
         }
 
         break;
@@ -294,7 +298,7 @@ module.exports = (preferences, oAuth2Client) => {
           console.log(error);
           ctx.reply("Sorry, ich konnte deine Uni-Haltestelle nicht speichern...");
         });
-        ctx.reply("Jetzt sag mir noch die Email Adresse deines Sekretariats");
+        ctx.replyWithHTML(dialog.uniEmail);
 
         break;
 
@@ -302,9 +306,9 @@ module.exports = (preferences, oAuth2Client) => {
       case "cid":
         preferences.set("lecture_cal_id", data).catch((error) => {
           console.log(error);
-          ctx.reply("Sorry, ich konnte deinen Kalender nicht speichern...");
+          ctx.reply("Sorry, ich konnte Deinen Kalender nicht speichern...");
         });
-        ctx.reply("Danke! Das war's.");
+        ctx.replyWithHTML(dialog.examples);
 
         break;
     }

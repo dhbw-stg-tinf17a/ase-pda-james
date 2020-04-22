@@ -28,6 +28,7 @@ module.exports = (preferences, oAuth2Client) => {
       return new Error("Invalid preference.");
     }
 
+    const currentTime = moment().toISOString(true);
     const lectureCal = await preferences.get("lecture_cal_id");
     const nextLectures = await cal.getNextEvents(lectureCal);
 
@@ -36,10 +37,13 @@ module.exports = (preferences, oAuth2Client) => {
       return new Error("Lecture Calendar is empty.");
     }
 
+    const lecturesToday = nextLectures.filter((lecture) => {
+      return moment(lecture).isSame(currentTime, "day");
+    })
     const nextLecture = nextLectures[0]; // first API response element always returns next or current lecture
 
     const timeParams = {
-      currentTime: moment().toISOString(true),
+      currentTime: moment(currentTime),
       lectureStart: moment(nextLecture.start.dateTime),
       lectureEnd: moment(nextLecture.end.dateTime),
       arrBuffer: 10,
@@ -93,7 +97,7 @@ module.exports = (preferences, oAuth2Client) => {
             transitTimeParams.arrTime = moment(lastLeg.end.date);
             timeParams.commuteDuration = trip.duration;
 
-            if (util.lectureEndsOnArrival(timeParams)) {
+            if (util.lectureEndsOnArrival(timeParams) && lecturesToday.length <= 1) {
               return watsonSpeech.replyWithAudio(ctx, dialog.lectureEndsBeforeArrival);
             }
 
