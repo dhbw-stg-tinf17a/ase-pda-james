@@ -1,42 +1,53 @@
+require("dotenv").config();
 const mongoClient = require("mongodb").MongoClient;
 const express = require("express");
-const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
 const app = express();
-const router = new express.Router();
-const cors = require("cors");
-require("dotenv").config();
+const path = require("path");
+const { google } = require("googleapis");
+const fs = require("fs");
 
-let connection = undefined;
-// const mongoUrl = "mongodb://localhost:27017";
-const mongoUrl = "mongodb://localhost:27017";
+const Manager = require("./app/modules/manager/manager");
+let mongoUrl = "mongodb://localhost:27017";
+if (process.env.PROD) {
+  mongoUrl = "mongodb://mongo:27017";
+}
 
-// "plugins" for express
-app.use(cors());
-app.use(cookieParser());
-app.use(bodyParser.json({extended: true}));
-
-// app.use(function(req, res, next) {
-//   res.header("Access-Control-Allow-Origin", req.headers.origin);
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//   next();
-// });
-
-// import necessary modules
-
-mongoClient.connect(mongoUrl, {useNewUrlParser: true}, function(err, con) {
+mongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true }, (err, con) => {
   if (err) {
-    console.log(err);
-  } else {
-    db = con.db("survey");
-    connection = con;
-    console.log("Connected with MongoDB!");
-
-    const authManager = require("./app/auth.js")(app, db);
-    // require("./app/restExample.js")(app, authManager, db);
-
-    app.listen(8080, function() {
-      console.log("API listening on port 8080!");
-    });
+    return console.log(err);
   }
+  // MongoDB
+  const db = con.db("student_pda");
+  console.log("Connected with MongoDB!");
+
+  // Google OAuth2
+  const keyPath = path.resolve(__dirname, "gCredentials.json");
+
+  let keys = { redirect_uris: [""] };
+  if (fs.existsSync(keyPath)) {
+    keys = require(keyPath).web;
+  }
+
+  const oAuth2Client = new google.auth.OAuth2(
+      keys.client_id,
+      keys.client_secret,
+      keys.redirect_uris[0],
+  );
+
+  google.options({
+    auth: oAuth2Client,
+  });
+
+  // REST-API
+  app.listen(8080, () => {
+    console.log("API listening on port 8080!");
+  });
+
+
+  // Manager
+  const manager = new Manager();
+  const preferences = require("./app/services/preferences/preferences")(db);
+  manager.start(preferences, oAuth2Client);
+
+  require("./app/modules/rest/rest.js")(app, preferences, manager.getTelegramBot(), oAuth2Client);
 });

@@ -1,5 +1,9 @@
+/* eslint-disable */
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
+
+// fix for: .env not loaded in jest tests
+require("dotenv").config();
 
 module.exports = {
   // All imported modules in your tests should be mocked automatically
@@ -24,7 +28,7 @@ module.exports = {
   // collectCoverageFrom: undefined,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "coverage",
+  coverageDirectory: "./docs/test-coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
@@ -42,6 +46,14 @@ module.exports = {
   // An object that configures minimum threshold enforcement for coverage results
   // coverageThreshold: undefined,
 
+  coverageThreshold: {
+    "global": {
+      "branches": 50,
+      "functions": 50,
+      "lines": 50,
+      "statements": 50,
+    },
+  },
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
 
@@ -178,8 +190,21 @@ module.exports = {
   // unmockedModulePathPatterns: undefined,
 
   // Indicates whether each individual test should be reported during the run
-  // verbose: undefined,
-
+  // fix: to have console logs in jest tests
+  verbose: true,
+  collectCoverage: true,
+  collectCoverageFrom: [
+    "**/*.js", "!**.test.js",
+  ],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/docs/test-coverage/",
+    "/docs/coverage/",
+    "/jest.config.js",
+    "__fixtures__",
+    "__mocks__",
+    "./index.js",
+  ],
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
 
