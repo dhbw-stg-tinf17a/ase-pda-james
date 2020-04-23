@@ -1,3 +1,4 @@
+/* eslint-disable */
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
@@ -27,7 +28,7 @@ module.exports = {
   // collectCoverageFrom: undefined,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "coverage",
+  coverageDirectory: "./docs/test-coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
@@ -43,13 +44,14 @@ module.exports = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
+  // coverageThreshold: undefined,
 
   coverageThreshold: {
     "global": {
       "branches": 50,
       "functions": 50,
       "lines": 50,
-      "statements": 50
+      "statements": 50,
     },
   },
   // A path to a custom dependency extractor
@@ -71,7 +73,7 @@ module.exports = {
   // globals: {},
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
-  // maxWorkers: 8,
+  // maxWorkers: "50%",
 
   // An array of directory names to be searched recursively up from the requiring module's location
   // moduleDirectories: [
@@ -189,18 +191,19 @@ module.exports = {
 
   // Indicates whether each individual test should be reported during the run
   // fix: to have console logs in jest tests
-  verbose: false,
+  verbose: true,
   collectCoverage: true,
   collectCoverageFrom: [
     "**/*.js", "!**.test.js",
   ],
   coveragePathIgnorePatterns: [
     "/node_modules/",
-    "/coverage/",
+    "/docs/test-coverage/",
+    "/docs/coverage/",
     "/jest.config.js",
     "__fixtures__",
-    "/validation/",
-    "/app/services/__mocks__/",
+    "__mocks__",
+    "./index.js",
   ],
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
