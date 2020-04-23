@@ -23,6 +23,7 @@ In order to have consistent code style, this project will feature a `.eslintrc.j
 2. Use `npm run start-dev` to start the npm project
 
 ## Testing
+**The most recent testing coverage summary can be found in `./docs/test-coverage/lcov-report/index.html`**  
 1. Run command `npm run test`
 
 # Helpful Links
