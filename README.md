@@ -1,4 +1,5 @@
 # James. A Personal Digital Assistant.
+by Bengin Cetindere, Stefan Goldschmidt, Erik Littwin, Oliver Rudzinski, and Melanie Stach
 
 ## Setup
 Please read each step entirely before starting to execute the step - may save you time.
