@@ -23,7 +23,7 @@
     "moment": "^2.24.0",
     "mongodb": "^3.2.7",
     "node-cron": "^2.0.3",
-    "nodemailer": "^6.4.4",
+    "nodemailer": "^6.4.16",
     "open": "^7.0.2",
     "server-destroy": "^1.0.1",
     "telegraf": "^3.36.0",
