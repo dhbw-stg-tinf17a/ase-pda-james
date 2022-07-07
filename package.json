@@ -20,7 +20,7 @@
     "googleapis": "^39.2.0",
     "html-to-text": "^5.1.1",
     "ibm-watson": "^5.4.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "mongodb": "^3.2.7",
     "node-cron": "^2.0.3",
     "nodemailer": "^6.4.4",
